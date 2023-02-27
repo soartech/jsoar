@@ -5,7 +5,26 @@
  */
 package org.jsoar.debugger;
 
-import com.google.common.collect.ForwardingList;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.prefs.Preferences;
+
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
+import javax.swing.text.DefaultStyledDocument;
+
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
@@ -22,24 +41,15 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
-import javax.swing.text.DefaultStyledDocument;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.prefs.Preferences;
+import com.google.common.collect.ForwardingList;
 
 /**
  * @author ray
  */
 public class ProductionEditView extends AbstractAdaptableView implements Disposable
 {
-    private static final Logger logger = LoggerFactory.getLogger(ProductionEditView.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(ProductionEditView.class);
+    
     private static final String DEFAULT_CONTENTS = "Double-click a production (or right-click) to edit, or just start typing.";
     private static final String LAST_CONTENT_KEY = "lastContent";
     
@@ -48,36 +58,40 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
     private final DefaultStyledDocument styledDocument = new DefaultStyledDocument();
     private final JTextPane textArea = new JTextPane(styledDocument);
     private final JXLabel status = new JXLabel("Ready");
-    private final AbstractAction loadAction = new AbstractAction("Load [Ctrl-Return]") {
-
+    private final AbstractAction loadAction = new AbstractAction("Load [Ctrl-Return]")
+    {
+        
         private static final long serialVersionUID = -199488933120052983L;
-
+        
         @Override
         public void actionPerformed(ActionEvent arg0)
         {
             load();
-        }};
-
+        }
+    };
+    
     /**
      * Wrapper list that forwards to the production model in the list view.
      * This is the list we use for auto-complete.
      * 
      * TODO: There are probably some synchronization issues here.
      */
-    private final ForwardingList<Production> productions = new ForwardingList<Production>() {
-
+    private final ForwardingList<Production> productions = new ForwardingList<>()
+    {
+        
         @Override
         protected List<Production> delegate()
         {
             ProductionTableModel model = Adaptables.adapt(debugger, ProductionTableModel.class);
             if(model == null)
             {
-                return new ArrayList<Production>();
+                return new ArrayList<>();
             }
             return model.getProductions();
-        }};
+        }
+    };
     private final Highlighter highlighter;
-
+    
     public ProductionEditView(JSoarDebugger debugger)
     {
         super("productionEditor", "Production Editor");
@@ -103,13 +117,15 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         // Set up auto completion...
         // TODO: get new swingx with fix for exception on double-click:
         // https://swingx.dev.java.net/issues/show_bug.cgi?id=943
-        AutoCompleteDecorator.decorate(productionField, productions, true, new ObjectToStringConverter() {
-
+        AutoCompleteDecorator.decorate(productionField, productions, true, new ObjectToStringConverter()
+        {
+            
             @Override
             public String getPreferredStringForItem(Object o)
             {
                 return o != null ? ((Production) o).getName() : null;
-            }});
+            }
+        });
         
         p.add(north, BorderLayout.NORTH);
         
@@ -163,7 +179,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         {
             textArea.setText(result);
             status.setText(result.length() != 0 ? "Editing production '" + name + "'" : "No production '" + name + "'");
-            //highlighter.formatText(textArea);
+            // highlighter.formatText(textArea);
         };
         setVisible(true);
         toFront();
@@ -186,14 +202,15 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
                 agent.getPrinter().flush();
                 return "Loaded";
             }
-            catch (SoarException e)
+            catch(SoarException e)
             {
-                logger.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 return "ERROR: " + e.getMessage();
             }
         };
-        final CompletionHandler<String> finish = new CompletionHandler<String>() {
-
+        final CompletionHandler<String> finish = new CompletionHandler<>()
+        {
+            
             @Override
             public void finish(String result)
             {
@@ -202,8 +219,10 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         };
         agent.execute(call, SwingCompletionHandler.newInstance(finish));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Disposable#dispose()
      */
     @Override
@@ -212,9 +231,9 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         final String contents = textArea.getText();
         if(!contents.equals(DEFAULT_CONTENTS))
         {
-            if( contents.length() > Preferences.MAX_VALUE_LENGTH)
+            if(contents.length() > Preferences.MAX_VALUE_LENGTH)
             {
-                logger.warn("The contents of the {} are too long to be saved", this.getTitleText());
+                LOG.warn("The contents of the {} are too long to be saved", this.getTitleText());
             }
             else
             {
@@ -222,6 +241,5 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             }
         }
     }
-    
     
 }

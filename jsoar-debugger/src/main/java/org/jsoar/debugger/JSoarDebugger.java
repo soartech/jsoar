@@ -109,34 +109,34 @@ import bibliothek.util.xml.XIO;
 public class JSoarDebugger extends JPanel implements Adaptable
 {
     private static final long serialVersionUID = 7997119112479665988L;
-
-    private static final Logger logger = LoggerFactory.getLogger(JSoarDebugger.class);
-
-    private static final ResourceBundle resources = ResourceBundle.getBundle("jsoar");
+    
+    private static final Logger LOG = LoggerFactory.getLogger(JSoarDebugger.class);
+    
+    private static final ResourceBundle RESOURCES = ResourceBundle.getBundle("jsoar");
     private static Preferences PREFERENCES;
     private static final PropertyKey<JSoarDebugger> CREATED_BY = PropertyKey.builder("JSoarDebugger.createdBy", JSoarDebugger.class).readonly(true).build();
-
-    private static final Map<ThreadedAgent, JSoarDebugger> debuggers = Collections.synchronizedMap(new HashMap<ThreadedAgent, JSoarDebugger>());
-
+    
+    private static final Map<ThreadedAgent, JSoarDebugger> DEBUGGERS = Collections.synchronizedMap(new HashMap<ThreadedAgent, JSoarDebugger>());
+    
     private final SelectionManager selectionManager = new SelectionManager();
     private final ActionManager actionManager = new ActionManager(this);
     private final RunControlModel runControlModel = new RunControlModel();
-
-    private Map<String, Object> providerProperties = new HashMap<String, Object>();
+    
+    private Map<String, Object> providerProperties = new HashMap<>();
     private boolean resetPreferencesAtExit = false;
-
+    
     private ThreadedAgent agent;
     private final LoadPluginCommand loadPluginCommand = new LoadPluginCommand(this);
-    private final List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<JSoarDebuggerPlugin>();
-
+    private final List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<>();
+    
     public JFrame frame;
     private CControl docking;
     private StatusBar status;
-
+    
     private final List<CDockable> views = new ArrayList<>();
-
-    private final List<SoarEventListener> soarEventListeners = new ArrayList<SoarEventListener>();
-    private final List<PropertyListenerHandle<?>> propertyListeners = new ArrayList<PropertyListenerHandle<?>>();
+    
+    private final List<SoarEventListener> soarEventListeners = new ArrayList<>();
+    private final List<PropertyListenerHandle<?>> propertyListeners = new ArrayList<>();
     private static float fontScale = 1.0f;
     private StopCommandViewFactory factory;
     
@@ -146,15 +146,15 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private JSoarDebugger(Map<String, Object> properties)
     {
         super(new BorderLayout());
-
-
+        
         this.providerProperties.putAll(properties);
     }
-
-    public static float getFontScale() {
+    
+    public static float getFontScale()
+    {
         return fontScale;
     }
-
+    
     /**
      * Initialize the debugger
      *
@@ -163,16 +163,20 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     private void initialize(final JXFrame parentFrame, ThreadedAgent proxy)
     {
-        logger.info("Initializing debugger for agent '" + proxy + "'");
+        LOG.info("Initializing debugger for agent '{}'", proxy);
         final float scaleUpFactor = 4.0f / 3.0f;
         final float scaleDownFactor = .75f;
         parentFrame.addMouseWheelListener(e ->
         {
-            if (e.isControlDown()){
+            if(e.isControlDown())
+            {
                 float scaleFactor = 1.0f;
-                if (e.getWheelRotation() < 0) {
+                if(e.getWheelRotation() < 0)
+                {
                     scaleFactor = scaleUpFactor;
-                } else if (e.getWheelRotation() > 0) {
+                }
+                else if(e.getWheelRotation() > 0)
+                {
                     scaleFactor = scaleDownFactor;
                 }
                 fontScale = fontScale * scaleFactor;
@@ -181,50 +185,59 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 parentFrame.repaint();
             }
         });
-
+        
         parentFrame.addKeyListener(new KeyAdapter()
         {
             @Override
             public void keyPressed(KeyEvent e)
             {
-                if (e.isControlDown()) {
+                if(e.isControlDown())
+                {
                     float scaleFactor = 1.0f;
-                    if (e.getKeyCode() == KeyEvent.VK_PLUS || e.getKeyCode() == KeyEvent.VK_EQUALS){
+                    if(e.getKeyCode() == KeyEvent.VK_PLUS || e.getKeyCode() == KeyEvent.VK_EQUALS)
+                    {
                         scaleFactor = scaleUpFactor;
-                    } else if (e.getKeyCode() == KeyEvent.VK_MINUS){
+                    }
+                    else if(e.getKeyCode() == KeyEvent.VK_MINUS)
+                    {
                         scaleFactor = scaleDownFactor;
-                    } else {
+                    }
+                    else
+                    {
                         super.keyPressed(e);
                     }
                     fontScale = fontScale * scaleFactor;
                     setFontScale(scaleFactor, parentFrame.getComponents());
                     SwingTools.setFontScale(scaleFactor);
                     parentFrame.repaint();
-                } else {
+                }
+                else
+                {
                     super.keyPressed(e);
                 }
             }
         });
-
+        
         this.frame = parentFrame;
         this.frame.setTitle("JSoar Debugger - " + proxy.getName());
-
+        
         this.agent = proxy;
         proxy.getInterpreter().addCommand("load-plugin", loadPluginCommand);
         proxy.getInterpreter().addCommand("edit-production", new EditProductionCommand(agent.getAgent()));
         agent.getAgent().getRhsFunctions().registerHandler(new AcceptRhsFunction());
-
+        
         this.docking = new CControl(this.frame);
         this.docking.setTheme(ThemeMap.KEY_ECLIPSE_THEME);
-
+        
         // Track selection to active view
-        this.docking.addFocusListener(new CFocusListener() {
-
+        this.docking.addFocusListener(new CFocusListener()
+        {
+            
             @Override
             public void focusLost(CDockable dockable)
             {
             }
-
+            
             @Override
             public void focusGained(final CDockable newDockable)
             {
@@ -233,7 +246,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 {
                     selectionManager.setSelectionProvider(provider);
                 }
-
+                
                 // HACK: For some reason the WM tree briefly gets focus which messes this
                 // up when using a hotkey to switch to the trace view. So invoke later
                 // after everything settles down.
@@ -247,57 +260,60 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
         });
         this.add(docking.getContentArea(), BorderLayout.CENTER);
-
+        
         initActions();
-
+        
         this.add(status = new StatusBar(proxy), BorderLayout.SOUTH);
-
+        
         factory = new StopCommandViewFactory(this);
         factory.setDefaultLocation(docking.getDefaultLocation());
-
+        
         docking.addMultipleDockableFactory("stop-command-factory", factory);
         initViews();
         initMenuBar();
         initToolbar();
-
-
-
+        
         // Track the agent name in the title bar
-        saveListener(proxy.getProperties().addListener(SoarProperties.NAME, new PropertyListener<String>() {
-
+        saveListener(proxy.getProperties().addListener(SoarProperties.NAME, new PropertyListener<String>()
+        {
+            
             @Override
             public void propertyChanged(PropertyChangeEvent<String> event)
             {
                 frame.setTitle("JSoar Debugger - " + event.getNewValue());
-            }}));
-
+            }
+        }));
+        
         // Track agent's running state
-        saveListener(proxy.getProperties().addListener(SoarProperties.IS_RUNNING, new PropertyListener<Boolean>() {
-
+        saveListener(proxy.getProperties().addListener(SoarProperties.IS_RUNNING, new PropertyListener<Boolean>()
+        {
+            
             @Override
             public void propertyChanged(PropertyChangeEvent<Boolean> event)
             {
                 updateActionsAndStatus();
-            }}));
-
+            }
+        }));
+        
         // Update after init-soar
         proxy.getEvents().addListener(AfterInitSoarEvent.class, saveListener(event ->
         {
             proxy.getPrinter().flush();
             newUpdateCompleter(true).finish(null);
         }));
-
+        
         // Update when the agent stops running
         proxy.getEvents().addListener(StopEvent.class, saveListener(event ->
         {
             proxy.getPrinter().flush();
             newUpdateCompleter(false).finish(null);
         }));
-
+        
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-        frame.addWindowListener(new WindowAdapter() {
-
+        
+        frame.addWindowListener(new WindowAdapter()
+        {
+            
             @Override
             public void windowClosing(WindowEvent e)
             {
@@ -310,17 +326,18 @@ public class JSoarDebugger extends JPanel implements Adaptable
                     winPrefs.putInt("width", r.width);
                     winPrefs.putInt("height", r.height);
                 }
-
+                
                 exit();
-            }});
-
+            }
+        });
+        
         final Preferences winPrefs = getWindowPrefs();
         if(winPrefs.get("x", null) != null)
         {
             frame.setBounds(winPrefs.getInt("x", 0),
-                            winPrefs.getInt("y", 0),
-                            winPrefs.getInt("width", 1200),
-                            winPrefs.getInt("height", 1024));
+                    winPrefs.getInt("y", 0),
+                    winPrefs.getInt("width", 1200),
+                    winPrefs.getInt("height", 1024));
         }
         else
         {
@@ -328,62 +345,56 @@ public class JSoarDebugger extends JPanel implements Adaptable
             frame.setLocationRelativeTo(null); // center
         }
         readDefaultLayout();
-
+        
         update(false);
     }
-
+    
     public static void setFontScale(float scaleFactor, Component[] components)
     {
-//        SwingTools.setFontScale(scaleFactor);
-
-        for(Component c: components){
-            if (c instanceof  Container){
-                setFontScale(scaleFactor,((Container) c).getComponents());
+        // SwingTools.setFontScale(scaleFactor);
+        
+        for(Component c : components)
+        {
+            if(c instanceof Container)
+            {
+                setFontScale(scaleFactor, ((Container) c).getComponents());
             }
-            c.setFont(c.getFont().deriveFont(c.getFont().getSize()*scaleFactor));
+            c.setFont(c.getFont().deriveFont(c.getFont().getSize() * scaleFactor));
         }
     }
-
+    
     private void readDefaultLayout()
     {
-        try
+        try(InputStream in = JSoarDebugger.class.getResourceAsStream("layout.xml"))
         {
-            final InputStream in = JSoarDebugger.class.getResourceAsStream("layout.xml");
             if(in != null)
             {
-                try
-                {
-                    final XElement xml = XIO.readUTF(in);
-                    this.docking.readXML(xml);
-                }
-                finally
-                {
-                    in.close();
-                }
+                final XElement xml = XIO.readUTF(in);
+                this.docking.readXML(xml);
             }
         }
-        catch (IOException e)
+        catch(IOException e)
         {
-            logger.error("Failed to load default debugger layout: " + e.getMessage(), e);
+            LOG.error("Failed to load default debugger layout: " + e.getMessage(), e);
         }
     }
-
+    
     private Preferences getWindowPrefs()
     {
         return getPreferences().node("window");
     }
-
+    
     private <T> void saveListener(PropertyListenerHandle<T> listener)
     {
         propertyListeners.add(listener);
     }
-
+    
     private SoarEventListener saveListener(SoarEventListener listener)
     {
         soarEventListeners.add(listener);
         return listener;
     }
-
+    
     private void initViews()
     {
         addView(new ProductionEditView(this));
@@ -397,14 +408,14 @@ public class JSoarDebugger extends JPanel implements Adaptable
         addView(new GoalStackView(this));
         addView(new GdsView(this));
         addView(new WorkingMemoryView(this));
-
-
-
+        
     }
+    
     private <T extends MultipleCDockable> T addView(T view)
     {
         return addView(view, true);
     }
+    
     private <T extends MultipleCDockable> T addView(T view, boolean visible)
     {
         views.add(view);
@@ -415,11 +426,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
         return view;
     }
-
+    
     private <T extends AbstractAdaptableView> T addView(T view)
     {
         return addView(view, true);
     }
+    
     private <T extends AbstractAdaptableView> T addView(T view, boolean visible)
     {
         views.add(view);
@@ -430,27 +442,27 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
         return view;
     }
-
+    
     public ThreadedAgent getAgent()
     {
         return agent;
     }
-
+    
     public SelectionManager getSelectionManager()
     {
         return selectionManager;
     }
-
+    
     public RunControlModel getRunControlModel()
     {
         return runControlModel;
     }
-
+    
     public ActionManager getActionManager()
     {
         return actionManager;
     }
-
+    
     public void updateActionsAndStatus()
     {
         if(SwingUtilities.isEventDispatchThread())
@@ -463,12 +475,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
             SwingUtilities.invokeLater(this::updateActionsAndStatus);
         }
     }
-
+    
     void addPlugin(JSoarDebuggerPlugin plugin)
     {
         plugins.add(plugin);
     }
-
+    
     public void exit()
     {
         detach();
@@ -478,43 +490,51 @@ public class JSoarDebugger extends JPanel implements Adaptable
             {
                 getPreferences().removeNode();
             }
-            catch (BackingStoreException e)
+            catch(BackingStoreException e)
             {
-                logger.error(e.getMessage(), e);
+                LOG.error("Error removing node from preferences", e);
             }
-            try {
+            try
+            {
                 Prefs.getLayoutFile().deleteOnExit();
-            } catch (IOException e) {
-                e.printStackTrace();
+            }
+            catch(IOException e)
+            {
+                LOG.error("Error getting layout file", e);
             }
         }
-
+        
         final Object closeAction = providerProperties.get(DebuggerProvider.CLOSE_ACTION);
         if(closeAction == null || closeAction == CloseAction.EXIT)
         {
             System.exit(0);
         }
     }
-
-    public static Preferences getPreferences() {
-        if (PREFERENCES == null) {
+    
+    public static Preferences getPreferences()
+    {
+        if(PREFERENCES == null)
+        {
             System.setProperty("java.util.prefs.PreferencesFactory", PrefsFactory.class.getName());
-
+            
             PREFERENCES = Preferences.userRoot().node("org/jsoar/debugger");
         }
         return PREFERENCES;
     }
-
+    
     public void restoreLayout()
     {
-        try {
+        try
+        {
             docking.readXML(Prefs.getLayoutFile());
-        } catch (IOException e) {
-            e.printStackTrace();
+        }
+        catch(IOException e)
+        {
+            LOG.error("Error reading XML", e);
         }
         // TODO: Implement layout storage in a way that doesn't suck.
     }
-
+    
     private void initActions()
     {
         new ExitAction(actionManager);
@@ -531,47 +551,48 @@ public class JSoarDebugger extends JPanel implements Adaptable
         new MatchesProductionAction(actionManager, false);
         new MatchesProductionAction(actionManager, true);
     }
-
+    
     @SuppressWarnings("serial")
     private void initMenuBar()
     {
         final JMenuBar bar = new JMenuBar();
-
+        
         final JMenu fileMenu = new JMenu("File");
         fileMenu.add(actionManager.getAction(SourceFileAction.class));
         fileMenu.addSeparator();
-        fileMenu.add(new AbstractAction("Reset preferences ...") {
-
+        fileMenu.add(new AbstractAction("Reset preferences ...")
+        {
+            
             private static final long serialVersionUID = -294498142478298760L;
-
+            
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 resetPreferencesAtExit = true;
                 JOptionPane.showMessageDialog(frame, "Preferences will be reset next time the debugger is loaded.");
-            }});
+            }
+        });
         fileMenu.addSeparator();
         fileMenu.add(actionManager.getAction(ExitAction.class));
-
+        
         bar.add(fileMenu);
-
-        final RootMenuPiece viewMenu = new RootMenuPiece( "View", false );
-
+        
+        final RootMenuPiece viewMenu = new RootMenuPiece("View", false);
+        
         // L&F is cute, but for some reason, switching L&F breaks the trace command box
         // viewMenu.add(new SubmenuPiece( "Look and feel", true, new CLookAndFeelMenuPiece( docking )));
         viewMenu.getMenu().addSeparator();
         viewMenu.getMenu().add(actionManager.getAction(StopCommandAction.class));
-
+        
         viewMenu.add(new SeparatingMenuPiece(
-                new SubmenuPiece( "Theme", true, new CThemeMenuPiece( docking )),
+                new SubmenuPiece("Theme", true, new CThemeMenuPiece(docking)),
                 true, true, false));
-
+        
         final SubmenuPiece layoutMenu = new SubmenuPiece("Layout", false,
-                new CLayoutChoiceMenuPiece( docking, false ));
+                new CLayoutChoiceMenuPiece(docking, false));
         layoutMenu.getMenu().add(actionManager.getAction(RestoreLayoutAction.class));
         viewMenu.add(layoutMenu);
-
-
+        
         viewMenu.getMenu().add(new AbstractAction("Save Layout to File")
         {
             @Override
@@ -581,10 +602,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 {
                     docking.writeXML(Prefs.getLayoutFile());
                 }
-                catch (IOException e1)
+                catch(IOException ex)
                 {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                    LOG.error("Error writing XML", ex);
                 }
             }
         });
@@ -593,30 +613,32 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         JCheckBoxMenuItem autoCompletionsMenuItem = new JCheckBoxMenuItem("Automatically Show Command Completions", isAutoCompletionsEnabled());
         viewMenu.getMenu().add(autoCompletionsMenuItem);
-        autoCompletionsMenuItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
+        autoCompletionsMenuItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
                 AbstractButton aButton = (AbstractButton) event.getSource();
                 boolean selected = aButton.getModel().isSelected();
                 getPreferences().put("autoShowCommandCompletions", String.valueOf(selected));
-            }  
+            }
         });
-        
         
         JCheckBoxMenuItem autoHelpMenuItem = new JCheckBoxMenuItem("Automatically Show Command Help", isAutoHelpEnabled());
         viewMenu.getMenu().add(autoHelpMenuItem);
-        autoHelpMenuItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
+        autoHelpMenuItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
                 AbstractButton aButton = (AbstractButton) event.getSource();
                 boolean selected = aButton.getModel().isSelected();
                 getPreferences().put("autoShowHelp", String.valueOf(selected));
-            }  
+            }
         });
         
-        new ViewSelectionMenu( docking, viewMenu.getMenu());
-
-
+        new ViewSelectionMenu(docking, viewMenu.getMenu());
+        
         bar.add(viewMenu.getMenu());
-
+        
         final JMenu runMenu = new JMenu("Run");
         runMenu.add(actionManager.getAction(RunAction.class));
         runMenu.add(actionManager.getAction(StopAction.class));
@@ -628,64 +650,69 @@ public class JSoarDebugger extends JPanel implements Adaptable
         runMenu.addSeparator();
         runMenu.add(actionManager.getAction(InitSoarAction.class));
         bar.add(runMenu);
-
+        
         final JMenu toolsMenu = new JMenu("Tools");
         toolsMenu.add(new GarbageCollectorAction(actionManager));
         bar.add(toolsMenu);
-
+        
         final JMenu helpMenu = new JMenu("Help");
-        helpMenu.add(new UrlAction(actionManager, "JSoar Home Page", resources.getString("jsoar.site.url")));
-        helpMenu.add(new UrlAction(actionManager, "CSoar Home Page", resources.getString("csoar.site.url")));
-        helpMenu.add(new AbstractAction("Command Help") {
-
+        helpMenu.add(new UrlAction(actionManager, "JSoar Home Page", RESOURCES.getString("jsoar.site.url")));
+        helpMenu.add(new UrlAction(actionManager, "CSoar Home Page", RESOURCES.getString("csoar.site.url")));
+        helpMenu.add(new AbstractAction("Command Help")
+        {
+            
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Callable<Void> callable = () -> {
+                Callable<Void> callable = () ->
+                {
                     SoarCommand cmd = getAgent().getInterpreter().getCommand("help", null);
-                    cmd.execute(null, new String[] {"help"});
+                    cmd.execute(null, new String[] { "help" });
                     getAgent().getPrinter().flush();
                     return null;
                 };
-                getAgent().execute(callable , null);
+                getAgent().execute(callable, null);
                 
-            }});
+            }
+        });
         helpMenu.add(new UrlAction(actionManager, "Quick Help", JSoarDebugger.class.getResource("/org/jsoar/debugger/jsoar quick help.html").toString()));
         helpMenu.addSeparator();
         helpMenu.add(actionManager.getAction(AboutAction.class));
         bar.add(helpMenu);
-
+        
         frame.setJMenuBar(bar);
     }
-
+    
     private void initToolbar()
     {
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
-
+        
         bar.add(new RunControlPanel(this));
         add(bar, BorderLayout.NORTH);
     }
-
+    
     public void update(final boolean afterInitSoar)
     {
         updateActionsAndStatus();
-
+        
         final List<Refreshable> refreshables = Adaptables.adaptCollection(views, Refreshable.class);
         for(Refreshable r : refreshables)
         {
             r.refresh(afterInitSoar);
         }
     }
-
+    
     /**
      * Executes the CompletionHandler on the Swing thread. Do not do any agent interaction in here!
+     * 
      * @param afterInitSoar True if calling this in response to Soar being (re)initialized
      */
     public CompletionHandler<Void> newUpdateCompleter(final boolean afterInitSoar)
     {
-        return SwingCompletionHandler.newInstance( new CompletionHandler<Void>() {
-
+        return SwingCompletionHandler.newInstance(new CompletionHandler<Void>()
+        {
+            
             @Override
             public void finish(Void result)
             {
@@ -693,16 +720,16 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
         });
     }
-
+    
     public static void main(final String[] args)
     {
         SwingTools.initializeLookAndFeel();
-        float scale = Float.parseFloat(System.getProperty("fontScale","1.0"));
+        float scale = Float.parseFloat(System.getProperty("fontScale", "1.0"));
         SwingTools.setFontScale(scale);
         fontScale = scale;
         SwingUtilities.invokeLater(() -> initialize(args));
     }
-
+    
     /**
      * Attach a new debugger window to the given threaded agent. This function
      * <b>must</b> be called from the Swing event thread!
@@ -712,24 +739,24 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public static JSoarDebugger attach(ThreadedAgent proxy, Map<String, Object> properties)
     {
-        synchronized(debuggers)
+        synchronized (DEBUGGERS)
         {
-            JSoarDebugger debugger = debuggers.get(proxy);
+            JSoarDebugger debugger = DEBUGGERS.get(proxy);
             if(debugger == null)
             {
-                //DockingManager.setFloatingEnabled(true);
-
+                // DockingManager.setFloatingEnabled(true);
+                
                 debugger = new JSoarDebugger(properties);
-
+                
                 final JXFrame frame = new JXFrame();
-
+                
                 frame.setContentPane(debugger);
-
+                
                 debugger.initialize(frame, proxy);
-
+                
                 frame.setVisible(true);
-
-                debuggers.put(proxy, debugger);
+                
+                DEBUGGERS.put(proxy, debugger);
                 proxy.getEvents().addListener(ThreadedAgentDetachedEvent.class, new ThreadedAgentDetachedEventListener());
             }
             else
@@ -743,15 +770,17 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private static class ThreadedAgentDetachedEventListener implements SoarEventListener
     {
-
+        
         @Override
         public void onEvent(SoarEvent event)
         {
-            if(event instanceof ThreadedAgentDetachedEvent) {
-                ThreadedAgentDetachedEvent threadedAgentDetachedEvent = (ThreadedAgentDetachedEvent)event;
+            if(event instanceof ThreadedAgentDetachedEvent)
+            {
+                ThreadedAgentDetachedEvent threadedAgentDetachedEvent = (ThreadedAgentDetachedEvent) event;
                 ThreadedAgent agent = threadedAgentDetachedEvent.getAgent();
-                JSoarDebugger debugger = JSoarDebugger.debuggers.get(agent);
-                if(debugger != null) {
+                JSoarDebugger debugger = JSoarDebugger.DEBUGGERS.get(agent);
+                if(debugger != null)
+                {
                     debugger.exit();
                 }
                 
@@ -761,21 +790,26 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
         
     }
-
-    public static void exit(ThreadedAgent proxy) {
-        synchronized(debuggers)
+    
+    public static void exit(ThreadedAgent proxy)
+    {
+        synchronized (DEBUGGERS)
         {
-            JSoarDebugger debugger = debuggers.get(proxy);
-            if(debugger != null) {
+            JSoarDebugger debugger = DEBUGGERS.get(proxy);
+            if(debugger != null)
+            {
                 debugger.exit();
-            } else {
-                logger.warn("Tried to close debugger for agent {}, but no debugger is open.", proxy.getName());
+            }
+            else
+            {
+                LOG.warn("Tried to close debugger for agent {}, but no debugger is open.", proxy.getName());
             }
         }
     }
     
-    public static JSoarDebugger getDebugger(ThreadedAgent proxy) {
-        return debuggers.get(proxy);
+    public static JSoarDebugger getDebugger(ThreadedAgent proxy)
+    {
+        return DEBUGGERS.get(proxy);
     }
     
     /**
@@ -783,23 +817,23 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public void detach()
     {
-        synchronized(debuggers)
+        synchronized (DEBUGGERS)
         {
-            logger.info(String.format("Detaching from agent '" + agent + "'"));
-
+            LOG.info(String.format("Detaching from agent '{}'", agent));
+            
             // clean up soar prop listeners
             for(PropertyListenerHandle<?> listener : propertyListeners)
             {
                 listener.removeListener();
             }
-
+            
             // clean up soar event listener
             for(SoarEventListener listener : soarEventListeners)
             {
                 agent.getEvents().removeListener(null, listener);
             }
             soarEventListeners.clear();
-
+            
             // clean up disposables
             runControlModel.dispose();
             for(Disposable d : Adaptables.adaptCollection(views, Disposable.class))
@@ -807,21 +841,20 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 d.dispose();
             }
             views.clear();
-
-
+            
             if(frame.isVisible())
             {
                 frame.setVisible(false);
             }
-
+            
             for(JSoarDebuggerPlugin plugin : plugins)
             {
                 plugin.shutdown();
             }
             plugins.clear();
-
-            debuggers.remove(agent);
-
+            
+            DEBUGGERS.remove(agent);
+            
             // If the agent was created by this debugger, dispose it. This is important
             // so things like SMEM database will be flushed at shutdown.
             if(shouldDisposeAgent())
@@ -830,14 +863,13 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
         }
     }
-
+    
     private boolean shouldDisposeAgent()
     {
         return this == agent.getProperties().get(CREATED_BY) ||
-               EnumSet.of(CloseAction.EXIT, CloseAction.DISPOSE).
-                   contains((CloseAction) providerProperties.get(DebuggerProvider.CLOSE_ACTION)) ;
+                EnumSet.of(CloseAction.EXIT, CloseAction.DISPOSE).contains(providerProperties.get(DebuggerProvider.CLOSE_ACTION));
     }
-
+    
     /**
      * This is identical to {@link #main(String[])}, but it must be called from
      * the Swing event thread. Also the look and feel must be initialized prior
@@ -856,14 +888,14 @@ public class JSoarDebugger extends JPanel implements Adaptable
             {
                 return debugger;
             }
-
+            
             @Override
             public JSoarDebugger set(JSoarDebugger value)
             {
                 throw new UnsupportedOperationException("Can't set " + CREATED_BY);
             }
         });
-
+        
         debugger.agent.execute(() ->
         {
             for(String arg : args)
@@ -872,9 +904,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 {
                     SoarCommands.source(debugger.getAgent().getInterpreter(), arg);
                 }
-                catch (SoarException e)
+                catch(SoarException e)
                 {
-                    logger.error("Error sourcing file '" + arg + "': " + e.getMessage(), e);
+                    LOG.error("Error sourcing file '" + arg + "': " + e.getMessage(), e);
                     debugger.getAgent().getPrinter().error("Error sourcing file '%s': %s", arg, e.getMessage());
                 }
             }
@@ -883,20 +915,22 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }, debugger.newUpdateCompleter(false));
         return debugger;
     }
-
+    
     /**
      * Creates and returns a {@link DebuggerProvider} that will open this
      * debugger when an agent calls the debug RHS function
      *
      * @return a new debugger provider that opens this debugger with a default
-     *      configuration
+     * configuration
      */
     public static DebuggerProvider newDebuggerProvider()
     {
         return newDebuggerProvider();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.adaptables.Adaptable#getAdapter(java.lang.Class)
      */
     @Override
@@ -933,25 +967,27 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
         return Adaptables.findAdapter(plugins, klass);
     }
-
+    
     @Override
     public String toString()
     {
         return frame.getTitle();
     }
-
+    
     public void addStopCommandView()
     {
         factory.setDefaultLocation(views.get(0).getBaseLocation());
         addView(new StopCommandView(factory, this));
-
+        
     }
     
-    public boolean isAutoCompletionsEnabled() {
+    public boolean isAutoCompletionsEnabled()
+    {
         return getPreferences().getBoolean("autoShowCommandCompletions", true);
     }
     
-    public boolean isAutoHelpEnabled() {
+    public boolean isAutoHelpEnabled()
+    {
         return getPreferences().getBoolean("autoShowHelp", true);
     }
 }

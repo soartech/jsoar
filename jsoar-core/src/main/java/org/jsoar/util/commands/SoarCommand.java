@@ -23,14 +23,15 @@ public interface SoarCommand
      * 
      * @param context the command execution context
      * @param args commands arguments. {@code args[0]} is the name of the command.
-     *  {@code args.length} will always be at least 1.
+     *     {@code args.length} will always be at least 1.
      * @return the result of the command
      * @throws SoarException
      */
     String execute(SoarCommandContext context, String[] args) throws SoarException;
-
+    
     /**
      * For the new picocli commands, return the annotated command Object, which will be used for autocomplete processing
+     * 
      * @return picocli annotated Object
      */
     Object getCommand();

@@ -11,9 +11,9 @@ package org.jsoar.kernel.rete;
 public enum ProductionAddResult
 {
     
-    NO_REFRACTED_INST,              /* no refracted inst. was given */
-    REFRACTED_INST_MATCHED,         /* there was a match for the inst. */
-    REFRACTED_INST_DID_NOT_MATCH,   /* there was no match for it */
-    DUPLICATE_PRODUCTION           /* the prod. was a duplicate */
-    
+    NO_REFRACTED_INST, /* no refracted inst. was given */
+    REFRACTED_INST_MATCHED, /* there was a match for the inst. */
+    REFRACTED_INST_DID_NOT_MATCH, /* there was no match for it */
+    DUPLICATE_PRODUCTION /* the prod. was a duplicate */
+
 }

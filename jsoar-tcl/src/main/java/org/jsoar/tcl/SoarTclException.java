@@ -15,7 +15,7 @@ import tcl.lang.Interp;
 public class SoarTclException extends SoarException
 {
     private static final long serialVersionUID = -8338120035464058863L;
-
+    
     public SoarTclException(Interp interp)
     {
         super(interp.getResult().toString());

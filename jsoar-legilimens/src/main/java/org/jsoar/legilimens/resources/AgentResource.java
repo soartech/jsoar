@@ -5,7 +5,6 @@
  */
 package org.jsoar.legilimens.resources;
 
-
 /**
  * @author ray
  */

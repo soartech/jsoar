@@ -5,51 +5,57 @@
  */
 package org.jsoar.kernel.symbols;
 
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
 
 import org.jsoar.util.ByRef;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class SymbolFactoryImplTest
+class SymbolFactoryImplTest
 {
     private SymbolFactoryImpl syms;
     
     /**
      * @throws java.lang.Exception
      */
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         syms = new SymbolFactoryImpl();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown() throws Exception
     {
         syms = null;
     }
     
     @Test
-    public void testMakeNewIdentifier()
+    void testMakeNewIdentifier()
     {
         IdentifierImpl s = syms.make_new_identifier('s', (short) 1);
         assertNotNull(s);
         assertEquals('S', s.getNameLetter());
         assertEquals(1, s.getNameNumber());
         assertEquals(1, s.level);
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
         
         // Make another id and make sure the id increments
@@ -58,57 +64,56 @@ public class SymbolFactoryImplTest
         assertEquals('S', s.getNameLetter());
         assertEquals(2, s.getNameNumber());
         assertEquals(4, s.level);
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
     }
-
+    
     @Test
-    public void testMakeFloatConstant()
+    void testMakeFloatConstant()
     {
         DoubleSymbolImpl s = syms.createDouble(3.14);
         assertNotNull(s);
         assertEquals(3.14, s.getValue(), 0.0001);
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findDouble(s.getValue()));
         assertSame(s, syms.createDouble(s.getValue()));
     }
-
+    
     @Test
-    public void testMakeIntConstant()
+    void testMakeIntConstant()
     {
         IntegerSymbolImpl s = syms.createInteger(99);
         assertNotNull(s);
         assertEquals(99, s.getValue());
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findInteger(s.getValue()));
         assertSame(s, syms.createInteger(s.getValue()));
     }
     
     @Test
-    public void testMakeLargeIntConstant()
+    void testMakeLargeIntConstant()
     {
         IntegerSymbolImpl s = syms.createInteger(999999999999L);
         assertNotNull(s);
         assertEquals(999999999999L, s.getValue());
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findInteger(s.getValue()));
         assertSame(s, syms.createInteger(s.getValue()));
     }
     
-    
     @Test
-    public void testMakeNewSymConstant()
+    void testMakeNewSymConstant()
     {
         StringSymbolImpl s = syms.createString("A sym constant");
         assertNotNull(s);
         assertEquals("A sym constant", s.getValue());
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findString(s.getValue()));
         assertSame(s, syms.createString(s.getValue()));
     }
     
     @Test
-    public void testGenerateNewSymConstant()
+    void testGenerateNewSymConstant()
     {
         StringSymbolImpl a0 = syms.createString("A0");
         StringSymbolImpl a1 = syms.createString("A1");
@@ -123,7 +128,7 @@ public class SymbolFactoryImplTest
     }
     
     @Test
-    public void testCreateJavaSymbol()
+    void testCreateJavaSymbol()
     {
         File f = new File(System.getProperty("user.dir"));
         JavaSymbol js = syms.findJavaSymbol(f);
@@ -134,7 +139,7 @@ public class SymbolFactoryImplTest
     }
     
     @Test
-    public void testNullJavaSymbol()
+    void testNullJavaSymbol()
     {
         JavaSymbol js = syms.findJavaSymbol(null);
         assertNotNull(js);
@@ -142,7 +147,7 @@ public class SymbolFactoryImplTest
     }
     
     @Test
-    public void testGarbageCollectedSymbolsAreRemovedFromCache()
+    void testGarbageCollectedSymbolsAreRemovedFromCache()
     {
         for(int i = 0; i < 1000; ++i)
         {
@@ -160,7 +165,7 @@ public class SymbolFactoryImplTest
     }
     
     @Test
-    public void testGetStringSymbols()
+    void testGetStringSymbols()
     {
         final StringSymbolImpl a = syms.createString("a");
         final StringSymbolImpl b = syms.createString("b");
@@ -173,7 +178,7 @@ public class SymbolFactoryImplTest
     }
     
     @Test
-    public void testGetIntegerSymbols()
+    void testGetIntegerSymbols()
     {
         final IntegerSymbolImpl a = syms.createInteger(2);
         final IntegerSymbolImpl b = syms.createInteger(3);
@@ -184,8 +189,9 @@ public class SymbolFactoryImplTest
         assertTrue(values.contains(a));
         assertTrue(values.contains(b));
     }
+    
     @Test
-    public void testGetDoubleSymbols()
+    void testGetDoubleSymbols()
     {
         final DoubleSymbolImpl a = syms.createDouble(2.2);
         final DoubleSymbolImpl b = syms.createDouble(3.3);
@@ -196,8 +202,9 @@ public class SymbolFactoryImplTest
         assertTrue(values.contains(a));
         assertTrue(values.contains(b));
     }
+    
     @Test
-    public void testGetVariableSymbols()
+    void testGetVariableSymbols()
     {
         final Variable a = syms.make_variable("a");
         final Variable b = syms.make_variable("b");
@@ -208,8 +215,9 @@ public class SymbolFactoryImplTest
         assertTrue(values.contains(a));
         assertTrue(values.contains(b));
     }
+    
     @Test
-    public void testGetJavaSymbols()
+    void testGetJavaSymbols()
     {
         final JavaSymbolImpl a = syms.createJavaSymbol(new File("hi"));
         final JavaSymbolImpl b = syms.createJavaSymbol(new File("bye"));
@@ -222,8 +230,9 @@ public class SymbolFactoryImplTest
         assertTrue(values.contains(b));
         assertTrue(values.contains(n));
     }
+    
     @Test
-    public void testGetIdentifierSymbols()
+    void testGetIdentifierSymbols()
     {
         final IdentifierImpl a = syms.createIdentifier('s');
         final IdentifierImpl b = syms.createIdentifier('i');
@@ -236,28 +245,28 @@ public class SymbolFactoryImplTest
     }
     
     @Test
-    public void testImportReturnsInputUnchangedIfItsAlreadyOwnedByFactory()
+    void testImportReturnsInputUnchangedIfItsAlreadyOwnedByFactory()
     {
         final IntegerSymbol s = syms.createInteger(99);
         assertSame(s, syms.importSymbol(s));
     }
     
-    @Test(expected=IllegalArgumentException.class)
-    public void testImportThrowsAnExceptionForIdentifiers()
+    @Test
+    void testImportThrowsAnExceptionForIdentifiers()
     {
         final Identifier id = syms.createIdentifier('T');
-        syms.importSymbol(id);
-    }
-    
-    @Test(expected=IllegalArgumentException.class)
-    public void testImportThrowsAnExceptionForVariables()
-    {
-        final Variable id = syms.make_variable("foo");
-        syms.importSymbol(id);
+        assertThrows(IllegalArgumentException.class, () -> syms.importSymbol(id));
     }
     
     @Test
-    public void testCanImportStringsAcrossFactories()
+    void testImportThrowsAnExceptionForVariables()
+    {
+        final Variable id = syms.make_variable("foo");
+        assertThrows(IllegalArgumentException.class, () -> syms.importSymbol(id));
+    }
+    
+    @Test
+    void testCanImportStringsAcrossFactories()
     {
         final SymbolFactory other = new SymbolFactoryImpl();
         final StringSymbol i = syms.createString("test");
@@ -267,7 +276,7 @@ public class SymbolFactoryImplTest
     }
     
     @Test
-    public void testCanImportIntegersAcrossFactories()
+    void testCanImportIntegersAcrossFactories()
     {
         final SymbolFactory other = new SymbolFactoryImpl();
         final IntegerSymbol i = syms.createInteger(12345);
@@ -277,7 +286,7 @@ public class SymbolFactoryImplTest
     }
     
     @Test
-    public void testCanImportDoublesAcrossFactories()
+    void testCanImportDoublesAcrossFactories()
     {
         final SymbolFactory other = new SymbolFactoryImpl();
         final DoubleSymbol i = syms.createDouble(12345.9);
@@ -287,7 +296,7 @@ public class SymbolFactoryImplTest
     }
     
     @Test
-    public void testCanImportJavaSymbolsAcrossFactories()
+    void testCanImportJavaSymbolsAcrossFactories()
     {
         final SymbolFactory other = new SymbolFactoryImpl();
         final JavaSymbol i = syms.createJavaSymbol(new File("."));

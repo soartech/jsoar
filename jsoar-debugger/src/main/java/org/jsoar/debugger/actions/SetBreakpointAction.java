@@ -18,7 +18,7 @@ import org.jsoar.util.adaptables.Adaptables;
 public class SetBreakpointAction extends AbstractDebuggerAction
 {
     private static final long serialVersionUID = -1460902354871319429L;
-
+    
     /**
      * @param manager the owning action manager
      */
@@ -28,8 +28,10 @@ public class SetBreakpointAction extends AbstractDebuggerAction
         
         setToolTip("Set breakpoint on production");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
@@ -42,8 +44,10 @@ public class SetBreakpointAction extends AbstractDebuggerAction
             setLabel(prods.get(0).isBreakpointEnabled() ? "Remove breakpoint" : "Add breakpoint");
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -57,5 +61,5 @@ public class SetBreakpointAction extends AbstractDebuggerAction
         prods.get(0).setBreakpointEnabled(!prods.get(0).isBreakpointEnabled());
         update();
     }
-
+    
 }

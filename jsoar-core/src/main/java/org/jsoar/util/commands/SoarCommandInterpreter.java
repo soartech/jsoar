@@ -52,12 +52,13 @@ public interface SoarCommandInterpreter
      * Fetches a command associated with this interpreter.
      * 
      * @param name the name of a command added with {@link #addCommand(String, SoarCommand)};
-     * @throws SoarException 
+     * @throws SoarException
      */
     SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException;
     
     /**
      * Gets the parsed command for a string, after alias resolution
+     * 
      * @param name
      * @param srcLoc
      */
@@ -82,12 +83,12 @@ public interface SoarCommandInterpreter
     String eval(String code) throws SoarException;
     
     /**
-     * Source the Soar code at the given file. 
+     * Source the Soar code at the given file.
      * 
-     * <p>If the file refers to a directory that is different from the current 
-     * directory, then the current directory is first changed and then the file 
+     * <p>If the file refers to a directory that is different from the current
+     * directory, then the current directory is first changed and then the file
      * is sourced. If the file is relative it is assumed to be relative to the
-     * interpreter's current directory. 
+     * interpreter's current directory.
      * 
      * @param file the file to source
      * @throws SoarException
@@ -111,12 +112,12 @@ public interface SoarCommandInterpreter
      * @see SoarCommands#source(SoarCommandInterpreter, Object)
      */
     void source(URL url) throws SoarException;
-
+    
     /**
      * Load the rete file at the given file.
      * 
-     * <p>If the file refers to a directory that is different from the current 
-     * directory, then the current directory is first changed and then the file 
+     * <p>If the file refers to a directory that is different from the current
+     * directory, then the current directory is first changed and then the file
      * is sourced. If the file is relative it is assumed to be relative to the
      * interpreter's current directory.
      * 
@@ -148,27 +149,31 @@ public interface SoarCommandInterpreter
      * Returns the current working directory of the interpreter (or null if not applicable).
      */
     String getWorkingDirectory();
-
+    
     /**
      * Get the autocomplete list for an incomplete command or a command with no CommandLine
+     * 
      * @param command
      */
-    String[] getCompletionList(String command, int cursorPosition);
-
+    String[] getCompletionList(String command);
+    
     /**
      * Return the autocomplete list for a command with a command line
+     * 
      * @param command
      */
     default CommandLine findCommand(String command)
     {
         command = command.trim();
-        if (!command.isEmpty()) {
+        if(!command.isEmpty())
+        {
             String[] parts = command.split(" ");
             ParsedCommand parsedCommand = null;
             // this will expand aliases if needed
             parsedCommand = getParsedCommand(parts[0], null);
             // then add the remaining arguments from the original string
-            if(parts.length > 1) {
+            if(parts.length > 1)
+            {
                 parsedCommand.getArgs().addAll(Arrays.asList(parts).subList(1, parts.length));
             }
             
@@ -177,18 +182,20 @@ public interface SoarCommandInterpreter
             {
                 cmd = getCommand(parsedCommand.getArgs().get(0), null);
             }
-            catch (SoarException e)
+            catch(SoarException e)
             {
                 // an exception here means the command isn't valid
                 return null;
             }
-            if (cmd != null && cmd.getCommand() != null) {
-                CommandLine commandLine = ((PicocliSoarCommand)cmd).commandLine;
+            if(cmd != null && cmd.getCommand() != null)
+            {
+                CommandLine commandLine = ((PicocliSoarCommand) cmd).commandLine;
                 
                 int part = 0;
                 List<String> args = parsedCommand.getArgs().subList(1, parsedCommand.getArgs().size());
                 
-                while (part < args.size() && commandLine.getSubcommands().containsKey(args.get(part))) {
+                while(part < args.size() && commandLine.getSubcommands().containsKey(args.get(part)))
+                {
                     commandLine = commandLine.getSubcommands().get(args.get(part));
                 }
                 return commandLine;
@@ -202,12 +209,12 @@ public interface SoarCommandInterpreter
      * This is not intended to report aliases or interpreter-specific commands (e.g., Tcl commands)
      */
     public List<String> getCommandStrings() throws SoarException;
-
+    
     /**
      * Returns the interpreter's SoarTclExceptionsManager
      * This is intended to be used by the language server to provide context/info
      * for "soft" exceptions that are caught and logged but not "reported" to IDEs
      */
     public SoarExceptionsManager getExceptionsManager();
-
+    
 }

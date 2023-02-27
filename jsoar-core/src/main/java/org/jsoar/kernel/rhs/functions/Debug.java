@@ -31,8 +31,10 @@ public class Debug extends StandaloneRhsFunctionHandler
         
         this.agent = agent;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -42,11 +44,11 @@ public class Debug extends StandaloneRhsFunctionHandler
         {
             agent.getDebuggerProvider().openDebugger(agent);
         }
-        catch (SoarException e)
+        catch(SoarException e)
         {
             throw new RhsFunctionException("debug RHS function failed to open debugger: " + e.getMessage(), e);
         }
         return null;
     }
-
+    
 }

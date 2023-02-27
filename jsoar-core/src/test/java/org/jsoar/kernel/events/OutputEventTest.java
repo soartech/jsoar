@@ -5,10 +5,13 @@
  */
 package org.jsoar.kernel.events;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.Agent;
@@ -17,54 +20,56 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import com.google.common.collect.Lists;
 
 /**
  * @author ray
  */
-public class OutputEventTest
+class OutputEventTest
 {
     private Agent agent;
-
-    @Before
-    public void setUp() throws Exception
+    
+    @BeforeEach
+    void setUp() throws Exception
     {
         agent = new Agent(getClass().getName());
     }
-
-    @After
-    public void tearDown() throws Exception
+    
+    @AfterEach
+    void tearDown() throws Exception
     {
         if(agent != null)
         {
             agent.dispose();
         }
     }
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.events.OutputEvent#getChanges()}.
      */
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testGetChanges() throws Exception
     {
-        //agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
+        // agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
         // Source test code with agent that adds/removes stuff from OL.
         agent.getInterpreter().source(getClass().getResource("OutputEventTest_testGetChanges.soar"));
         
         // Set up listener to cache changes during run
-        final List<List<OutputChange>> changes = new ArrayList<List<OutputChange>>();
-        final AtomicReference<Identifier> stuffId = new AtomicReference<Identifier>();
+        final List<List<OutputChange>> changes = new ArrayList<>();
+        final AtomicReference<Identifier> stuffId = new AtomicReference<>();
         agent.getEvents().addListener(OutputEvent.class, event ->
         {
             final OutputEvent oe = (OutputEvent) event;
             // Catch the id of the ^stuff attribute so we can use it in tests below.
             if(changes.size() == 0)
             {
-                stuffId.set(oe.getOutputValue(oe.getInputOutput().getOutputLink(), 
+                stuffId.set(oe.getOutputValue(oe.getInputOutput().getOutputLink(),
                         oe.getInputOutput().getSymbols().createString("stuff")).asIdentifier());
             }
             changes.add(Lists.newArrayList(oe.getChanges()));
@@ -74,77 +79,77 @@ public class OutputEventTest
         
         assertNotNull(stuffId.get());
         
-        // For each decision check that we got the additions and removals we expect. 
+        // For each decision check that we got the additions and removals we expect.
         // To know what to expect, run the agent and watch the trace. The agent prints
         // out adds and removes. Everything below is a copy of that trace output
         
         // Decision 1
-        validateChanges(changes.get(0), 
-            // additions
-            triples( agent.getInputOutput().getOutputLink(), "stuff", stuffId.get()),
-            // removals
-            triples());
+        validateChanges(changes.get(0),
+                // additions
+                triples(agent.getInputOutput().getOutputLink(), "stuff", stuffId.get()),
+                // removals
+                triples());
         
         // Decision 2
         validateChanges(changes.get(1),
-            // additions
-            triples(stuffId.get(), 1, 1),
-            // removals
-            triples());
+                // additions
+                triples(stuffId.get(), 1, 1),
+                // removals
+                triples());
         
         // Decision 3
-        validateChanges(changes.get(2), 
-            // additions
-            triples(stuffId.get(), 2, 1, 
-                    stuffId.get(), 2, 2),
-            // removals
-            triples());
+        validateChanges(changes.get(2),
+                // additions
+                triples(stuffId.get(), 2, 1,
+                        stuffId.get(), 2, 2),
+                // removals
+                triples());
         
         // Decision 4
-        validateChanges(changes.get(3), 
-            // additions
-            triples(stuffId.get(), 3, 1,
-                    stuffId.get(), 3, 2,
-                    stuffId.get(), 3, 3),
-            // removals
-            triples(stuffId.get(), 1, 1,
-                    stuffId.get(), 2, 1));
+        validateChanges(changes.get(3),
+                // additions
+                triples(stuffId.get(), 3, 1,
+                        stuffId.get(), 3, 2,
+                        stuffId.get(), 3, 3),
+                // removals
+                triples(stuffId.get(), 1, 1,
+                        stuffId.get(), 2, 1));
         
         // Decision 5
-        validateChanges(changes.get(4), 
-            // additions
-            triples(stuffId.get(), 4, 1,
-                    stuffId.get(), 4, 2,
-                    stuffId.get(), 4, 3,
-                    stuffId.get(), 4, 4),
-             // removals
-             triples(stuffId.get(), 3, 1));
+        validateChanges(changes.get(4),
+                // additions
+                triples(stuffId.get(), 4, 1,
+                        stuffId.get(), 4, 2,
+                        stuffId.get(), 4, 3,
+                        stuffId.get(), 4, 4),
+                // removals
+                triples(stuffId.get(), 3, 1));
         
         // Decision 6
-        validateChanges(changes.get(5), 
-            // additions
-            triples(stuffId.get(), 5, 1,
-                    stuffId.get(), 5, 2,
-                    stuffId.get(), 5, 3,
-                    stuffId.get(), 5, 4,
-                    stuffId.get(), 5, 5),
-            // removals
-            triples(stuffId.get(), 2, 2,
-                    stuffId.get(), 3, 2,
-                    stuffId.get(), 4, 1,
-                    stuffId.get(), 4, 2));
+        validateChanges(changes.get(5),
+                // additions
+                triples(stuffId.get(), 5, 1,
+                        stuffId.get(), 5, 2,
+                        stuffId.get(), 5, 3,
+                        stuffId.get(), 5, 4,
+                        stuffId.get(), 5, 5),
+                // removals
+                triples(stuffId.get(), 2, 2,
+                        stuffId.get(), 3, 2,
+                        stuffId.get(), 4, 1,
+                        stuffId.get(), 4, 2));
         
         // Agent halts before output phase on decision 7, so we're done.
         assertEquals(6, changes.size());
     }
-
+    
     private Object[][] triples(Object... args)
     {
         assertEquals(0, args.length % 3);
-        final Object[][] result = new Object[args.length / 3][]; 
+        final Object[][] result = new Object[args.length / 3][];
         for(int i = 0; i < args.length; i += 3)
         {
-            result[i / 3] = new Object[] { args[i], args[i+1], args[i+2] };
+            result[i / 3] = new Object[] { args[i], args[i + 1], args[i + 2] };
         }
         return result;
     }
@@ -174,10 +179,10 @@ public class OutputEventTest
         for(OutputChange c : changes)
         {
             final Wme w = c.getWme();
-            if(add == c.isAdded() && 
-               id == w.getIdentifier() && 
-               attr == w.getAttribute() && 
-               value == w.getValue())
+            if(add == c.isAdded() &&
+                    id == w.getIdentifier() &&
+                    attr == w.getAttribute() &&
+                    value == w.getValue())
             {
                 return;
             }
@@ -186,5 +191,5 @@ public class OutputEventTest
         // Fail if not found
         fail(String.format("Expected to find '(%s ^%s %s) %s' in change set", id, attr, value, add ? "+" : "-"));
     }
-
+    
 }

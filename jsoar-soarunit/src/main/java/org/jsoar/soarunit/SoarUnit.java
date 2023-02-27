@@ -35,20 +35,19 @@ import picocli.CommandLine.Parameters;
  * @author ray
  */
 
-@Command(name="soarunit", description="SoarUnit - Soar unit test framework",
-    subcommands={HelpCommand.class})
+@Command(name = "soarunit", description = "SoarUnit - Soar unit test framework", subcommands = { HelpCommand.class })
 public class SoarUnit implements Callable<Integer>
 {
-    @Option(names = {"-R", "--recursive"}, description = "Recursively search directories for tests.")
+    @Option(names = { "-R", "--recursive" }, description = "Recursively search directories for tests.")
     boolean recursive;
     
-    @Option(names = {"-d", "--debug"}, paramLabel = "TEST_NAME", description = "Open the given test in a debugger.")
+    @Option(names = { "-d", "--debug" }, paramLabel = "TEST_NAME", description = "Open the given test in a debugger.")
     String debugTestName = "";
     
-    @Option(names = {"-u", "--ui"}, description = "Show graphical user interface.")
+    @Option(names = { "-u", "--ui" }, description = "Show graphical user interface.")
     boolean ui;
     
-    @Option(names = {"-s", "--sml"}, description = "Use CSoar/SML instead of JSoar. CSoar's bin directory must be on the system path or in java.library.path.")
+    @Option(names = { "-s", "--sml" }, description = "Use CSoar/SML instead of JSoar. CSoar's bin directory must be on the system path or in java.library.path.")
     boolean sml;
     
     @Option(names = { "-t", "--threads" }, converter = ThreadPoolSizeConverter.class, description = "[1, n] for fixed thread pool, 'cpus' for number of cpus, 'cached' for cached")
@@ -68,7 +67,7 @@ public class SoarUnit implements Callable<Integer>
     {
         this(out, cwd, false);
     }
-
+    
     private SoarUnit(PrintWriterProxy out, CwdProxy cwd, boolean fromCommandLine)
     {
         this.out = out;
@@ -82,13 +81,14 @@ public class SoarUnit implements Callable<Integer>
         final PrintWriterProxy writerProxy = () -> writer;
         int result = new CommandLine(new SoarUnit(writerProxy, () -> Paths.get("."), true)).execute(args);
         writer.flush();
-        if(result != DONT_EXIT) 
+        if(result != DONT_EXIT)
         {
             System.exit(result);
         }
     }
     
-    private ExecutorService getExecutor() {
+    private ExecutorService getExecutor()
+    {
         if(this.threads == null)
         {
             out.println("Using single-threaded test executor.");
@@ -113,9 +113,9 @@ public class SoarUnit implements Callable<Integer>
     }
     
     /**
-     * @throws SoarException 
-     * @throws InterruptedException 
-     * @throws IOException 
+     * @throws SoarException
+     * @throws InterruptedException
+     * @throws IOException
      */
     public Integer call() throws SoarException, InterruptedException, IOException
     {
@@ -130,7 +130,7 @@ public class SoarUnit implements Callable<Integer>
             agentFactory = new JSoarTestAgentFactory();
         }
         
-        //final boolean recursive = options.has(Options.Recursive);
+        // final boolean recursive = options.has(Options.Recursive);
         final TestCaseCollector collector = new TestCaseCollector(out);
         if(this.fileAndDirectories.isEmpty())
         {
@@ -177,6 +177,7 @@ public class SoarUnit implements Callable<Integer>
         }
         
     }
+    
     private static Test findTest(List<TestCase> all, String name)
     {
         for(TestCase testCase : all)
@@ -203,7 +204,7 @@ public class SoarUnit implements Callable<Integer>
         final TestRunner runner = new TestRunner(agentFactory, out, null);
         runner.debugTest(test, fromCommandLine);
     }
-
+    
     private void printFailedTestOutput(final List<TestCaseResult> results)
     {
         for(TestCaseResult result : results)
@@ -218,7 +219,7 @@ public class SoarUnit implements Callable<Integer>
             }
         }
     }
-        
+    
     private int printAllTestCaseResults(final List<TestCaseResult> results, FiringCounts coverage)
     {
         int totalPassed = 0;
@@ -247,41 +248,54 @@ public class SoarUnit implements Callable<Integer>
             }
         }
         out.println("-------------------------------------------------------------");
-        out.printf("%d/%d tests run. %d passed, %d failed, %d%% coverage%n", 
-                    totalPassed + totalFailed, 
-                    totalTests, 
-                    totalPassed, 
-                    totalFailed,
-                    (int)(coverage.getCoverage() * 100));
+        out.printf("%d/%d tests run. %d passed, %d failed, %d%% coverage%n",
+                totalPassed + totalFailed,
+                totalTests,
+                totalPassed,
+                totalFailed,
+                (int) (coverage.getCoverage() * 100));
         
         return totalFailed > 0 ? 1 : 0;
     }
     
-    private static class ThreadPoolSize {
-        enum Dynamic { cpus, cached }
-
+    private static class ThreadPoolSize
+    {
+        enum Dynamic
+        {
+            cpus, cached
+        }
+        
         int fixed = -1;  // if -1, then use the dynamic value
         Dynamic dynamic = null; // if null, then use the fixed value
     }
-
-    private static class ThreadPoolSizeConverter implements CommandLine.ITypeConverter<ThreadPoolSize> {
-
+    
+    private static class ThreadPoolSizeConverter implements CommandLine.ITypeConverter<ThreadPoolSize>
+    {
+        
         @Override
-        public ThreadPoolSize convert(String value) throws Exception {
+        public ThreadPoolSize convert(String value) throws Exception
+        {
             ThreadPoolSize result = new ThreadPoolSize();
-            try {
+            try
+            {
                 result.fixed = Integer.parseInt(value);
-                if (result.fixed < 1) {
+                if(result.fixed < 1)
+                {
                     throw new CommandLine.TypeConversionException("Invalid value " +
                             value + ": must be 1 or more.");
                 }
-            } catch (NumberFormatException nan) {
-                try {
+            }
+            catch(NumberFormatException nan)
+            {
+                try
+                {
                     result.dynamic = ThreadPoolSize.Dynamic.valueOf(
                             value.toLowerCase());
-                } catch (IllegalArgumentException ex) {
+                }
+                catch(IllegalArgumentException ex)
+                {
                     throw new CommandLine.TypeConversionException("Invalid value " +
-                            value + ": must be one of " + 
+                            value + ": must be one of " +
                             Arrays.toString(ThreadPoolSize.Dynamic.values()));
                 }
             }
@@ -291,23 +305,39 @@ public class SoarUnit implements Callable<Integer>
     
     /**
      * Provides a lazy way to get a print writer -- helps with SoarUnitCommand, for which we want whatever printer is on top of the stack
+     * 
      * @author bob.marinier
      *
      */
     @FunctionalInterface
-    public interface PrintWriterProxy {
+    public interface PrintWriterProxy
+    {
         public PrintWriter get();
-        default void print(String s) { get().print(s); }
-        default void printf(String s, Object...args) { get().printf(s, args); }
-        default void println(String s) { get().println(s); }
+        
+        default void print(String s)
+        {
+            get().print(s);
+        }
+        
+        default void printf(String s, Object... args)
+        {
+            get().printf(s, args);
+        }
+        
+        default void println(String s)
+        {
+            get().println(s);
+        }
     }
     
     /**
      * Provides a lazy way to get the current working directory -- helps with SoarUnitCommand, for which we want to use the agent's cwd
+     * 
      * @author bob.marinier
      *
      */
-    public interface CwdProxy {
+    public interface CwdProxy
+    {
         public Path get();
     }
 }

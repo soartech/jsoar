@@ -12,6 +12,7 @@ public class MatchesProductionAction extends AbstractDebuggerAction
     private final boolean showWmes;
     
     private static final long serialVersionUID = -7767296421795513742L;
+    
     /**
      * @param manager the owning action manager
      * @param showWmes whether to add --wmes to the production matches command
@@ -37,7 +38,8 @@ public class MatchesProductionAction extends AbstractDebuggerAction
         final String command = getBaseCommand(this.showWmes) + prods.get(0).getName();
         final ThreadedAgent agent = getApplication().getAgent();
         
-        agent.execute(() -> {
+        agent.execute(() ->
+        {
             agent.getPrinter().startNewLine();
             agent.getInterpreter().eval("echo " + command);
             agent.getInterpreter().eval(command);
@@ -45,11 +47,14 @@ public class MatchesProductionAction extends AbstractDebuggerAction
         }, null);
     }
     
-    private static String getBaseCommand(boolean showWmes) {
+    private static String getBaseCommand(boolean showWmes)
+    {
         return "production matches " + (showWmes ? "--wmes " : "");
     }
-
+    
     @Override
-    public void update() { }
-
+    public void update()
+    {
+    }
+    
 }

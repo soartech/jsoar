@@ -41,7 +41,7 @@ public class TestResultList extends JPanel
     private final DefaultListModel<TestResultProxy> model = new DefaultListModel<>();
     private final JList<TestResultProxy> list = new JList<>(model);
     private final JTextArea output = new JTextArea();
-
+    
     public TestResultList(TestAgentFactory agentFactory)
     {
         super(new BorderLayout());
@@ -50,8 +50,11 @@ public class TestResultList extends JPanel
         
         this.list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.list.setCellRenderer(new Renderer());
-        this.list.addMouseListener(new MouseAdapter() {
-            /* (non-Javadoc)
+        this.list.addMouseListener(new MouseAdapter()
+        {
+            /*
+             * (non-Javadoc)
+             * 
              * @see java.awt.event.MouseAdapter#mouseReleased(java.awt.event.MouseEvent)
              */
             @Override
@@ -59,8 +62,10 @@ public class TestResultList extends JPanel
             {
                 maybeShowContextMenu(e);
             }
-
-            /* (non-Javadoc)
+            
+            /*
+             * (non-Javadoc)
+             * 
              * @see java.awt.event.MouseAdapter#mousePressed(java.awt.event.MouseEvent)
              */
             @Override
@@ -68,8 +73,10 @@ public class TestResultList extends JPanel
             {
                 maybeShowContextMenu(e);
             }
-
-            /* (non-Javadoc)
+            
+            /*
+             * (non-Javadoc)
+             * 
              * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
              */
             @Override
@@ -83,8 +90,9 @@ public class TestResultList extends JPanel
             
         });
         
-        this.list.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
+        this.list.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        {
+            
             @Override
             public void valueChanged(ListSelectionEvent e)
             {
@@ -98,14 +106,14 @@ public class TestResultList extends JPanel
         split.setDividerSize(5);
         split.setResizeWeight(0.7);
         
-        add(split, BorderLayout.CENTER);        
+        add(split, BorderLayout.CENTER);
     }
     
     protected void handleSelectionChanged(ListSelectionEvent e)
     {
-        final TestResultProxy result = (TestResultProxy) list
+        final TestResultProxy result = list
                 .getSelectedValue();
-        if (result != null)
+        if(result != null)
         {
             final String outputString = result.getResult().getOutput();
             output.setText(!outputString.isEmpty() ? outputString
@@ -116,7 +124,7 @@ public class TestResultList extends JPanel
             output.setText("");
         }
     }
-
+    
     public void reset()
     {
         model.clear();
@@ -124,32 +132,33 @@ public class TestResultList extends JPanel
     
     public void addTestCase(TestCase testCase)
     {
-        for (Test test : testCase.getTests())
+        for(Test test : testCase.getTests())
         {
             model.addElement(new TestResultProxy(test));
         }
     }
-
+    
     private int getProxyIndex(TestResult testResult)
     {
-        for (int i = 0; i < model.getSize(); i++)
+        for(int i = 0; i < model.getSize(); i++)
         {
-            final TestResultProxy proxy = (TestResultProxy) model.get(i);
-            if (proxy.getTest() == testResult.getTest())
+            final TestResultProxy proxy = model.get(i);
+            if(proxy.getTest() == testResult.getTest())
             {
                 return i;
             }
         }
         return -1;
     }
-
+    
     public void addTestResults(TestCaseResult testCaseResult)
     {
         for(TestResult testResult : testCaseResult.getTestResults())
         {
             final int index = getProxyIndex(testResult);
-            if(index >= 0) {
-                ((TestResultProxy) model.get(index)).setResult(testResult);
+            if(index >= 0)
+            {
+                model.get(index).setResult(testResult);
             }
         }
         
@@ -157,17 +166,17 @@ public class TestResultList extends JPanel
         
         // Autoscroll
         /*
-        final int lastIndex = model.getSize() - 1;
-        if(lastIndex >= 0)
-        {
-            list.ensureIndexIsVisible(lastIndex);
-        }
-        */
+         * final int lastIndex = model.getSize() - 1;
+         * if(lastIndex >= 0)
+         * {
+         * list.ensureIndexIsVisible(lastIndex);
+         * }
+         */
     }
     
     private void handleDoubleClick(MouseEvent e)
     {
-        final TestResultProxy result = (TestResultProxy) list.getSelectedValue();
+        final TestResultProxy result = list.getSelectedValue();
         if(result != null)
         {
             EditTestAction.editTest(result.getTest());
@@ -189,7 +198,7 @@ public class TestResultList extends JPanel
         
         list.setSelectedIndex(index);
         final JPopupMenu menu = new JPopupMenu();
-        final TestResultProxy result = (TestResultProxy) list.getSelectedValue();
+        final TestResultProxy result = list.getSelectedValue();
         if(result != null)
         {
             menu.add(new EditTestAction(result.getTest()));
@@ -202,8 +211,10 @@ public class TestResultList extends JPanel
     private static class Renderer extends DefaultListCellRenderer
     {
         private static final long serialVersionUID = 771703914650867765L;
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
          */
         @Override
@@ -216,17 +227,18 @@ public class TestResultList extends JPanel
             final TestResultProxy r = (TestResultProxy) value;
             if(!isSelected)
             {
-                if(r.getResult() != null) {
+                if(r.getResult() != null)
+                {
                     if(r.getResult().isPassed())
                     {
                         c.setBackground(Constants.PASS_COLOR);
                     }
                     else
                     {
-                        c.setBackground(Constants.FAIL_COLOR);                        
+                        c.setBackground(Constants.FAIL_COLOR);
                     }
                 }
-                else 
+                else
                 {
                     c.setBackground(Constants.RUNNING_COLOR);
                 }
@@ -235,5 +247,5 @@ public class TestResultList extends JPanel
             return c;
         }
     }
-
+    
 }

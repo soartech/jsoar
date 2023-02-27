@@ -5,18 +5,18 @@
  */
 package org.jsoar.tcl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.jsoar.kernel.RunType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class TclRhsFunctionTest extends TclTestBase
+class TclRhsFunctionTest extends TclTestBase
 {
     @Test
-    public void testExecute() throws Exception
+    void testExecute() throws Exception
     {
         sourceTestFile(getClass(), "testExecute.soar");
         

@@ -28,14 +28,16 @@ public class MakeConstantSymbol extends AbstractRhsFunctionHandler
     /**
      * agent.h:654:mcs_counter
      */
-    private final ByRef<Integer> counter = new ByRef<Integer>(Integer.valueOf(1));
+    private final ByRef<Integer> counter = new ByRef<>(1);
     
     public MakeConstantSymbol()
     {
         super("make-constant-symbol");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
@@ -51,5 +53,5 @@ public class MakeConstantSymbol extends AbstractRhsFunctionHandler
         }
         return syms.generateUniqueString(prefix, counter);
     }
-
+    
 }

@@ -26,23 +26,27 @@ public class TemplateMethods
 {
     private static class IsIdentifierMethod implements TemplateMethodModelEx
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see freemarker.template.TemplateMethodModel#exec(java.util.List)
          */
-		@Override
+        @Override
         public Object exec(List args) throws TemplateModelException
         {
-            final Symbol symbol = (Symbol) ((BeanModel) args.get(0)).getWrappedObject(); 
+            final Symbol symbol = (Symbol) ((BeanModel) args.get(0)).getWrappedObject();
             return symbol.asIdentifier() != null;
         }
     }
     
     private static class GetPropertyMethod implements TemplateMethodModelEx
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see freemarker.template.TemplateMethodModel#exec(java.util.List)
          */
-		@Override
+        @Override
         public Object exec(List args) throws TemplateModelException
         {
             final ThreadedAgent agent = (ThreadedAgent) ((BeanModel) args.get(0)).getWrappedObject();
@@ -61,10 +65,12 @@ public class TemplateMethods
     
     private static class GetRecentTraceMethod implements TemplateMethodModelEx
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see freemarker.template.TemplateMethodModel#exec(java.util.List)
          */
-		@Override
+        @Override
         public Object exec(List args) throws TemplateModelException
         {
             final ThreadedAgent agent = (ThreadedAgent) ((BeanModel) args.get(0)).getWrappedObject();
@@ -75,7 +81,7 @@ public class TemplateMethods
                 final TraceRange range = trace.getTail(length);
                 return new String(range.getData(), 0, range.getLength());
             }
-            catch (IOException e)
+            catch(IOException e)
             {
                 throw new TemplateModelException(e.getMessage(), e);
             }

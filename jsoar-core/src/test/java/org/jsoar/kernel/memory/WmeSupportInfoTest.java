@@ -5,7 +5,11 @@
  */
 package org.jsoar.kernel.memory;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -14,25 +18,25 @@ import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.WmeSupportInfo.Support;
 import org.jsoar.kernel.symbols.Identifier;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class WmeSupportInfoTest
+class WmeSupportInfoTest
 {
     private Agent agent;
     
-    @Before
-    public void setUp()
+    @BeforeEach
+    void setUp()
     {
         agent = new Agent();
     }
     
-    @After
-    public void tearDown()
+    @AfterEach
+    void tearDown()
     {
     }
     
@@ -40,32 +44,32 @@ public class WmeSupportInfoTest
      * Test method for {@link org.jsoar.kernel.memory.WmeSupportInfo#get(org.jsoar.kernel.Agent, org.jsoar.kernel.memory.Wme)}.
      */
     @Test
-    public void testGet() throws Exception
+    void testGet() throws Exception
     {
         ProductionManager pm = agent.getProductions();
         
-        // Some productions (courtesy of Bob M.) that create two preferences 
+        // Some productions (courtesy of Bob M.) that create two preferences
         // for the same WME, one with i-support and one with o-support.
         pm.loadProduction("i-support\n" +
-            "(state <s> ^superstate nil ^io <io>)\n" +
-            "-->\n" +
-            "(<s> ^foo bar)");
-
+                "(state <s> ^superstate nil ^io <io>)\n" +
+                "-->\n" +
+                "(<s> ^foo bar)");
+        
         pm.loadProduction("propose\n" +
-            "(state <s> ^superstate nil)\n" +
-            "-->\n" +
-            "(<s> ^operator <o> +)");
-
+                "(state <s> ^superstate nil)\n" +
+                "-->\n" +
+                "(<s> ^operator <o> +)");
+        
         pm.loadProduction("o-support\n" +
-            "(state <s> ^operator <o> ^io <io>)\n" +
-            "-->\n" +
-            "(<s> ^foo bar)");
-
+                "(state <s> ^operator <o> ^io <io>)\n" +
+                "-->\n" +
+                "(<s> ^foo bar)");
+        
         agent.runFor(2, RunType.DECISIONS);
         
         final Identifier s1 = agent.getSymbols().findIdentifier('S', 1);
         assertNotNull(s1);
-
+        
         final Wme foo = Wmes.matcher(agent).attr("foo").value("bar").find(s1);
         assertNotNull(foo);
         
@@ -82,5 +86,5 @@ public class WmeSupportInfoTest
         assertEquals("i-support", b.getSource().getName().toString());
         assertFalse(b.isOSupported());
     }
-
+    
 }

@@ -5,38 +5,37 @@
  */
 package org.jsoar.kernel.commands;
 
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ProductionBreakCommandTest
+class ProductionBreakCommandTest
 {
     private Agent agent;
-
-    @Before
-    public void setUp() throws Exception
+    
+    @BeforeEach
+    void setUp() throws Exception
     {
         agent = new Agent();
     }
-
-    @After
-    public void tearDown() throws Exception
+    
+    @AfterEach
+    void tearDown() throws Exception
     {
         agent.dispose();
         agent = null;
     }
     
     @Test
-    public void testCanEnableTracingOnARule() throws Exception
+    void testCanEnableTracingOnARule() throws Exception
     {
         loadRules();
         
@@ -49,7 +48,7 @@ public class ProductionBreakCommandTest
     }
     
     @Test
-    public void testCanListTracedRules() throws Exception
+    void testCanListTracedRules() throws Exception
     {
         loadRules();
         agent.getInterpreter().eval("production break --set b");
@@ -67,5 +66,5 @@ public class ProductionBreakCommandTest
         agent.getProductions().loadProduction("a (state <s> ^superstate nil) --> (write hi)");
         agent.getProductions().loadProduction("c (state <s> ^superstate nil) --> (write hi)");
     }
-
+    
 }

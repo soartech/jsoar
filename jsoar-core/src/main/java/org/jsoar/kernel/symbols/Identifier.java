@@ -20,7 +20,7 @@ import org.jsoar.kernel.memory.WmeType;
  * 
  * <ul>
  * <li>{@link GoalDependencySet} if this identifier is a goal and the goal
- *      has a GDS.
+ * has a GDS.
  * <li>{@link Goal} if this identifier is a goal.
  * </ul>
  * 

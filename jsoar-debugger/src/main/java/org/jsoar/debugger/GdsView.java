@@ -43,15 +43,17 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
     private final JLabel label = new JLabel("No goals");
     private final DefaultWmeTableModel wmeModel = new DefaultWmeTableModel();
     private final JXTable wmeTable = new JXTable(wmeModel);
-    private final TableSelectionProvider selectionProvider = new TableSelectionProvider(wmeTable) {
-
+    private final TableSelectionProvider selectionProvider = new TableSelectionProvider(wmeTable)
+    {
+        
         @Override
         protected Object getValueAt(int row)
         {
             row = wmeTable.convertRowIndexToModel(row);
             return ((DefaultWmeTableModel) wmeTable.getModel()).getWmes().get(row);
-        }};
-    private final List<String> recentRemovals = new ArrayList<String>();
+        }
+    };
+    private final List<String> recentRemovals = new ArrayList<>();
     private final JLabel recentSummary = new JLabel("Recent removals: None");
     private final SoarEventListener removalListener = event -> updateRemovalSummary((GdsGoalRemovedEvent) event);
     
@@ -77,9 +79,10 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
         
         this.debugger.getAgent().getEvents().addListener(GdsGoalRemovedEvent.class, removalListener);
     }
-
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
      */
     @Override
@@ -87,8 +90,10 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
     {
         return "ctrl shift G";
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Disposable#dispose()
      */
     @Override
@@ -96,9 +101,10 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
     {
         this.debugger.getAgent().getEvents().removeListener(GdsGoalRemovedEvent.class, removalListener);
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
      */
     @Override
@@ -120,8 +126,8 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
                 }
                 else
                 {
-                    label.setText(String.format("<html><b>&nbsp;GDS for <code>%s</code>.</b> (%d wmes)</html>", 
-                                 result.goal.getIdentifier(), result.wmes.size()));
+                    label.setText(String.format("<html><b>&nbsp;GDS for <code>%s</code>.</b> (%d wmes)</html>",
+                            result.goal.getIdentifier(), result.wmes.size()));
                 }
             }
             else
@@ -140,7 +146,7 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
             setTitleText("GDS");
         }
     }
-
+    
     private void updateRemovalSummary(final GdsGoalRemovedEvent event)
     {
         SwingUtilities.invokeLater(() ->
@@ -160,10 +166,12 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
     {
         final GoalDependencySet gds = Adaptables.adapt(goal, GoalDependencySet.class);
         
-        return gds != null ? Lists.newArrayList(gds.getWmes()) : new ArrayList<Wme>();
+        return gds != null ? Lists.newArrayList(gds.getWmes()) : new ArrayList<>();
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.AbstractAdaptableView#getAdapter(java.lang.Class)
      */
     @Override
@@ -175,7 +183,7 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
         }
         return super.getAdapter(klass);
     }
-
+    
     private static class Model
     {
         final Goal goal;

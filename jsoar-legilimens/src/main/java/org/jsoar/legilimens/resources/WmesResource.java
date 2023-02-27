@@ -18,8 +18,10 @@ public class WmesResource extends BaseAgentResource
     private String id;
     private String attr;
     private String value;
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.BaseAgentResource#doInit()
      */
     @Override
@@ -39,14 +41,16 @@ public class WmesResource extends BaseAgentResource
         return filter != null ? filter : "*";
     }
     
-/*
-    @Get("html")
-    public Representation toHtml()
-    {
-        return html("wmes");
-    }
-*/
-    /* (non-Javadoc)
+    /*
+     * @Get("html")
+     * public Representation toHtml()
+     * {
+     * return html("wmes");
+     * }
+     */
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.resources.BaseAgentResource#setTemplateAttributes(java.util.Map)
      */
     @Override
@@ -60,6 +64,5 @@ public class WmesResource extends BaseAgentResource
         
         attrs.put("wmes", Wmes.search(agent.getAgent(), id, attr, value));
     }
-    
     
 }

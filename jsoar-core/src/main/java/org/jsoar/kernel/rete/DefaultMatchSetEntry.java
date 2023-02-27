@@ -28,8 +28,10 @@ public class DefaultMatchSetEntry implements MatchSetEntry
         this.type = type;
         this.wmes = Collections.unmodifiableList(wmes);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.MatchSetEntry#getProduction()
      */
     @Override
@@ -37,8 +39,10 @@ public class DefaultMatchSetEntry implements MatchSetEntry
     {
         return production;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.MatchSetEntry#getWmes()
      */
     @Override
@@ -46,8 +50,10 @@ public class DefaultMatchSetEntry implements MatchSetEntry
     {
         return wmes;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.MatchSetEntry#getType()
      */
     @Override
@@ -55,6 +61,5 @@ public class DefaultMatchSetEntry implements MatchSetEntry
     {
         return type;
     }
-
-
+    
 }

@@ -26,9 +26,9 @@ public interface RhsValue extends Formattable
     public ReteLocation asReteLocation();
     
     public UnboundVariable asUnboundVariable();
-
+    
     /**
-     * Returns a copy of this rhs value. If a value is immutable it may return 
+     * Returns a copy of this rhs value. If a value is immutable it may return
      * <code>this</code>.
      * 
      * @return A copy of this rhs value
@@ -36,7 +36,7 @@ public interface RhsValue extends Formattable
     public RhsValue copy();
     
     public char getFirstLetter();
-
+    
     /**
      * Finding all variables from rhs_value's, actions, and action lists
      * 
@@ -55,5 +55,4 @@ public interface RhsValue extends Formattable
      */
     public void addAllVariables(Marker tc_number, ListHead<Variable> var_list);
     
-
 }

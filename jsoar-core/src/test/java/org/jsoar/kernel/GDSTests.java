@@ -5,32 +5,37 @@
  */
 package org.jsoar.kernel;
 
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rete.SimpleMatcher;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import com.google.common.collect.Lists;
 
 /**
  * @author ray
  */
-public class GDSTests extends FunctionalTestHarness
+class GDSTests extends FunctionalTestHarness
 {
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testGDSBug1144() throws Exception
     {
         runTest("testGDSBug1144", 7); // should halt not crash
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testGDSBug1011() throws Exception
     {
         runTest("testGDSBug1011", 8);
@@ -38,35 +43,35 @@ public class GDSTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testSimple() throws Exception
+    void testSimple() throws Exception
     {
         runTest("testSimple", 5);
     }
     
     @Test
-    public void testDoubleSupport() throws Exception
+    void testDoubleSupport() throws Exception
     {
         runTest("testDoubleSupport", 5);
         assertEquals(2, agent.getGoalStack().size());
         
         List<Goal> goals = agent.getGoalStack();
         GoalDependencySet gds = Adaptables.adapt(goals.get(0), GoalDependencySet.class);
-        assertNull("Expected GDS for top state to be empty", gds);
+        assertNull(gds, "Expected GDS for top state to be empty");
         
         gds = Adaptables.adapt(goals.get(1), GoalDependencySet.class);
-        assertNotNull("Expected GDS for substate to be non-empty", gds);
+        assertNotNull(gds, "Expected GDS for substate to be non-empty");
     }
     
     @Test
-    public void testMultiLevel1() throws Exception
+    void testMultiLevel1() throws Exception
     {
         runTest("testMultiLevel1", 5);
         
         testMultiLevel();
     }
-
+    
     @Test
-    public void testMultiLevel2() throws Exception
+    void testMultiLevel2() throws Exception
     {
         runTest("testMultiLevel2", 5);
         
@@ -79,29 +84,27 @@ public class GDSTests extends FunctionalTestHarness
     private void testMultiLevel() throws Exception
     {
         final List<Goal> goals = agent.getGoalStack();
-        assertEquals("Unexpected number of states", goals.size(), 3);
+        assertEquals(3, goals.size(), "Unexpected number of states");
         
         // top state
         GoalDependencySet gds = Adaptables.adapt(goals.get(0), GoalDependencySet.class);
-        assertNull("Expected first goal to have empty GDS", gds);
-
+        assertNull(gds, "Expected first goal to have empty GDS");
         
-        // first substate        
-        //      (14: P1 ^name top)
-        //      (13: S1 ^problem-space P1)
-        //      (31: S3 ^attribute operator)
-        //      (32: S3 ^impasse no-change)
-        //      (16: S1 ^a a)
-        //      (17: S1 ^b b)
-        //      (18: S1 ^c c)
-        //      (23: S3 ^superstate S1)
-
+        // first substate
+        // (14: P1 ^name top)
+        // (13: S1 ^problem-space P1)
+        // (31: S3 ^attribute operator)
+        // (32: S3 ^impasse no-change)
+        // (16: S1 ^a a)
+        // (17: S1 ^b b)
+        // (18: S1 ^c c)
+        // (23: S3 ^superstate S1)
         
         gds = Adaptables.adapt(goals.get(1), GoalDependencySet.class);
-        assertNotNull("Expected second goal have non-empty GDS", gds);
-
-        Set<Wme> actual = new LinkedHashSet<Wme>(Lists.newArrayList(gds.getWmes()));
-                
+        assertNotNull(gds, "Expected second goal have non-empty GDS");
+        
+        Set<Wme> actual = new LinkedHashSet<>(Lists.newArrayList(gds.getWmes()));
+        
         final SimpleMatcher matcher = new SimpleMatcher();
         matcher.addProduction("expectedGDS \n" +
                 "(<s3> ^attribute operator ^impasse no-change ^superstate <s1>) \n" +
@@ -110,7 +113,7 @@ public class GDSTests extends FunctionalTestHarness
                 "--> \n" +
                 "(write match)");
         
-        for (Wme actualWme : actual)
+        for(Wme actualWme : actual)
         {
             matcher.addWme(actualWme);
         }
@@ -118,24 +121,24 @@ public class GDSTests extends FunctionalTestHarness
         // for debugging
         String s = matcher.getMatches("expectedGDS").toString();
         
-        assertEquals("expectedGDS didn't match: " + s, matcher.getNumberMatches("expectedGDS"), 1);
+        assertEquals(1, matcher.getNumberMatches("expectedGDS"), "expectedGDS didn't match: " + s);
         
         // reset matcher
         matcher.removeAllProductions();
         matcher.removeAllWmes();
-
+        
         // second substate
-        //        (36: P2 ^name second)
-        //        (35: S3 ^problem-space P2)
-        //        (40: O2 ^name operator-2)
-        //        (42: S3 ^operator O2)
-        //        (53: S5 ^impasse no-change)
-        //        (38: S3 ^d d)
-        //        (39: S3 ^e e)
-        //        (44: S5 ^superstate S3)
+        // (36: P2 ^name second)
+        // (35: S3 ^problem-space P2)
+        // (40: O2 ^name operator-2)
+        // (42: S3 ^operator O2)
+        // (53: S5 ^impasse no-change)
+        // (38: S3 ^d d)
+        // (39: S3 ^e e)
+        // (44: S5 ^superstate S3)
         
         gds = Adaptables.adapt(goals.get(2), GoalDependencySet.class);
-        assertNotNull("Expected third goal have non-empty GDS", gds);
+        assertNotNull(gds, "Expected third goal have non-empty GDS");
         actual = new LinkedHashSet<Wme>(Lists.newArrayList(gds.getWmes()));
         
         matcher.addProduction("expectedGDS \n" +
@@ -146,7 +149,7 @@ public class GDSTests extends FunctionalTestHarness
                 "--> \n" +
                 "(write match)");
         
-        for (Wme actualWme : actual)
+        for(Wme actualWme : actual)
         {
             matcher.addWme(actualWme);
         }
@@ -154,6 +157,6 @@ public class GDSTests extends FunctionalTestHarness
         // for debugging
         s = matcher.getMatches("expectedGDS").toString();
         
-        assertEquals("expectedGDS didn't match: " + s, matcher.getNumberMatches("expectedGDS"), 1);
+        assertEquals(1, matcher.getNumberMatches("expectedGDS"), "expectedGDS didn't match: " + s);
     }
 }

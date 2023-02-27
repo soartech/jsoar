@@ -25,7 +25,7 @@ public class Trace
      * 
      * @author ray
      */
-    public static enum Category
+    public enum Category
     {
         /** gsysparam.h:92:TRACE_VERBOSE */
         VERBOSE(-1),
@@ -50,7 +50,6 @@ public class Trace
         
         /** gsysparam.h:101:TRACE_FIRINGS_OF_TEMPLATES_SYSPARAM */
         FIRINGS_OF_TEMPLATES(3),
-
         
         /** gsysparam.h:103:TRACE_FIRINGS_PREFERENCES_SYSPARAM */
         FIRINGS_PREFERENCES(5),
@@ -117,7 +116,10 @@ public class Trace
         /**
          * @return the default enablement for this category
          */
-        public boolean getDefault() { return defaultSetting; }
+        public boolean getDefault()
+        {
+            return defaultSetting;
+        }
         
         /**
          * Test whether this category is active in the given watch level
@@ -137,14 +139,14 @@ public class Trace
     }
     
     /**
-     * How much information to print about the wmes matching an instantiation. 
+     * How much information to print about the wmes matching an instantiation.
      * These values can typically be or'd together in an EnumSet.
      * 
      * <p>gsysparam.h:72:wme_trace_type
      * 
      * @author ray
      */
-    public static enum WmeTraceType
+    public enum WmeTraceType
     {
         /**
          * don't print anything
@@ -173,7 +175,7 @@ public class Trace
      * 
      * @author ray
      */
-    public static enum MatchSetTraceType
+    public enum MatchSetTraceType
     {
         MS_ASSERT, // print just assertions
         MS_RETRACT // print just retractions
@@ -215,7 +217,6 @@ public class Trace
     {
         return this.printer;
     }
-
     
     /**
      * @return True if overall tracing is enabled
@@ -224,7 +225,7 @@ public class Trace
     {
         return enabled;
     }
-
+    
     /**
      * Control global tracing. If set to false, no tracing will be performed
      * 
@@ -239,7 +240,7 @@ public class Trace
     /**
      * Enable all trace categories
      * 
-     * @return this 
+     * @return this
      */
     public Trace enableAll()
     {
@@ -281,15 +282,14 @@ public class Trace
         return false;
     }
     
-
     /**
      * Control category tracing. If set to false, no tracing will be performed
      * for the given category. Setting this to true will also change the value
      * of {@link #isEnabled()} to true.
      * 
      * @param c The category
-     * @param enabled True to enable tracing for the given category, false to 
-     *      disable tracing for the given category
+     * @param enabled True to enable tracing for the given category, false to
+     *     disable tracing for the given category
      */
     public Trace setEnabled(Category c, boolean enabled)
     {
@@ -335,7 +335,7 @@ public class Trace
         }
         return this;
     }
-
+    
     /**
      * @return the wmeTraceType
      */
@@ -343,7 +343,7 @@ public class Trace
     {
         return wmeTraceType;
     }
-
+    
     /**
      * @param wmeTraceType the wmeTraceType to set
      */
@@ -351,7 +351,7 @@ public class Trace
     {
         this.wmeTraceType = wmeTraceType;
     }
-
+    
     public Trace print(String format, Object... args)
     {
         if(enabled)
@@ -405,7 +405,6 @@ public class Trace
         return this;
     }
     
-    
     public Trace print(Category c, String output)
     {
         if(enabled && isEnabled(c))
@@ -416,7 +415,7 @@ public class Trace
     }
     
     /**
-     * Flush the underlying printer 
+     * Flush the underlying printer
      */
     public void flush()
     {
@@ -450,8 +449,10 @@ public class Trace
         {
             this.traceable = traceable;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
          */
         @Override

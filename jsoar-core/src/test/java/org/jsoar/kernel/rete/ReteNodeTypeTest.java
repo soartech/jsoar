@@ -5,22 +5,21 @@
  */
 package org.jsoar.kernel.rete;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-
-public class ReteNodeTypeTest
+class ReteNodeTypeTest
 {
     @Test
-    public void testMPNodesArePosNeg()
+    void testMPNodesArePosNeg()
     {
         assertTrue(ReteNodeType.MP_BNODE.bnode_is_posneg());
         assertTrue(ReteNodeType.UNHASHED_MP_BNODE.bnode_is_posneg());
     }
     
     @Test
-    public void testMPNodesArePositive()
+    void testMPNodesArePositive()
     {
         assertTrue(ReteNodeType.MP_BNODE.bnode_is_positive());
         assertTrue(ReteNodeType.UNHASHED_MP_BNODE.bnode_is_positive());

@@ -23,14 +23,15 @@ public interface LongTermIdentifierSource
      * gets the lti id for an existing lti letter/number pair (or NIL if failure)
      * 
      * <p>semantic_memory.h:smem_lti_get_id
-     * @throws SoarException 
+     * 
+     * @throws SoarException
      */
-    long /*smem_lti_id*/ smem_lti_get_id(char name_letter, long name_number) throws SoarException;
+    long /* smem_lti_id */ smem_lti_get_id(char name_letter, long name_number) throws SoarException;
     
     /**
      * returns a reference to an lti
      * 
      * <p>semantic_memory.h:smem_lti_soar_make
      */
-    IdentifierImpl smem_lti_soar_make(/*smem_lti_id*/ long lti, char name_letter, long name_number, /*goal_stack_level*/ int level);
+    IdentifierImpl smem_lti_soar_make(/* smem_lti_id */ long lti, char name_letter, long name_number, /* goal_stack_level */ int level);
 }

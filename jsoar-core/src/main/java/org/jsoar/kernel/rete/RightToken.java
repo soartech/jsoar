@@ -13,14 +13,14 @@ import org.jsoar.util.ListItem;
  */
 public class RightToken extends Token
 {
-    final ListItem<RightToken> negrm = new ListItem<RightToken>(this); // part of other local join results dll
+    final ListItem<RightToken> negrm = new ListItem<>(this); // part of other local join results dll
     private LeftToken left_token; // token this is a local join result for
     
     public static RightToken create(ReteNode current_node, Token parent_tok, WmeImpl parent_wme, LeftToken left_token)
     {
         assert current_node != null;
-        //assert parent_wme != null;
-
+        // assert parent_wme != null;
+        
         return new RightToken(current_node, parent_tok, parent_wme, left_token);
     }
     
@@ -37,7 +37,7 @@ public class RightToken extends Token
      * @param parent_tok
      * @param parent_wme
      */
-    private  RightToken(ReteNode current_node, Token parent_tok, WmeImpl parent_wme, LeftToken left_token)
+    private RightToken(ReteNode current_node, Token parent_tok, WmeImpl parent_wme, LeftToken left_token)
     {
         super(current_node, parent_tok, parent_wme, false);
         this.left_token = left_token;
@@ -63,8 +63,10 @@ public class RightToken extends Token
             leftToken.addNegRightToken(this);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

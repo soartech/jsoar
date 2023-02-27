@@ -5,20 +5,23 @@
  */
 package org.jsoar.kernel;
 
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class DecisionCycleTest
+class DecisionCycleTest
 {
     private Agent agent;
     private DecisionCycle decisionCycle;
@@ -26,26 +29,26 @@ public class DecisionCycleTest
     /**
      * @throws java.lang.Exception
      */
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getTrace().enableAll();
         
         this.decisionCycle = Adaptables.adapt(this.agent, DecisionCycle.class);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown() throws Exception
     {
         this.agent.getPrinter().flush();
     }
-
+    
     @Test
-    public void testDoOneTopLevelPhaseWithEmptyAgent() throws Exception
+    void testDoOneTopLevelPhaseWithEmptyAgent() throws Exception
     {
         final Decider decider = Adaptables.adapt(agent, Decider.class);
         for(int i = 1; i < 10; ++i)
@@ -62,17 +65,17 @@ public class DecisionCycleTest
             this.decisionCycle.runFor(1, RunType.PHASES);
             
             // Verify that new states are being generated
-            assertEquals("S" + (1 + 2*i), decider.bottom_goal.toString());
+            assertEquals("S" + (1 + 2 * i), decider.bottom_goal.toString());
         }
     }
     
     @Test
-    public void testDoOneTopLevelPhaseWithSimpleProduction() throws Exception
+    void testDoOneTopLevelPhaseWithSimpleProduction() throws Exception
     {
         agent.getProductions().loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^foo 1)");
         agent.getProductions().loadProduction("test2 (state <s> ^superstate nil ^foo 1) --> (write (crlf) |test2 matched!|)");
         
-        assertTrue(agent.getProductions().getProduction("test2").instantiations == null);
+        assertNull(agent.getProductions().getProduction("test2").instantiations);
         
         assertEquals(Phase.INPUT, this.decisionCycle.current_phase.get());
         this.decisionCycle.runFor(1, RunType.PHASES);
@@ -86,7 +89,7 @@ public class DecisionCycleTest
         this.decisionCycle.runFor(1, RunType.PHASES);
         
         // verify that (S1 foo 1) is being added to the rete by checking that test2 fired
-        assertFalse(agent.getProductions().getProduction("test2").instantiations == null);
+        assertNotNull(agent.getProductions().getProduction("test2").instantiations);
         
         // Verify that new states are being generates
         final Decider decider = Adaptables.adapt(agent, Decider.class);
@@ -94,17 +97,17 @@ public class DecisionCycleTest
     }
     
     @Test
-    public void testWaitOperatorOnStateNoChange() throws Exception
+    void testWaitOperatorOnStateNoChange() throws Exception
     {
         // A production that just proposes a wait operator every cycle
         agent.getProductions().loadProduction(
                 "top-state*propose*wait\n" +
-                "   (state <s> ^attribute state\n" +
-                "              ^choices none\n" +
-                "             -^operator.name wait)\n" +
-                "-->\n" +
-                "   (<s> ^operator <o> +)\n" +
-                "   (<o> ^name wait)");
+                        "   (state <s> ^attribute state\n" +
+                        "              ^choices none\n" +
+                        "             -^operator.name wait)\n" +
+                        "-->\n" +
+                        "   (<s> ^operator <o> +)\n" +
+                        "   (<o> ^name wait)");
         
         for(int i = 1; i < 10; ++i)
         {
@@ -128,13 +131,13 @@ public class DecisionCycleTest
     }
     
     @Test
-    public void testHaltRHS() throws Exception
+    void testHaltRHS() throws Exception
     {
         agent.getProductions().loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^operator.name halt)");
         agent.getProductions().loadProduction("test2 (state <s> ^operator.name halt) --> (halt)");
-        for (int i = 0; i < 3; i++)
+        for(int i = 0; i < 3; i++)
         {
-            if (i <= 3)
+            if(i <= 3)
             {
                 this.decisionCycle.runFor(1, RunType.PHASES);
                 assertFalse(decisionCycle.isHalted());

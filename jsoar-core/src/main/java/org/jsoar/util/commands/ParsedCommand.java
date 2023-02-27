@@ -16,13 +16,13 @@ public class ParsedCommand
 {
     private final SourceLocation location;
     private final List<String> args;
-
+    
     public ParsedCommand(SourceLocation location, List<String> args)
     {
         this.location = location;
         this.args = args;
     }
-
+    
     /**
      * @return the location
      */
@@ -30,7 +30,7 @@ public class ParsedCommand
     {
         return location;
     }
-
+    
     public boolean isEof()
     {
         return args.isEmpty();
@@ -44,9 +44,10 @@ public class ParsedCommand
         return args;
     }
     
+    @Override
     public String toString()
     {
         return location + ": " + args;
     }
-   
+    
 }

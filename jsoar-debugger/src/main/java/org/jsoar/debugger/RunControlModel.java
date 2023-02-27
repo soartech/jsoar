@@ -14,17 +14,17 @@ import javax.swing.JTextField;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ray
  */
 public class RunControlModel implements Disposable
 {
-    private static final Logger logger = LoggerFactory.getLogger(Agent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Agent.class);
     
     private PlainDocument count = new PlainDocument();
     {
@@ -32,7 +32,7 @@ public class RunControlModel implements Disposable
         {
             count.insertString(0, "1", null);
         }
-        catch (BadLocationException e)
+        catch(BadLocationException e)
         {
             throw new RuntimeException(e);
         }
@@ -54,13 +54,13 @@ public class RunControlModel implements Disposable
     {
         try
         {
-            return Long.valueOf(count.getText(0, count.getLength()));
+            return Long.parseLong(count.getText(0, count.getLength()));
         }
-        catch (NumberFormatException e)
+        catch(NumberFormatException e)
         {
             return 1;
         }
-        catch (BadLocationException e)
+        catch(BadLocationException e)
         {
             return 1;
         }
@@ -72,9 +72,9 @@ public class RunControlModel implements Disposable
         {
             this.count.replace(0, this.count.getLength(), Long.toString(count), null);
         }
-        catch (BadLocationException e)
+        catch(BadLocationException e)
         {
-            logger.error("Failed to set count to " + count, e);
+            LOG.error("Failed to set count to " + count, e);
         }
     }
     
@@ -101,8 +101,10 @@ public class RunControlModel implements Disposable
         cb.setSelectedItem(getType());
         return cb;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Disposable#dispose()
      */
     @Override
@@ -112,7 +114,7 @@ public class RunControlModel implements Disposable
         prefs.putLong("count", getCount());
         prefs.put("type", getType().name());
     }
-
+    
     private Preferences getPrefs()
     {
         return JSoarDebugger.getPreferences().node("run");

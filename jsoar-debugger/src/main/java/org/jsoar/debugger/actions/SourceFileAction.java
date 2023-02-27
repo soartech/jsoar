@@ -25,7 +25,7 @@ public class SourceFileAction extends AbstractDebuggerAction
     private static final long serialVersionUID = -7639843952865259437L;
     
     private String lastDir = System.getProperty("user.dir");
-
+    
     public SourceFileAction(ActionManager manager)
     {
         super(manager, "Source File ...");
@@ -33,35 +33,41 @@ public class SourceFileAction extends AbstractDebuggerAction
         setAcceleratorKey(KeyStroke.getKeyStroke("ctrl O"));
         lastDir = JSoarDebugger.getPreferences().get("lastSourceDir", System.getProperty("user.dir"));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
     public void update()
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
         JFileChooser chooser = new JFileChooser(lastDir);
-        chooser.setFileFilter(new FileFilter() {
-
+        chooser.setFileFilter(new FileFilter()
+        {
+            
             @Override
             public boolean accept(File f)
             {
                 return f.isDirectory() || (f.isFile() && "soar".equals(FileTools.getExtension(f.getName())));
             }
-
+            
             @Override
             public String getDescription()
             {
                 return "Soar Files (*.soar)";
-            }});
+            }
+        });
         
         if(JFileChooser.CANCEL_OPTION == chooser.showOpenDialog(getApplication().getTopLevelAncestor()))
         {
@@ -80,7 +86,7 @@ public class SourceFileAction extends AbstractDebuggerAction
             {
                 interp.source(f);
             }
-            catch (SoarException e)
+            catch(SoarException e)
             {
                 // TODO this is a little smelly.
                 getApplication().getAgent().getPrinter().error(e.getMessage());
@@ -90,5 +96,5 @@ public class SourceFileAction extends AbstractDebuggerAction
         }, getApplication().newUpdateCompleter(false));
         
     }
-
+    
 }

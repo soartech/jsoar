@@ -10,11 +10,11 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
- * Interface use by objects that need to construct WMEs such as a 
+ * Interface use by objects that need to construct WMEs such as a
  * RHS function or input generator
  * 
  * @param <T> the return type of {@link #addWme(Identifier, Symbol, Symbol)}.
- *      Typically {@code Void}, {@code Wme}, or {@code InputWme}
+ *     Typically {@code Void}, {@code Wme}, or {@code InputWme}
  * @author ray
  */
 public interface WmeFactory<T>
@@ -33,7 +33,7 @@ public interface WmeFactory<T>
      * @param attr the attribute of the new WME
      * @param value the value of the new WME
      * @return the new WME, or possibly {@code Void} if the WME is not created
-     *  immediately.
+     * immediately.
      */
     T addWme(Identifier id, Symbol attr, Symbol value);
 }

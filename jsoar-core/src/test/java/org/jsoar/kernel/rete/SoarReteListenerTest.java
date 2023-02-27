@@ -5,54 +5,54 @@
  */
 package org.jsoar.kernel.rete;
 
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.RunType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class SoarReteListenerTest
+class SoarReteListenerTest
 {
     private Agent agent;
-
-    @Before
-    public void setUp() throws Exception
+    
+    @BeforeEach
+    void setUp() throws Exception
     {
         agent = new Agent("SoarReteListenerTest");
     }
-
-    @After
-    public void tearDown() throws Exception
+    
+    @AfterEach
+    void tearDown() throws Exception
     {
         agent.dispose();
         agent = null;
     }
-
+    
     @Test
-    public void testInterruptsTheAgentWhenTheInterruptFlagIsSet() throws Exception
+    void testInterruptsTheAgentWhenTheInterruptFlagIsSet() throws Exception
     {
         agent.getProductions().loadProduction(
-        "propose*init\n" +
-        "(state <s> ^superstate nil\n" +
-        "          -^name)\n" +
-        "-->\n" +
-        "(<s> ^operator.name init)\n" +
-        "");
+                "propose*init\n" +
+                        "(state <s> ^superstate nil\n" +
+                        "          -^name)\n" +
+                        "-->\n" +
+                        "(<s> ^operator.name init)\n" +
+                        "");
         
         agent.getProductions().loadProduction(
-        "apply*init\n" +
-        ":interrupt\n" +
-        "(state <s> ^operator.name init)\n" +
-        "-->\n" +
-        "(<s> ^name done)\n" +
-        "");
+                "apply*init\n" +
+                        ":interrupt\n" +
+                        "(state <s> ^operator.name init)\n" +
+                        "-->\n" +
+                        "(<s> ^name done)\n" +
+                        "");
         
         agent.runFor(500, RunType.DECISIONS);
         
@@ -63,22 +63,22 @@ public class SoarReteListenerTest
     }
     
     @Test
-    public void testInterruptsTheAgentWhenBreakpointIsEnabled() throws Exception
+    void testInterruptsTheAgentWhenBreakpointIsEnabled() throws Exception
     {
         agent.getProductions().loadProduction(
-        "propose*init\n" +
-        "(state <s> ^superstate nil\n" +
-        "          -^name)\n" +
-        "-->\n" +
-        "(<s> ^operator.name init)\n" +
-        "");
+                "propose*init\n" +
+                        "(state <s> ^superstate nil\n" +
+                        "          -^name)\n" +
+                        "-->\n" +
+                        "(<s> ^operator.name init)\n" +
+                        "");
         
         agent.getProductions().loadProduction(
-        "apply*init\n" +
-        "(state <s> ^operator.name init)\n" +
-        "-->\n" +
-        "(<s> ^name done)\n" +
-        "");
+                "apply*init\n" +
+                        "(state <s> ^operator.name init)\n" +
+                        "-->\n" +
+                        "(<s> ^name done)\n" +
+                        "");
         final Production p = agent.getProductions().getProduction("apply*init");
         p.setBreakpointEnabled(true);
         

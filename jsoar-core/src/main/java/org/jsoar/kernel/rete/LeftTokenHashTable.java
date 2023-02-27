@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rete;
 
-
 /**
  * @author ray
  */
@@ -13,7 +12,7 @@ public class LeftTokenHashTable
 {
     private static final int LOG2_LEFT_HT_SIZE = 14;
     private static final int LEFT_HT_SIZE = 1 << LOG2_LEFT_HT_SIZE;
-
+    
     private static final int LEFT_HT_MASK = LEFT_HT_SIZE - 1;
     
     private final LeftToken[] buckets = new LeftToken[LEFT_HT_SIZE];
@@ -31,11 +30,11 @@ public class LeftTokenHashTable
      * @param hv
      * @return the head of the bucket
      */
-    public LeftToken left_ht_bucket(int hv) 
+    public LeftToken left_ht_bucket(int hv)
     {
         int index = hv & LEFT_HT_MASK;
         return buckets[index];
-        //return (* ( ((token **) thisAgent->left_ht) + ((hv) & LEFT_HT_MASK)));
+        // return (* ( ((token **) thisAgent->left_ht) + ((hv) & LEFT_HT_MASK)));
     }
     
     /**
@@ -44,7 +43,7 @@ public class LeftTokenHashTable
      * @param tok
      * @param hv
      */
-    public void insert_token_into_left_ht(LeftToken tok, int hv) 
+    public void insert_token_into_left_ht(LeftToken tok, int hv)
     {
         buckets[hv & LEFT_HT_MASK] = tok.addToHashTable(buckets[hv & LEFT_HT_MASK]);
     }
@@ -59,5 +58,5 @@ public class LeftTokenHashTable
     {
         buckets[hv & LEFT_HT_MASK] = tok.removeFromHashTable(buckets[hv & LEFT_HT_MASK]);
     }
-
+    
 }

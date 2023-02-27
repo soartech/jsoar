@@ -5,44 +5,43 @@
  */
 package org.jsoar.kernel.tracing;
 
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.events.PrintEvent;
 import org.jsoar.util.NullWriter;
 import org.jsoar.util.events.SoarEventManager;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class PrintEventWriterTest
+class PrintEventWriterTest
 {
     private SoarEventManager events;
     private Printer printer;
-
-    @Before
-    public void setUp() throws Exception
+    
+    @BeforeEach
+    void setUp() throws Exception
     {
         this.events = new SoarEventManager();
         this.printer = new Printer(new NullWriter());
         this.printer.addPersistentWriter(new PrintEventWriter(events));
     }
-
-    @After
-    public void tearDown() throws Exception
+    
+    @AfterEach
+    void tearDown() throws Exception
     {
     }
-
+    
     @Test
-    public void testPrintEventIsFiredOnFlush()
+    void testPrintEventIsFiredOnFlush()
     {
-        final AtomicReference<String> text = new AtomicReference<String>();
+        final AtomicReference<String> text = new AtomicReference<>();
         events.addListener(PrintEvent.class, event -> text.set(((PrintEvent) event).getText()));
         
         printer.print("abcdefghijk");
@@ -52,9 +51,9 @@ public class PrintEventWriterTest
     }
     
     @Test
-    public void testDoesNotFirePrintEventIfNothingHasBeenPrinted()
+    void testDoesNotFirePrintEventIfNothingHasBeenPrinted()
     {
-        final AtomicReference<String> text = new AtomicReference<String>();
+        final AtomicReference<String> text = new AtomicReference<>();
         events.addListener(PrintEvent.class, event -> text.set(((PrintEvent) event).getText()));
         
         assertNull(text.get());

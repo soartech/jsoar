@@ -5,31 +5,30 @@
  */
 package org.jsoar.legilimens.trace;
 
-
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.jsoar.kernel.Agent;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class AgentTraceBufferTest
+class AgentTraceBufferTest
 {
     private Agent agent;
     private AgentTraceBuffer traceBuffer;
     
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         agent = new Agent();
         traceBuffer = AgentTraceBuffer.attach(agent, 16);
     }
     
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown() throws Exception
     {
         traceBuffer.detach();
         traceBuffer.getTraceFile().delete();
@@ -38,7 +37,7 @@ public class AgentTraceBufferTest
     }
     
     @Test
-    public void testRingBufferIsHitWhenRecentTraceIsRequested() throws Exception
+    void testRingBufferIsHitWhenRecentTraceIsRequested() throws Exception
     {
         assertEquals(0, traceBuffer.getTraceLength());
         assertEquals(0, traceBuffer.getPermBufferAccesses());
@@ -56,7 +55,7 @@ public class AgentTraceBufferTest
     }
     
     @Test
-    public void testPermBufferIsHitWhenOlderTraceIsRequested() throws Exception
+    void testPermBufferIsHitWhenOlderTraceIsRequested() throws Exception
     {
         final String text = "123456789abcdefghijklmnop"; // larger than 16 above
         agent.getPrinter().print(text).flush();

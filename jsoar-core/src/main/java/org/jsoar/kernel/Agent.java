@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
@@ -88,7 +87,7 @@ import org.slf4j.LoggerFactory;
  *     ReinforcementLearning rl = Adaptables.adapt(agent, ReinforcementLearning.class);
  * }</pre>
  * 
- * Note that this access pattern should generally  be assumed to be unstable. It is
+ * Note that this access pattern should generally be assumed to be unstable. It is
  * useful for research programming, but for general development should be avoided. If
  * a particular value in a module need to be exposed, consider exposing it through
  * the property system.
@@ -102,9 +101,9 @@ import org.slf4j.LoggerFactory;
  */
 public class Agent extends AbstractAdaptable implements AgentRunController
 {
-    private static final Logger logger = LoggerFactory.getLogger(Agent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Agent.class);
     
-    private static final AtomicInteger nextName = new AtomicInteger(0);
+    private static final AtomicInteger NEXT_NAME = new AtomicInteger(0);
     
     private DebuggerProvider debuggerProvider = new DefaultDebuggerProvider();
     private Printer printer = new Printer(new NullWriter());
@@ -151,7 +150,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     
     private final LogManager logManager = new LogManager(this);
     
-	/**
+    /**
      * agent.h:480:total_cpu_time
      */
     private final ExecutionTimer totalCpuTimer = DefaultExecutionTimer.newInstance().setName("Total CPU time");
@@ -171,13 +170,12 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      *    InputOutputImpl io = Adaptables.adapt(agent, InputOutputImpl.class);
      * }</pre>
      * 
-     * This allows these fields to be private (not cluttering up the public interface) 
+     * This allows these fields to be private (not cluttering up the public interface)
      * while still making them accessible to the spaghetti that is the kernel at the
      * moment. Hopefully, it will become less necessary as the system is cleaned up.
      */
-    private final List<Object> adaptables = Arrays.asList((Object) 
-            printer, trace, decisionManip, exploration, io, traceFormats, properties, 
-            chunker, explain, decisionCycle, rete, predefinedSyms, 
+    private final List<Object> adaptables = Arrays.asList((Object) printer, trace, decisionManip, exploration, io, traceFormats, properties,
+            chunker, explain, decisionCycle, rete, predefinedSyms,
             predefinedSyms.getSyms(), decider, printer, rhsFunctions,
             workingMemory, tempMemory, recMemory, osupport, soarReteListener,
             consistency,
@@ -185,7 +183,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             smem, wma, epmem);
     
     /**
-     * Construct a new agent with a generated name.  Also initializes
+     * Construct a new agent with a generated name. Also initializes
      * the agent.
      * 
      * @see #Agent(String, boolean)
@@ -196,7 +194,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     }
     
     /**
-     * Construct a new agent with a generated name.  Also lets you explicitly
+     * Construct a new agent with a generated name. Also lets you explicitly
      * state whether to initialize the agent.
      * 
      * @see #Agent(String, boolean)
@@ -207,7 +205,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     }
     
     /**
-     * Construct a new agent with the given name.  Also initializes
+     * Construct a new agent with the given name. Also initializes
      * the agent.
      * 
      * @see #Agent(String, boolean)
@@ -218,16 +216,16 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     }
     
     /**
-     * Construct a new agent with the given name.  Also lets you explicitly
+     * Construct a new agent with the given name. Also lets you explicitly
      * state whether to initialize the agent
      * 
      * @param name the name. If {@code null}, a new name is generated.
      * @param initializeAgent lets you explicitly choose whether to initialize
-     * the agent.
+     *     the agent.
      */
     public Agent(String name, boolean initializeAgent)
     {
-        setName(name != null ? name : "JSoar Agent " + nextName.incrementAndGet());
+        setName(name != null ? name : "JSoar Agent " + NEXT_NAME.incrementAndGet());
         
         this.printer.addPersistentWriter(new PrintEventWriter(getEvents()));
         
@@ -252,56 +250,50 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         new StandardFunctions(this);
         installDefaultTraceFormats();
         
-        if (initializeAgent)
+        if(initializeAgent)
         {
-        	this.initialize();
+            this.initialize();
         }
     }
     
     /**
-     * Dispose of this agent and any additional resources it is holding 
+     * Dispose of this agent and any additional resources it is holding
      */
     public void dispose()
     {
         setInterpreter(null);
         
-        if(smem != null)
+        try
         {
-            try
-            {
-                smem.smem_close();
-            }
-            catch (SoarException e)
-            {
-                logger.error("While closing smem database: " + e.getMessage(), e);
-            }
+            smem.smem_close();
+        }
+        catch(SoarException e)
+        {
+            LOG.error("While closing smem database", e);
         }
         
-        if (epmem != null)
+        try
         {
-            try
-            {
-                epmem.epmem_close();
-            }
-            catch (SoarException e)
-            {
-                logger.error("While closing epmem database: " + e.getMessage(), e);
-            }
+            epmem.epmem_close();
+        }
+        catch(SoarException e)
+        {
+            LOG.error("While closing epmem database", e);
         }
         
-        logger.info("Agent '" + this + "' disposed.");
+        LOG.info("Agent '{}' disposed.", this);
     }
     
     /**
      * Returns the name of the agent. This is also bound to {@link SoarProperties#NAME}
-     *  
+     * 
      * @return the name of the agent
      */
     public String getName()
     {
         return getProperties().get(SoarProperties.NAME);
     }
-
+    
     /**
      * Set the name of the agent. This can also be set with property
      * {@link SoarProperties#NAME}.
@@ -312,17 +304,17 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     {
         getProperties().set(SoarProperties.NAME, name);
     }
-
+    
     /**
      * The agent's current debugger provider
      * 
-     * @return the  current debugger provider
+     * @return the current debugger provider
      */
     public DebuggerProvider getDebuggerProvider()
     {
         return debuggerProvider;
     }
-
+    
     /**
      * Set the agent's current debugger provider. This is the mechanism used
      * by the debug RHS function to launch a debugger.
@@ -334,12 +326,12 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         Arguments.checkNotNull(debuggerProvider, "debuggerProvider");
         this.debuggerProvider = debuggerProvider;
     }
-
+    
     /**
      * Open the debugger using the currently registered {@link DebuggerProvider}.
      * Convenience method, equivalent to {@code getDebuggerProvider().openDebugger(this)}.
      * 
-     * @throws SoarException 
+     * @throws SoarException
      */
     public void openDebugger() throws SoarException
     {
@@ -350,8 +342,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      * Open the debugger using the currently registered {@link DebuggerProvider}.
      * Convenience method, equivalent to {@code getDebuggerProvider().openDebuggerAndWait(this)}.
      * 
-     * @throws SoarException 
-     * @throws InterruptedException 
+     * @throws SoarException
+     * @throws InterruptedException
      */
     public void openDebuggerAndWait() throws SoarException, InterruptedException
     {
@@ -368,12 +360,12 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     }
     
     /**
-     * Must be called before the agent is run. This is separate from the 
+     * Must be called before the agent is run. This is separate from the
      * constructor to give client code the change to register callbacks,
      * modify the trace level or printer, etc before the agent is initialized,
      * which may initiate these actions.
-     *  
-     * <p>If called again, this function is equivalent to the "init-soar" 
+     * 
+     * <p>If called again, this function is equivalent to the "init-soar"
      * command.
      */
     public void initialize()
@@ -404,20 +396,20 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      */
     public SoarCommandInterpreter getInterpreter()
     {
-        synchronized(this)
+        synchronized (this)
         {
             if(interp == null)
             {
                 interp = createInterpreter(System.getProperty("jsoar.agent.interpreter", "default"));
-                logger.info("Current command interpreter is '" + interp.getName() + "' : '" + interp.getClass() + "'");
+                LOG.info("Current command interpreter is '{}' : '{}'", interp.getName(), interp.getClass());
                 final String DEFAULT_ALIASES = "/org/jsoar/kernel/commands/aliases";
                 try
                 {
                     interp.source(Agent.class.getResource(DEFAULT_ALIASES));
                 }
-                catch (SoarException e)
+                catch(SoarException e)
                 {
-                    logger.error("Failed to load default aliases from '" + DEFAULT_ALIASES + "': " + e.getMessage(), e);
+                    LOG.error("Failed to load default aliases from '{}'", DEFAULT_ALIASES, e);
                 }
             }
             return interp;
@@ -427,34 +419,33 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private SoarCommandInterpreter createInterpreter(String name)
     {
         final ServiceLoader<SoarCommandInterpreterFactory> loader = ServiceLoader.load(SoarCommandInterpreterFactory.class);
-        for(Iterator<SoarCommandInterpreterFactory> it = loader.iterator(); it.hasNext();)
+        for(SoarCommandInterpreterFactory factory : loader)
         {
-            final SoarCommandInterpreterFactory factory = it.next();
             if(name == null || name.equals(factory.getName()))
             {
                 return factory.create(this);
             }
         }
         
-        logger.warn("Could not find interpreter named '" + name + "'. Using default.");
+        LOG.warn("Could not find interpreter named '{}'. Using default.", name);
         return new DefaultInterpreter(this);
     }
     
     /**
-     * Set the agent's current command interpreter. 
+     * Set the agent's current command interpreter.
      * 
      * @param interp the new interpreter
      */
     public void setInterpreter(SoarCommandInterpreter interp)
     {
-        synchronized(this)
+        synchronized (this)
         {
             if(this.interp != null)
             {
                 this.interp.dispose();
             }
             this.interp = interp;
-            logger.info("Current command interpreter is '" + (interp != null ? interp.getClass() : "none") + "'");
+            LOG.info("Current command interpreter is '{}'", interp != null ? interp.getClass() : "none");
         }
     }
     
@@ -501,7 +492,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     {
         return multiAttrs;
     }
- 
+    
     /**
      * Returns the agent's event manager. Use this interface to register
      * for events generated by the agent.
@@ -512,9 +503,6 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     {
         return eventManager;
     }
-    
-    @Deprecated
-    public SoarEventManager getEventManager() { return getEvents(); }
     
     /**
      * Returns the agent's production manager. Use this interface to access
@@ -568,12 +556,12 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             return info.getValue();
         }
         
-        if (t.charAt(0) == '@')
+        if(t.charAt(0) == '@')
         {
             t = t.substring(1);
         }
         
-        if (t.length() < 2 || !Character.isLetter(t.charAt(0)))
+        if(t.length() < 2 || !Character.isLetter(t.charAt(0)))
         {
             return null;
         }
@@ -594,7 +582,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     
     /**
      * @return the current goal stack as a list of goal identifiers. The
-     *  caller may modify the list without affecting the agent.
+     * caller may modify the list without affecting the agent.
      */
     public List<Goal> getGoalStack()
     {
@@ -614,47 +602,49 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             states = operators = true;
         }
         // We don't want to keep printing forever (in case we're in a state no change cascade).
-        final int maxStates = 500 ;
-        int stateCount = 0 ;
-
+        final int maxStates = 500;
+        int stateCount = 0;
+        
         final Writer writer = printer.getWriter();
         
-        for (IdentifierImpl g = decider.top_goal; g != null; g = g.goalInfo.lower_goal) 
+        for(IdentifierImpl g = decider.top_goal; g != null; g = g.goalInfo.lower_goal)
         {
-            stateCount++ ;
-
-            if (stateCount > maxStates)
-                continue ;
-
+            stateCount++;
+            
+            if(stateCount > maxStates)
+            {
+                continue;
+            }
+            
             try
             {
-                if (states)
+                if(states)
                 {
-                    traceFormats.print_stack_trace (writer,g, g, TraceFormatRestriction.FOR_STATES_TF, false);
+                    traceFormats.print_stack_trace(writer, g, g, TraceFormatRestriction.FOR_STATES_TF, false);
                     writer.append('\n');
                 }
-                if (operators && g.goalInfo.operator_slot.getWmes() != null) 
+                if(operators && g.goalInfo.operator_slot.getWmes() != null)
                 {
-                    traceFormats.print_stack_trace (writer, g.goalInfo.operator_slot.getWmes().value,
-                        g, TraceFormatRestriction.FOR_OPERATORS_TF, false);
+                    traceFormats.print_stack_trace(writer, g.goalInfo.operator_slot.getWmes().value,
+                            g, TraceFormatRestriction.FOR_OPERATORS_TF, false);
                     writer.append('\n');
                 }
             }
-            catch (IOException e)
+            catch(IOException e)
             {
             }
         }
-
-        if (stateCount > maxStates)
+        
+        if(stateCount > maxStates)
         {
-            printer.print ("...Stack goes on for another %d states\n", stateCount - maxStates);
+            printer.print("...Stack goes on for another %d states\n", stateCount - maxStates);
         }
         printer.flush();
     }
     
     /**
      * @return the agent's random number generator. It is safe to call setSeed()
-     *      on the returned generator.
+     * on the returned generator.
      */
     public Random getRandom()
     {
@@ -668,7 +658,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     {
         return totalCpuTimer;
     }
-
+    
     /**
      * @return the totalKernelTimer
      */
@@ -676,13 +666,15 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     {
         return totalKernelTimer;
     }
-
+    
     public List<ExecutionTimer> getAllTimers()
     {
         return Arrays.asList(totalCpuTimer, totalKernelTimer);
     }
-      
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.AgentRunController#getStopPhase()
      */
     @Override
@@ -690,8 +682,10 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     {
         return getProperties().get(SoarProperties.STOP_PHASE);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.AgentRunController#setStopPhase(org.jsoar.kernel.Phase)
      */
     @Override
@@ -699,20 +693,22 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     {
         getProperties().set(SoarProperties.STOP_PHASE, phase);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.AgentRunController#runFor(long, org.jsoar.kernel.RunType)
      */
     public void runFor(long n, RunType runType)
     {
         ensureInitialized();
         
-        //  Before running, check to see if an agent is at a point other than the StopBeforePhase.
-        //  If so, we'll decrement  the RunCount before entering the Run loop so  
-        //  as not to run more Decision phases than specified in the runCount.  See bug #710.
-        if (runType == RunType.DECISIONS)
+        // Before running, check to see if an agent is at a point other than the StopBeforePhase.
+        // If so, we'll decrement the RunCount before entering the Run loop so
+        // as not to run more Decision phases than specified in the runCount. See bug #710.
+        if(runType == RunType.DECISIONS)
         {
-            if (this.decisionCycle.current_phase.get() != getStopPhase() && (n > 0))
+            if(this.decisionCycle.current_phase.get() != getStopPhase() && (n > 0))
             {
                 n--;
             }
@@ -721,7 +717,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         this.decisionCycle.runFor(n, runType);
         getTrace().flush();
     }
-
+    
     /**
      * Run this agent forever, i.e. until an interrupt or halt. The agent is
      * run in the current thread.
@@ -749,10 +745,10 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     
     /**
      * Request that the agent stop, i.e. exit the active call to {@link #runFor(long, RunType)}
-     * of {@link #runForever()}. 
+     * of {@link #runForever()}.
      * 
      * <p>This method is not thread safe. It must be called from the same thread that the
-     * agent is running in. 
+     * agent is running in.
      */
     public void stop()
     {
@@ -761,7 +757,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     
     /**
      * @return the reason the agent stopped, or <code>null</code> if the agent
-     *  has not stopped.
+     * has not stopped.
      */
     public String getReasonForStop()
     {
@@ -790,7 +786,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      */
     public Set<Wme> getAllWmesInRete()
     {
-        return new LinkedHashSet<Wme>(rete.getAllWmes());
+        return new LinkedHashSet<>(rete.getAllWmes());
     }
     
     /**
@@ -840,7 +836,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     
     public LogManager getLogManager()
     {
-    	return logManager;
+        return logManager;
     }
     
     /**
@@ -849,65 +845,64 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private void init_agent_memory()
     {
         // If there is already a top goal this function should probably not be called
-        if (decider.top_goal != null)
+        if(decider.top_goal != null)
         {
             throw new IllegalStateException("There should be no top goal when init_agent_memory is called!");
         }
-
+        
         decider.create_top_goal();
-
-        if (trace.isEnabled() && trace.isEnabled(Category.CONTEXT_DECISIONS))
+        
+        if(trace.isEnabled() && trace.isEnabled(Category.CONTEXT_DECISIONS))
         {
             final Writer writer = trace.getPrinter().getWriter();
             try
             {
                 writer.write("\n");
-                traceFormats.print_lowest_slot_in_context_stack (writer, decider.bottom_goal);
+                traceFormats.print_lowest_slot_in_context_stack(writer, decider.bottom_goal);
             }
-            catch (IOException e)
+            catch(IOException e)
             {
-                logger.error("IOException while printing initial stack trace. Ignoring.", e);
+                LOG.error("IOException while printing initial stack trace. Ignoring.", e);
             }
         }
         decisionCycle.current_phase.set(Phase.INPUT);
         decisionCycle.d_cycle_count.increment();
         wma.d_cycle_count_increment();
         
-
         io.init_agent_memory();
-
+        
         // KJC & RPM 10/06
         // A lot of stuff isn't initialized properly until the input and output
-        // cycles are run the first time. Because of this, SW had to put in a 
+        // cycles are run the first time. Because of this, SW had to put in a
         // hack to work around changes made to the output-link in the first
-        // dc not being visible. (see comment near end of update_for_top_state_wme_addition). 
-        // This change added an item to the associated_output_links list. But the 
-        // ol->ids_in_tc is still not initialized until the first output phases, 
-        // so if we exit before that, remove_output_link_tc_info doesn't see it 
+        // dc not being visible. (see comment near end of update_for_top_state_wme_addition).
+        // This change added an item to the associated_output_links list. But the
+        // ol->ids_in_tc is still not initialized until the first output phases,
+        // so if we exit before that, remove_output_link_tc_info doesn't see it
         // and doesn't clean up the associated_output_links list.
         // If we do run an output phases, though, the same item is added to the
         // associated_output_links list twice.
         // ol->ids_in_tc gets initialized, so remove_output_link_tc_info -- but
         // it only cleans up the first copy of the item.
         // All of these problems come back to things not being initialized
-        // properly, so we run the input and output phases here to force proper 
+        // properly, so we run the input and output phases here to force proper
         // initialization (and have commented out SW's changes to
         // update_for_top_state_wme_addition). This will cause somecallbacks to
         // be triggered, but we don't think this is a problem for two reasons:
         // 1) these events are currently not exposed through SML, so no clients
         // will see them
         // 2) even if these events were exposed, they are being fired during
-        // agent creation. Since the agent hasn't been created yet, no client 
+        // agent creation. Since the agent hasn't been created yet, no client
         // could have registered for the events anyway.
-        // Note that this change replaces the do_buffered_wm_and_ownership_changes 
-        // call which attempted to do some initialization (including triggering 
+        // Note that this change replaces the do_buffered_wm_and_ownership_changes
+        // call which attempted to do some initialization (including triggering
         // SW's changes).
         io.do_input_cycle();
         io.do_output_cycle();
-
+        
         // executing the IO cycles above, increments the timers, so reset
         // Initializing all the timer structures */
-        for (ExecutionTimer timer : getAllTimers())
+        for(ExecutionTimer timer : getAllTimers())
         {
             timer.reset();
         }
@@ -921,28 +916,28 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private void installDefaultTraceFormats()
     {
         // add default object trace formats
-        traceFormats.add_trace_format (false, TraceFormatRestriction.FOR_ANYTHING_TF, null,
-                                       "%id %ifdef[(%v[name])]");
-        traceFormats.add_trace_format (false, TraceFormatRestriction.FOR_STATES_TF, null,
-                                       "%id %ifdef[(%v[attribute] %v[impasse])]");
-        traceFormats.add_trace_format (false, TraceFormatRestriction.FOR_OPERATORS_TF, 
-                                       syms.createString ("evaluate-object"),
-                                       "%id (evaluate-object %o[object])");
+        traceFormats.add_trace_format(false, TraceFormatRestriction.FOR_ANYTHING_TF, null,
+                "%id %ifdef[(%v[name])]");
+        traceFormats.add_trace_format(false, TraceFormatRestriction.FOR_STATES_TF, null,
+                "%id %ifdef[(%v[attribute] %v[impasse])]");
+        traceFormats.add_trace_format(false, TraceFormatRestriction.FOR_OPERATORS_TF,
+                syms.createString("evaluate-object"),
+                "%id (evaluate-object %o[object])");
         
         // add default stack trace formats
-        traceFormats.add_trace_format (true, TraceFormatRestriction.FOR_STATES_TF, null,
-                                       "%right[6,%dc]: %rsd[   ]==>S: %cs");
-        traceFormats.add_trace_format (true, TraceFormatRestriction.FOR_OPERATORS_TF, null,
-                                       "%right[6,%dc]: %rsd[   ]   O: %co");
+        traceFormats.add_trace_format(true, TraceFormatRestriction.FOR_STATES_TF, null,
+                "%right[6,%dc]: %rsd[   ]==>S: %cs");
+        traceFormats.add_trace_format(true, TraceFormatRestriction.FOR_OPERATORS_TF, null,
+                "%right[6,%dc]: %rsd[   ]   O: %co");
     }
-
+    
     /**
      * init_soar.cpp:350:reinitialize_soar
      */
     private void reinitialize_soar()
     {
         getEvents().fireEvent(new BeforeInitSoarEvent(this));
-
+        
         // Temporarily disable tracing
         boolean traceState = trace.isEnabled();
         trace.setEnabled(false);
@@ -951,7 +946,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         {
             epmem.epmem_close();
         }
-        catch (SoarException e2)
+        catch(SoarException e2)
         {
             throw new RuntimeException("EpMem failed to close.", e2);
         }
@@ -959,11 +954,11 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         {
             smem.smem_close();
         }
-        catch (SoarException e1)
+        catch(SoarException e1)
         {
             throw new RuntimeException("SMem failed to close.", e1);
         }
-
+        
         boolean wma_was_enabled = wma.wma_enabled();
         wma.getParams().activation.set(ActivationChoices.off);
         
@@ -976,14 +971,14 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             wma.getParams().activation.set(ActivationChoices.on);
         }
         
-        //TODO rl.rl_reset_stats();
+        // TODO rl.rl_reset_stats();
         wma.getStats().reset();
-
+        
         decider.active_level = 0; // Signal that everything should be retracted
         recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
         // allow all i-instantiations to retract
-        recMemory.do_preference_phase(decider.top_goal); 
-
+        recMemory.do_preference_phase(decider.top_goal);
+        
         explain.reset_explain();
         syms.reset();
         
@@ -991,11 +986,11 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         {
             smem.smem_reset_id_counters(); // This was originally at the end of reset_id_counters()
         }
-        catch (SoarException e)
+        catch(SoarException e)
         {
-            logger.error("While trying to reset SMEM id counters: " + e.getMessage(), e);
+            LOG.error("While trying to reset SMEM id counters: " + e.getMessage(), e);
             printer.error("While trying to reset SMEM id counters: " + e.getMessage());
-        } 
+        }
         
         // TODO epmem reset if any
         
@@ -1004,32 +999,33 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         recMemory.reset();
         chunker.reset();
         wma.reset();
-
+        
         reset_statistics();
-
         
         // Restore trace state
         trace.setEnabled(traceState);
         
         getEvents().fireEvent(new AfterInitSoarEvent(this));
     }
-
+    
     /**
      * <p>init_soar.cpp:297:reset_statistics
      */
     private void reset_statistics()
     {
         chunker.chunks_this_d_cycle = 0;
-
+        
         productions.resetStatistics();
-
-        for (ExecutionTimer timer : getAllTimers())
+        
+        for(ExecutionTimer timer : getAllTimers())
         {
             timer.reset();
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
      */
     @Override
@@ -1042,8 +1038,10 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         }
         return super.getAdapter(klass);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

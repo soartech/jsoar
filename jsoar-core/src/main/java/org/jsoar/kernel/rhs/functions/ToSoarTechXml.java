@@ -14,7 +14,7 @@ import org.jsoar.util.XmlTools;
 import org.w3c.dom.Document;
 
 /**
- * A RHS function that converts working memory to XML using {@link SoarTechWmeToXml}. 
+ * A RHS function that converts working memory to XML using {@link SoarTechWmeToXml}.
  * 
  * @author ray
  */
@@ -26,8 +26,10 @@ public class ToSoarTechXml extends AbstractRhsFunctionHandler
     {
         super("to-st-xml", 1, Integer.MAX_VALUE);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override

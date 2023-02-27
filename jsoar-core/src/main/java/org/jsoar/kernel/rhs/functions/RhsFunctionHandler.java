@@ -21,7 +21,7 @@ import org.jsoar.kernel.symbols.Symbol;
 public interface RhsFunctionHandler
 {
     /**
-     * Returns the name of the function. This method must always return the 
+     * Returns the name of the function. This method must always return the
      * same value as long as the handler is registered.
      * 
      * @return The name of the function, e.g. "write"
@@ -57,5 +57,5 @@ public interface RhsFunctionHandler
      * @throws RhsFunctionException if an error occurs
      */
     Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException;
-
+    
 }

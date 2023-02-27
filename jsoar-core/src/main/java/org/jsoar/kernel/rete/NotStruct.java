@@ -14,8 +14,8 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
  */
 public class NotStruct
 {
-    public NotStruct next;  /* next Not in the singly-linked list */
-    public final IdentifierImpl s1;               /* the two identifiers constrained to be "<>" */
+    public NotStruct next; /* next Not in the singly-linked list */
+    public final IdentifierImpl s1; /* the two identifiers constrained to be "<>" */
     public final IdentifierImpl s2;
     
     /**
@@ -27,6 +27,5 @@ public class NotStruct
         this.s1 = s1;
         this.s2 = s2;
     }
-    
     
 }

@@ -21,8 +21,10 @@ public class Timestamp extends AbstractRhsFunctionHandler
     {
         super("timestamp", 0, 0);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -32,5 +34,5 @@ public class Timestamp extends AbstractRhsFunctionHandler
         RhsFunctions.checkArgumentCount(this, arguments);
         return context.getSymbols().createString(LogManager.getTimestamp());
     }
-
+    
 }

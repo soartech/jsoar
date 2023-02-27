@@ -13,13 +13,13 @@ package org.jsoar.util.markers;
 public class DefaultMarker implements Marker
 {
     /**
-     * Get_new_tc_number() is called from lots of places.  Any time we need
+     * Get_new_tc_number() is called from lots of places. Any time we need
      * to mark a set of identifiers and/or variables, we get a new tc_number
      * by calling this routine, then proceed to mark various ids or vars
      * by setting the {@code sym->id.tc_num} or {@code sym->var.tc_num} fields.
      * 
      * <p>A global tc number counter is maintained and incremented by this
-     * routine in order to generate a different tc_number each time.  If
+     * routine in order to generate a different tc_number each time. If
      * the counter ever wraps around back to 0, we bump it up to 1 and
      * reset the the tc_num fields on all existing identifiers and variables
      * to 0.
@@ -31,5 +31,7 @@ public class DefaultMarker implements Marker
         return new DefaultMarker();
     }
     
-    private DefaultMarker() {}
+    private DefaultMarker()
+    {
+    }
 }

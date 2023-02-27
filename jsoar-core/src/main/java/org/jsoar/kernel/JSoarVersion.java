@@ -17,42 +17,31 @@ import org.slf4j.LoggerFactory;
  */
 public final class JSoarVersion
 {
-    private static final Logger logger = LoggerFactory.getLogger(JSoarVersion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JSoarVersion.class);
     
     private static final String PREFIX = "jsoar-core.buildinfo";
     
     private static JSoarVersion instance = new JSoarVersion();
-        
+    
     private Properties properties = new Properties();
     
     public static JSoarVersion getInstance()
     {
         return instance;
     }
-
+    
     private JSoarVersion()
     {
-        InputStream input = JSoarVersion.class.getResourceAsStream("/jsoar-core.buildinfo.properties");
-        if(input != null)
+        try(InputStream input = JSoarVersion.class.getResourceAsStream("/jsoar-core.buildinfo.properties"))
         {
-            try
+            if(input != null)
             {
                 properties.load(input);
             }
-            catch (IOException e)
-            {
-                logger.error("Failed to load buildinfo properties: " + e.getMessage());
-            }
-            finally
-            {
-                try
-                {
-                    input.close();
-                }
-                catch (IOException e)
-                {
-                }
-            }
+        }
+        catch(IOException e)
+        {
+            LOG.error("Failed to load buildinfo properties", e);
         }
     }
     
@@ -65,13 +54,15 @@ public final class JSoarVersion
     {
         return properties.getProperty(PREFIX + ".date", "Unknown");
     }
-
+    
     public String getBuiltBy()
     {
         return properties.getProperty(PREFIX + ".builtBy", "Unknown");
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

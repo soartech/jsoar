@@ -19,7 +19,7 @@ import org.jsoar.util.markers.Marker;
 public class ConjunctiveTest extends ComplexTest
 {
     
-    public final List<Test> conjunct_list = new ArrayList<Test>(3);
+    public final List<Test> conjunct_list = new ArrayList<>(3);
     
     public ConjunctiveTest()
     {
@@ -34,7 +34,9 @@ public class ConjunctiveTest extends ComplexTest
         }
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.lhs.Test#asConjunctiveTest()
      */
     @Override
@@ -42,8 +44,10 @@ public class ConjunctiveTest extends ComplexTest
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#copy()
      */
     @Override
@@ -51,8 +55,10 @@ public class ConjunctiveTest extends ComplexTest
     {
         return new ConjunctiveTest(this);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#addAllVariables(int, java.util.List)
      */
     @Override
@@ -63,8 +69,10 @@ public class ConjunctiveTest extends ComplexTest
             child.addAllVariables(tc_number, var_list);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#addBoundVariables(int, java.util.List)
      */
     @Override
@@ -75,8 +83,10 @@ public class ConjunctiveTest extends ComplexTest
             child.addBoundVariables(tc_number, var_list);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -90,6 +100,4 @@ public class ConjunctiveTest extends ComplexTest
         formatter.format("}");
     }
     
-    
-
 }

@@ -31,9 +31,10 @@ public class EditTestAction extends AbstractAction
         
         this.test = test;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -41,18 +42,17 @@ public class EditTestAction extends AbstractAction
     {
         editTest(test);
     }
-
-
+    
     public static void editTest(Test test)
     {
         try
         {
             Desktop.getDesktop().edit(UrlTools.toFile(test.getTestCase().getUrl()));
         }
-        catch (RuntimeException | IOException | URISyntaxException e1)
+        catch(RuntimeException | IOException | URISyntaxException e1)
         {
             JOptionPane.showMessageDialog(null, e1.getMessage(), "Error opening test", JOptionPane.ERROR_MESSAGE);
         }
     }
-
+    
 }

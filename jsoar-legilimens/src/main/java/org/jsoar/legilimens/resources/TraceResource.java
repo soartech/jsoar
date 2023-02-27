@@ -35,9 +35,9 @@ public class TraceResource extends BaseAgentResource
     {
     }
     
-    
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.resources.BaseAgentResource#doInit()
      */
     @Override
@@ -47,15 +47,14 @@ public class TraceResource extends BaseAgentResource
         
         final String tailString = getQuery().getFirstValue("tail");
         tail = tailString != null ? Integer.parseInt(tailString) : -1;
-
+        
         final String startString = getQuery().getFirstValue("start");
         start = startString != null ? Integer.parseInt(startString) : 0;
         
         final String maxString = getQuery().getFirstValue("max");
         max = maxString != null ? Integer.parseInt(maxString) : -1;
     }
-
-
+    
     @Get("txt")
     public Representation getTextRepresentation()
     {
@@ -71,7 +70,6 @@ public class TraceResource extends BaseAgentResource
             
             RestletTools.setResponseHeader(getResponse(), "X-trace-start", traceRange.getStart());
             RestletTools.setResponseHeader(getResponse(), "X-trace-end", traceRange.getEnd());
-            
             
             if(traceRange.getLength() == 0)
             {

@@ -7,7 +7,6 @@ package org.jsoar.debugger.wm;
 
 import java.awt.geom.Rectangle2D;
 
-
 /**
  * @author ray
  */
@@ -24,6 +23,13 @@ abstract class Row
         this.level = level;
     }
     
-    public WmeRow asWme() { return null; }
-    public RootRow asRoot() { return null; }
+    public WmeRow asWme()
+    {
+        return null;
+    }
+    
+    public RootRow asRoot()
+    {
+        return null;
+    }
 }

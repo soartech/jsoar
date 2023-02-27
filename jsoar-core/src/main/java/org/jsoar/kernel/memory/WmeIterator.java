@@ -27,8 +27,10 @@ public class WmeIterator implements Iterator<Wme>
     {
         this.next = next;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Iterator#hasNext()
      */
     @Override
@@ -36,8 +38,10 @@ public class WmeIterator implements Iterator<Wme>
     {
         return next != null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Iterator#next()
      */
     @Override
@@ -54,8 +58,10 @@ public class WmeIterator implements Iterator<Wme>
         }
         return temp;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Iterator#remove()
      */
     @Override
@@ -63,5 +69,5 @@ public class WmeIterator implements Iterator<Wme>
     {
         throw new UnsupportedOperationException();
     }
-
+    
 }

@@ -17,7 +17,7 @@ public abstract class ThreeFieldCondition extends Condition
     public Test id_test;
     public Test attr_test;
     public Test value_test;
-    public boolean test_for_acceptable_preference;   /* for pos, neg cond's only */
+    public boolean test_for_acceptable_preference; /* for pos, neg cond's only */
     
     protected ThreeFieldCondition()
     {
@@ -36,7 +36,9 @@ public abstract class ThreeFieldCondition extends Condition
         this.test_for_acceptable_preference = other.test_for_acceptable_preference;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Condition#asThreeFieldCondition()
      */
     @Override
@@ -44,8 +46,10 @@ public abstract class ThreeFieldCondition extends Condition
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Condition#addAllVariables(int, java.util.List)
      */
     @Override
@@ -64,8 +68,10 @@ public abstract class ThreeFieldCondition extends Condition
             value_test.addAllVariables(tc_number, var_list);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.lhs.Condition#cond_is_in_tc(int)
      */
     @Override
@@ -74,7 +80,9 @@ public abstract class ThreeFieldCondition extends Condition
         return Tests.test_is_in_tc(id_test, tc);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -83,5 +91,5 @@ public abstract class ThreeFieldCondition extends Condition
         // For debugging only
         return id_test + " ^" + attr_test + " " + value_test;
     }
-
+    
 }

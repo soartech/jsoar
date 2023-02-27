@@ -16,8 +16,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.DoubleSymbol;
 import org.jsoar.kernel.symbols.Identifier;
@@ -26,6 +24,8 @@ import org.jsoar.kernel.symbols.JavaSymbol;
 import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterators;
 
@@ -49,10 +49,10 @@ import com.google.common.collect.Iterators;
  * 
  * class Address
  * {
- *    public String street;
- *    public String city;
- *    public String state;
- *    public int zip;
+ * public String street;
+ * public String city;
+ * public String state;
+ * public int zip;
  * }
  * }</pre>
  * 
@@ -83,14 +83,14 @@ import com.google.common.collect.Iterators;
  * 
  * <p>Other features:
  * <ul>
- * <li>Soar-style attributes, i.e. those with hyphens or stars, are automatically 
+ * <li>Soar-style attributes, i.e. those with hyphens or stars, are automatically
  * converted to Java naming conventions. For example, {@code first-name} and {@code first*name}
  * both become {@code firstName}
  * <li>A property whose type is a sub-type of {@link Symbol} will just get the raw
  * {@link Symbol} value of a WME with no conversions. So Soar {@link Identifier}s can be
  * captured in beans.
  * </ul>
- *  
+ * 
  * <p>Limitations:
  * <ul>
  * <li>No support for Java collections
@@ -101,10 +101,10 @@ import com.google.common.collect.Iterators;
  */
 public class SoarBeanReader
 {
-    private static final Logger logger = LoggerFactory.getLogger(SoarBeanReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SoarBeanReader.class);
     
     private final BeanUtilsBean util = new BeanUtilsBean();
-    private final Map<Identifier, Object> beanMap = new HashMap<Identifier, Object>();
+    private final Map<Identifier, Object> beanMap = new HashMap<>();
     
     // these are only for debugging purposes
     private Identifier debugId = null;
@@ -156,32 +156,32 @@ public class SoarBeanReader
             }
             return bean;
         }
-        catch (InstantiationException e)
+        catch(InstantiationException e)
         {
             throw makeException(e, debugSoarBeanClass, debugId);
         }
-        catch (IllegalAccessException e)
+        catch(IllegalAccessException e)
         {
             throw makeException(e, debugSoarBeanClass, debugId);
         }
-        catch (InvocationTargetException e)
+        catch(InvocationTargetException e)
         {
             throw makeException(e, debugSoarBeanClass, debugId);
         }
-        catch (NoSuchMethodException e)
+        catch(NoSuchMethodException e)
         {
             throw makeException(e, debugSoarBeanClass, debugId);
         }
-        catch (SecurityException e)
+        catch(SecurityException e)
         {
             throw makeException(e, debugSoarBeanClass, debugId);
         }
-        catch (IllegalArgumentException e)
+        catch(IllegalArgumentException e)
         {
             throw makeException(e, debugSoarBeanClass, debugId);
         }
     }
-
+    
     private <T> SoarBeanException makeException(Exception cause, Class<?> klass, Identifier id)
     {
         return new SoarBeanException(cause.getMessage(), cause, klass, id);
@@ -217,8 +217,9 @@ public class SoarBeanReader
         }
         return result.toString();
     }
-        
-    private <T> void setProperty(T bean, String name, Symbol value) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SoarBeanException, SecurityException, IllegalArgumentException
+    
+    private <T> void setProperty(T bean, String name, Symbol value)
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SoarBeanException, SecurityException, IllegalArgumentException
     {
         final PropertyDescriptor desc = util.getPropertyUtils().getPropertyDescriptor(bean, name);
         if(desc == null)
@@ -249,21 +250,21 @@ public class SoarBeanReader
             final int modifiers = field.getModifiers();
             if(Modifier.isStatic(modifiers))
             {
-                logger.warn("SoarBean field " + beanClass.getCanonicalName() + "." + name + " is static. Ignoring.");
+                LOG.warn("SoarBean field {}.{} is static. Ignoring.", beanClass.getCanonicalName(), name);
                 return;
             }
             else if(Modifier.isPrivate(modifiers))
             {
-                logger.warn("SoarBean field " + beanClass.getCanonicalName() + "." + name + " is private. Ignoring.");
+                LOG.warn("SoarBean field {}.{} is private. Ignoring.", beanClass.getCanonicalName(), name);
                 return;
             }
             final Class<?> type = getTargetType(field.getType());
             final Object convertedValue = convert(value, type);
             field.set(bean, convertedValue);
         }
-        catch (NoSuchFieldException e)
+        catch(NoSuchFieldException e)
         {
-            logger.warn("Unknown property " + beanClass.getCanonicalName() + "." + name + ". Ignoring.");
+            LOG.warn("Unknown property {}.{}. Ignoring.", beanClass.getCanonicalName(), name);
             return;
         }
     }
@@ -272,7 +273,7 @@ public class SoarBeanReader
     {
         return tempType;
     }
-
+    
     private <T> T trySymbolConversion(Symbol initialValue, T convertedValue, Class<T> symbolType) throws SoarBeanException
     {
         if(convertedValue == null)

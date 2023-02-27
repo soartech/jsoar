@@ -76,13 +76,13 @@ import org.w3c.dom.NodeList;
  */
 public class ManualTypeXmlToWme extends AbstractXmlFileToWme
 {
-
+    
     private XmlPath xmlPath;
-
+    
     private Set<String> floatTags;
-
+    
     private Set<String> intTags;
-
+    
     public ManualTypeXmlToWme(InputOutput io)
     {
         super(io);
@@ -90,7 +90,7 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme
         floatTags = new HashSet<String>();
         intTags = new HashSet<String>();
     }
-
+    
     public ManualTypeXmlToWme(WmeFactory<?> wmeFactory)
     {
         super(wmeFactory);
@@ -98,7 +98,7 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme
         floatTags = new HashSet<String>();
         intTags = new HashSet<String>();
     }
-
+    
     @Override
     public void xmlToWme(File file, InputOutput io)
     {
@@ -108,7 +108,7 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme
         io.addInputWme(io.getInputLink(),
                 Symbols.create(sf, root.getNodeName()), ret);
     }
-
+    
     @Override
     public Identifier fromXml(Element element)
     {
@@ -117,53 +117,53 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme
         xmlPath.popTag();
         return ret;
     }
-
+    
     @Override
     protected void getXmlTree(NodeList nodeList, WmeBuilder<?> builder)
     {
-
-        for (int i = 0; i < nodeList.getLength(); i++)
+        
+        for(int i = 0; i < nodeList.getLength(); i++)
         {
             Node current = nodeList.item(i);
             // ignore nodes that are not element nodes (text and attribute nodes
             // are handled as a special case)
-            if (current.getNodeType() == Node.ELEMENT_NODE)
+            if(current.getNodeType() == Node.ELEMENT_NODE)
             {
                 xmlPath.pushTag(current.getNodeName());
                 boolean pushed = false;
-
+                
                 // add attribute nodes, if any
-                if (current.hasAttributes())
+                if(current.hasAttributes())
                 {
                     pushed = true;
                     builder = builder.push(current.getNodeName());
                     addAttributes(current.getAttributes(), builder);
                 }
-                if (current.getChildNodes().getLength() == 1
+                if(current.getChildNodes().getLength() == 1
                         && current.getFirstChild().getNodeValue() != null)
                 {
                     // leaf node containing text
-                    if (pushed)
+                    if(pushed)
                     {
                         builder = builder.pop();
                     }
                     addWme(builder, current.getNodeName(), current
                             .getFirstChild().getNodeValue().trim());
                 }
-                else if (!current.hasChildNodes() && !current.hasAttributes())
+                else if(!current.hasChildNodes() && !current.hasAttributes())
                 {
                     // empty leaf node
-                    if (pushed)
+                    if(pushed)
                     {
                         builder = builder.pop();
                     }
                     addWme(builder, current.getNodeName(), "");
                 }
-                else if (current.hasChildNodes()
+                else if(current.hasChildNodes()
                         && current.getNodeName() != null)
                 {
                     // recursive call if not a leaf node
-                    if (!pushed)
+                    if(!pushed)
                     {
                         builder = builder.push(current.getNodeName());
                     }
@@ -173,7 +173,7 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme
                 else
                 {
                     // pop if none of the above are true
-                    if (pushed)
+                    if(pushed)
                     {
                         builder = builder.pop();
                     }
@@ -183,79 +183,79 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme
         }
         return;
     }
-
+    
     @Override
     protected void addAttributes(NamedNodeMap nnm, WmeBuilder<?> builder)
     {
-        for (int i = 0; i < nnm.getLength(); i++)
+        for(int i = 0; i < nnm.getLength(); i++)
         {
             Node n = nnm.item(i);
-
+            
             xmlPath.pushTag(n.getNodeName());
             addWme(builder, n.getNodeName(), n.getNodeValue());
             xmlPath.popTag();
         }
     }
-
+    
     /**
      * Add an XML path which should be treated as a float when added to JSoar
      * working memory.
      * 
      * @param path
-     *            - the XML path
+     *     - the XML path
      * @throws TagAlreadyAddedException
-     *             if the path was added as an integer path
+     *     if the path was added as an integer path
      */
     public void addFloatTag(String path) throws TagAlreadyAddedException
     {
-        if (!intTags.contains(path))
+        if(!intTags.contains(path))
         {
             floatTags.add(path);
             return;
         }
         throw new TagAlreadyAddedException(path + " already added as integer.");
     }
-
+    
     /**
      * Add an XML path which should be treated as an integer when added to JSoar
      * working memory.
      * 
      * @param path
-     *            - the XML path
+     *     - the XML path
      * @throws TagAlreadyAddedException
-     *             if the path was added as a float path
+     *     if the path was added as a float path
      */
     public void addIntTag(String path) throws TagAlreadyAddedException
     {
-        if (!floatTags.contains(path))
+        if(!floatTags.contains(path))
         {
             intTags.add(path);
             return;
         }
         throw new TagAlreadyAddedException(path + " already added as float.");
     }
-
+    
     /**
      * Add a WME to the builder. The type of the WME value is assumed to be a
      * <code>String</code> unless the XML path of the attribute has been added
      * as a integer or float type.
      * 
      * @param builder
-     *            - the JSoar builder
+     *     - the JSoar builder
      * @param attribute
-     *            - the attribute of the WME
+     *     - the attribute of the WME
      * @param value
-     *            - the value of the WME
+     *     - the value of the WME
      */
     private void addWme(WmeBuilder<?> builder, String attribute, String value)
     {
         final String path = xmlPath.toString();
-        if (floatTags.contains(path))
+        if(floatTags.contains(path))
         {
             final Double doubleVal = Double.parseDouble(value);
             builder = builder.add(attribute, doubleVal);
         }
-        else if (intTags.contains(path))
+        else if(intTags.contains(path))
         {
             final Long intVal = Long.parseLong(value);
             builder = builder.add(attribute, intVal);

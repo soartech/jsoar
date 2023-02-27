@@ -1,6 +1,6 @@
 package org.jsoar.util.commands;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -9,9 +9,9 @@ import java.util.concurrent.TimeoutException;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import picocli.CommandLine;
 
@@ -21,15 +21,15 @@ public class PicocliSoarCommandTest
     private Agent agent;
     private StringWriter outputWriter = new StringWriter();
     
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getPrinter().addPersistentWriter(this.outputWriter);
     }
-
-    @After
-    public void tearDown() throws Exception
+    
+    @AfterEach
+    void tearDown() throws Exception
     {
         if(this.agent != null)
         {
@@ -42,7 +42,7 @@ public class PicocliSoarCommandTest
     {
         outputWriter.getBuffer().setLength(0);
     }
-
+    
     /**
      * There was an issue where sometimes the fields from a previous command execution were not cleared when the command was run again,
      * which would result in the new command being run with some old values. It appeared to be tied to autocompletion.
@@ -51,9 +51,9 @@ public class PicocliSoarCommandTest
      * args). Note that this issue is not specific to the qmemory command; it's just easy to reproduce there.
      */
     @Test
-    public void testFieldsReset() throws InterruptedException, ExecutionException, TimeoutException, SoarException
+    void testFieldsReset() throws InterruptedException, ExecutionException, TimeoutException, SoarException
     {
-
+        
         // this command should echo it's last argument to output
         this.autoComplete("qmemory --set a foo");
         this.agent.getInterpreter().eval("qmemory --set a foo");
@@ -74,7 +74,8 @@ public class PicocliSoarCommandTest
      * This is similar to how the jsoar-debugger performs autocompletion, but without all the UI parts
      * Something about this seems to cause the command to not get reset between executions
      */
-    protected void autoComplete(String command) {
+    protected void autoComplete(String command)
+    {
         CommandLine commandLine = this.agent.getInterpreter().findCommand(command);
         
         ArrayList<CharSequence> longResults = new ArrayList<>();

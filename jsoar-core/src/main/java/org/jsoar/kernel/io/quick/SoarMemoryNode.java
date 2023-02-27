@@ -11,7 +11,7 @@ class SoarMemoryNode
 {
     private InputWme wme;
     private Identifier idValue;
-
+    
     private String name;
     
     private SoarMemoryNode parentNode;
@@ -27,7 +27,7 @@ class SoarMemoryNode
     {
         return wme;
     }
-
+    
     public Symbol getValue()
     {
         return wme != null ? wme.getValue() : getIdValue();
@@ -38,13 +38,13 @@ class SoarMemoryNode
         this.wme = wme;
         this.idValue = wme != null ? wme.getValue().asIdentifier() : null;
     }
-
+    
     public SoarMemoryNode(Identifier idValue)
     {
         this.idValue = idValue;
         this.memoryNode = new MemoryNode();
     }
-
+    
     public SoarMemoryNode(String name)
     {
         this.name = name;
@@ -58,31 +58,29 @@ class SoarMemoryNode
     
     private void createWME(InputOutput io, MemoryNode node)
     {
-        assert(wme == null && parentNode != null);
+        assert (wme == null && parentNode != null);
         
         if(name == null)
         {
             return;
         }
         
-        final Identifier parentWME = (Identifier) parentNode.getIdValue();
+        final Identifier parentWME = parentNode.getIdValue();
         final Symbol attr = Symbols.create(io.getSymbols(), name);
-        final Symbol value = node.getValue() != null ? 
-                Symbols.create(io.getSymbols(), node.getValue()) :
-                io.getSymbols().createIdentifier(name.charAt(0));
+        final Symbol value = node.getValue() != null ? Symbols.create(io.getSymbols(), node.getValue()) : io.getSymbols().createIdentifier(name.charAt(0));
         setWME(io.addInputWme(parentWME, attr, value));
         
-        if (node.isString())
+        if(node.isString())
         {
             String strVal = node.getStringValue();
             memoryNode.setStringValue(strVal);
         }
-        else if (node.isInt())
+        else if(node.isInt())
         {
             long intVal = node.getIntValue();
             memoryNode.setIntValue(intVal);
         }
-        else if (node.isDouble())
+        else if(node.isDouble())
         {
             double doubleVal = node.getDoubleValue();
             memoryNode.setDoubleValue(doubleVal);
@@ -92,10 +90,10 @@ class SoarMemoryNode
             memoryNode.clearValue();
         }
     }
-
+    
     private void updateWME(InputOutput io, MemoryNode node)
     {
-        assert(wme != null && memoryNode.hasSameType(node));
+        assert (wme != null && memoryNode.hasSameType(node));
         
         if(name == null)
         {
@@ -121,11 +119,11 @@ class SoarMemoryNode
     
     public void synchronizeToMemoryNode(InputOutput io, MemoryNode node)
     {
-        if (wme == null)
+        if(wme == null)
         {
             createWME(io, node);
         }
-        else if (!memoryNode.hasSameType(node))
+        else if(!memoryNode.hasSameType(node))
         {
             wme.remove();
             wme = null;
@@ -137,4 +135,3 @@ class SoarMemoryNode
         }
     }
 }
-

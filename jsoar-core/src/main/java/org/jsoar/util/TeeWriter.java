@@ -17,14 +17,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class TeeWriter extends Writer
 {
-    private final List<Writer> writers = new CopyOnWriteArrayList<Writer>();
+    private final List<Writer> writers = new CopyOnWriteArrayList<>();
     
     /**
      * Construct a new TeeWriter
      * 
      * @param writers List of writers to write to
      */
-    public TeeWriter(Writer ... writers)
+    public TeeWriter(Writer... writers)
     {
         for(Writer writer : writers)
         {
@@ -42,7 +42,9 @@ public class TeeWriter extends Writer
         this.writers.remove(writer);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#close()
      */
     @Override
@@ -53,8 +55,10 @@ public class TeeWriter extends Writer
             w.close();
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#flush()
      */
     @Override
@@ -65,8 +69,10 @@ public class TeeWriter extends Writer
             w.flush();
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#write(char[], int, int)
      */
     @Override
@@ -77,5 +83,5 @@ public class TeeWriter extends Writer
             w.write(cbuf, off, len);
         }
     }
-
+    
 }

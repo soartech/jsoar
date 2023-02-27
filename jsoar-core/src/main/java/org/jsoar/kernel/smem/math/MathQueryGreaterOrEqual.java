@@ -6,13 +6,15 @@ public class MathQueryGreaterOrEqual extends MathQuery
     private final long longValue;
     private final boolean isDouble;
     
-    public MathQueryGreaterOrEqual(double value){
+    public MathQueryGreaterOrEqual(double value)
+    {
         doubleValue = value;
         longValue = 0;
         isDouble = true;
     }
     
-    public MathQueryGreaterOrEqual(long value){
+    public MathQueryGreaterOrEqual(long value)
+    {
         doubleValue = 0;
         longValue = value;
         isDouble = false;
@@ -21,25 +23,32 @@ public class MathQueryGreaterOrEqual extends MathQuery
     @Override
     public boolean valueIsAcceptable(double value)
     {
-        if(isDouble){
+        if(isDouble)
+        {
             return value >= doubleValue;
         }
         return value >= longValue;
     }
-
+    
     @Override
     public boolean valueIsAcceptable(long value)
     {
-        if(isDouble){
+        if(isDouble)
+        {
             return value >= doubleValue;
         }
         return value >= longValue;
     }
-
-    //There is no running data in this query
+    
+    // There is no running data in this query
     @Override
-    public void commit(){}
+    public void commit()
+    {
+    }
+    
     @Override
-    public void rollback(){}
-
+    public void rollback()
+    {
+    }
+    
 }

@@ -11,40 +11,46 @@ public class StopCommandViewLayout implements MultipleCDockableLayout
 {
     /** the command of the stop command view */
     private String command;
-
+    
     /**
      * Sets the command of the stop command view that is shown.
+     * 
      * @param command the command of the pvd
      */
-    public void setCommand( String command ) {
+    public void setCommand(String command)
+    {
         this.command = command;
     }
-
+    
     /**
      * Gets the command of the stop command panel that is shown.
+     * 
      * @return the command
      */
-    public String getCommand() {
+    public String getCommand()
+    {
         return command;
     }
-
-    public void readStream( DataInputStream in ) throws IOException
+    
+    public void readStream(DataInputStream in) throws IOException
     {
-        //do nothing. this method is for binary layout files
-//            command = in.readUTF();
+        // do nothing. this method is for binary layout files
+        // command = in.readUTF();
     }
-
-    public void readXML(XElement element ) {
+    
+    public void readXML(XElement element)
+    {
         command = element.getString();
     }
-
-    public void writeStream( DataOutputStream out ) throws IOException
+    
+    public void writeStream(DataOutputStream out) throws IOException
     {
-        //do nothing. this method is for binary layout files
-//            out.writeUTF( command );
+        // do nothing. this method is for binary layout files
+        // out.writeUTF( command );
     }
-
-    public void writeXML( XElement element ) {
-        element.setString( command );
+    
+    public void writeXML(XElement element)
+    {
+        element.setString(command);
     }
 }

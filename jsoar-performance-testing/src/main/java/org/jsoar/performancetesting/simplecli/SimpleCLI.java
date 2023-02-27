@@ -10,7 +10,7 @@ import org.jsoar.runtime.ThreadedAgent;
 
 public class SimpleCLI
 {
-
+    
     ThreadedAgent agent = ThreadedAgent.create("CLI Agent");
     Scanner scanner = new Scanner(System.in);
     
@@ -19,29 +19,35 @@ public class SimpleCLI
         SimpleCLI simpleCLI = new SimpleCLI();
         simpleCLI.run();
     }
-
+    
     private void run() throws SoarException
     {
         boolean continu = true;
         agent.getTrace().getPrinter().addPersistentWriter(new ConsoleWriter());
-        while(continu){
+        while(continu)
+        {
             String command = scanner.nextLine();
             
-            switch(command){
-                case "exit":
-                    continu = false;
-                    break;
-                case "gc":
-                    System.gc();
-                    System.gc();
-                    break;
-                default:
-                    String result = "CLI failed to execute command";
-                    try{
-                        result = agent.getAgent().getInterpreter().eval(command);
-                    }catch(SoarException e){}
-                    System.out.println(result);
-                    break;
+            switch(command)
+            {
+            case "exit":
+                continu = false;
+                break;
+            case "gc":
+                System.gc();
+                System.gc();
+                break;
+            default:
+                String result = "CLI failed to execute command";
+                try
+                {
+                    result = agent.getAgent().getInterpreter().eval(command);
+                }
+                catch(SoarException e)
+                {
+                }
+                System.out.println(result);
+                break;
             }
         }
         
@@ -49,14 +55,19 @@ public class SimpleCLI
         agent.dispose();
     }
     
-    private static class ConsoleWriter extends Writer{
-
+    private static class ConsoleWriter extends Writer
+    {
+        
         @Override
-        public void close() throws IOException{}
-
+        public void close() throws IOException
+        {
+        }
+        
         @Override
-        public void flush() throws IOException{}
-
+        public void flush() throws IOException
+        {
+        }
+        
         @Override
         public void write(char[] cbuf, int off, int len) throws IOException
         {

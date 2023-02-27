@@ -5,7 +5,8 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,16 +15,15 @@ import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class MakeConstantSymbolTest extends JSoarTest
+class MakeConstantSymbolTest extends JSoarTest
 {
     @Test
-    public void testNoArgsCall() throws Exception
+    void testNoArgsCall() throws Exception
     {
         MakeConstantSymbol mcs = new MakeConstantSymbol();
         StringSymbol result = (StringSymbol) mcs.execute(rhsFuncContext, new ArrayList<Symbol>());
@@ -38,7 +38,7 @@ public class MakeConstantSymbolTest extends JSoarTest
     }
     
     @Test
-    public void testWithArgsCall() throws Exception
+    void testWithArgsCall() throws Exception
     {
         List<Symbol> args = Symbols.asList(syms, "s", "1", "hello-", "goodbye-");
         MakeConstantSymbol mcs = new MakeConstantSymbol();

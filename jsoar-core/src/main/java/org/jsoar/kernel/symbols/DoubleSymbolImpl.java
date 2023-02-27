@@ -15,7 +15,7 @@ import java.util.Formatter;
 public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
 {
     private final double value;
-
+    
     /**
      * @param hash_id
      */
@@ -25,13 +25,15 @@ public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
         
         this.value = value;
     }
-
+    
     public double getValue()
     {
         return value;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Symbol#asFloatConstant()
      */
     @Override
@@ -39,8 +41,10 @@ public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
      */
     @Override
@@ -48,8 +52,10 @@ public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
     {
         return factory.createDouble(value);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -58,7 +64,9 @@ public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
         return other.asDouble() != null;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericLess(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -73,8 +81,10 @@ public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
         
         return i != null ? value < i.getValue() : super.numericLess(other);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericLessOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -90,7 +100,9 @@ public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
         return i != null ? value <= i.getValue() : super.numericLessOrEqual(other);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreater(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -105,8 +117,10 @@ public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
         
         return i != null ? value > i.getValue() : super.numericLess(other);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreaterOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -122,7 +136,9 @@ public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
         return i != null ? value >= i.getValue() : super.numericLessOrEqual(other);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -130,8 +146,10 @@ public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
     {
         return Double.toString(value);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override

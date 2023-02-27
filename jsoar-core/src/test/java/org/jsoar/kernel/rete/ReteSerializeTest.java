@@ -1,8 +1,8 @@
 package org.jsoar.kernel.rete;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,33 +18,33 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.ByRef;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link org.jsoar.kernel.rete.ReteSerializer}
  * 
  * @author charles.newton
  */
-public class ReteSerializeTest
+class ReteSerializeTest
 {
     private Agent agent;
     
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         agent = new Agent();
     }
-
-    @After
-    public void tearDown() throws Exception
+    
+    @AfterEach
+    void tearDown() throws Exception
     {
         agent.dispose();
     }
-
+    
     @Test
-    public void serializationTest() throws Exception
+    void serializationTest() throws Exception
     {
         serializationTestBuilder(false, false);
         serializationTestBuilder(false, true);
@@ -54,12 +54,13 @@ public class ReteSerializeTest
     
     private void serializationTestBuilder(boolean initializeBeforeSerialization, boolean initializeBeforeDeSerialization) throws Exception
     {
-        if (initializeBeforeSerialization)
+        if(initializeBeforeSerialization)
         {
             agent.initialize();
         }
         final ByRef<Boolean> matched = ByRef.create(Boolean.FALSE);
-        StandaloneRhsFunctionHandler match = new StandaloneRhsFunctionHandler("match") {
+        StandaloneRhsFunctionHandler match = new StandaloneRhsFunctionHandler("match")
+        {
             @Override
             public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -67,7 +68,8 @@ public class ReteSerializeTest
                 return null;
             }
         };
-        StandaloneRhsFunctionHandler rhsFailure = new StandaloneRhsFunctionHandler("rhs-failure") {
+        StandaloneRhsFunctionHandler rhsFailure = new StandaloneRhsFunctionHandler("rhs-failure")
+        {
             @Override
             public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -105,7 +107,7 @@ public class ReteSerializeTest
                 "(match)");
         
         Agent newAgent;
-        if (initializeBeforeDeSerialization)
+        if(initializeBeforeDeSerialization)
         {
             newAgent = new Agent();
             newAgent.getProductions().loadProduction("" +
@@ -121,14 +123,14 @@ public class ReteSerializeTest
             newAgent = serialize(agent);
         }
         
-        if (!initializeBeforeSerialization)
+        if(!initializeBeforeSerialization)
         {
             agent.initialize();
         }
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.runFor(2, RunType.DECISIONS);
         assertTrue(matched.value);
-
+        
         matched.value = false;
         newAgent.getRhsFunctions().registerHandler(match);
         newAgent.getRhsFunctions().registerHandler(rhsFailure);
@@ -139,12 +141,13 @@ public class ReteSerializeTest
     }
     
     @Test
-    public void serializationStressTest() throws Exception
+    void serializationStressTest() throws Exception
     {
         // Verify we don't get a stack overflow for reasonably sized agents.
         final int SIZE = 5000;
         final ByRef<HashSet<Long>> recordKeeper = ByRef.create(new HashSet<Long>());
-        StandaloneRhsFunctionHandler record = new StandaloneRhsFunctionHandler("record"){
+        StandaloneRhsFunctionHandler record = new StandaloneRhsFunctionHandler("record")
+        {
             @Override
             public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
             {

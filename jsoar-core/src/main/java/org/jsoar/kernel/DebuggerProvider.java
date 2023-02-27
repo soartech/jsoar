@@ -11,7 +11,7 @@ import org.jsoar.kernel.rhs.functions.Debug;
 import org.jsoar.runtime.ThreadedAgent;
 
 /**
- * Interface for an object that knows how to instantiate and attach a debugger to 
+ * Interface for an object that knows how to instantiate and attach a debugger to
  * a JSoar agent.
  * 
  * @author ray
@@ -26,11 +26,13 @@ public interface DebuggerProvider
      * take when the debugger "closes".
      */
     public static final String CLOSE_ACTION = "closeAction";
-    public static enum CloseAction {
+    
+    public enum CloseAction
+    {
         /**
          * The debugger should clean up and exit the Java VM.
          */
-        EXIT, 
+        EXIT,
         /**
          * The debugger should detach from the agent and dispose of itself.
          * The agent is left running.
@@ -45,14 +47,14 @@ public interface DebuggerProvider
     
     /**
      * Add properties to this debugger provider. Properties control various
-     * aspect of the behavior of the debugger that is created by 
+     * aspect of the behavior of the debugger that is created by
      * {@link #openDebugger(Agent)}. For instance, the behavior of the debugger
      * when it is "closed" by the user.
      * 
      * <p>The properties are merged with the current properties of the provider.
      * This method is thread-safe.
      * 
-     * @param props new properties to be merged in with existing ones. 
+     * @param props new properties to be merged in with existing ones.
      */
     void setProperties(Map<String, Object> props);
     
@@ -65,23 +67,23 @@ public interface DebuggerProvider
      * Opens a debugger and attaches it to the given agent.
      * 
      * @param agent the agent
-     * @throws SoarException 
+     * @throws SoarException
      */
     void openDebugger(Agent agent) throws SoarException;
     
     /**
-     * Opens a debugger and attaches it to the given agent. Waits until the debugger 
+     * Opens a debugger and attaches it to the given agent. Waits until the debugger
      * is fully initialized before proceeding.
      * 
-     * <p>Note that care must be taken to avoid deadlocks if the debugger is initialized 
+     * <p>Note that care must be taken to avoid deadlocks if the debugger is initialized
      * on a different thread such as the Swing event dispatch thread. For example, if this
-     * method was called from the the agent thread of {@link ThreadedAgent} there would 
+     * method was called from the the agent thread of {@link ThreadedAgent} there would
      * almost certainly be deadlock.
      * 
      * @param agent the agent
      * @throws SoarException if an error occurs during initialization
      * @throws InterruptedException if the thread is interrupted while waiting for the
-     *      debugger to initialize
+     *     debugger to initialize
      */
     void openDebuggerAndWait(Agent agent) throws SoarException, InterruptedException;
     
@@ -94,6 +96,7 @@ public interface DebuggerProvider
     /**
      * Returns the debugger object. It needs to be casted to a specific type, like JSoarDebugger,
      * in order to be useful.
+     * 
      * @return
      */
     Object getDebugger(Agent agent);

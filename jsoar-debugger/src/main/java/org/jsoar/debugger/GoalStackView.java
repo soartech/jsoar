@@ -35,18 +35,20 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
 {
     private final JSoarDebugger debugger;
     private final DefaultListModel<Entry> model = new DefaultListModel<>();
-    private final JList<Entry> list = new JList<Entry>(model) {
+    private final JList<Entry> list = new JList<>(model)
+    {
         private static final long serialVersionUID = -1363240384388636598L;
-
+        
+        @Override
         public String getToolTipText(MouseEvent event)
         {
             final int index = locationToIndex(event.getPoint());
             return index >= 0 ? getModel().getElementAt(index).toString() : null;
-        }  
+        }
     };
     
     private final ListSelectionProvider<Entry> selectionProvider = new ListSelectionProvider<>(list);
-
+    
     public GoalStackView(JSoarDebugger debugger)
     {
         super("goalStack", "State Stack");
@@ -54,8 +56,11 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
         this.debugger = debugger;
         
         list.setCellRenderer(new Renderer());
-        list.addMouseListener(new MouseAdapter() {
-            /* (non-Javadoc)
+        list.addMouseListener(new MouseAdapter()
+        {
+            /*
+             * (non-Javadoc)
+             * 
              * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
              */
             @Override
@@ -70,10 +75,10 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
         });
         getContentPane().add(new JScrollPane(list));
     }
-
+    
     private void printOnDoubleClick()
     {
-        final Entry e = (Entry) list.getSelectedValue();
+        final Entry e = list.getSelectedValue();
         if(e == null)
         {
             return;
@@ -81,9 +86,10 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
         
         debugger.getAgent().execute(new CommandLineRunnable(debugger, "print " + e.object), null);
     }
-
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
      */
     @Override
@@ -91,8 +97,10 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
     {
         return "ctrl G";
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
      */
     @Override
@@ -101,7 +109,7 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
         final Callable<List<Entry>> start = () ->
         {
             final List<Goal> goals = debugger.getAgent().getAgent().getGoalStack();
-            final List<Entry> result = new ArrayList<Entry>();
+            final List<Entry> result = new ArrayList<>();
             for(Goal g : goals)
             {
                 result.add(createGoalEntry(g));
@@ -142,7 +150,7 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
         
         return new Entry(op, label);
     }
-
+    
     private void updateModel(List<Entry> newStack)
     {
         model.clear();
@@ -152,7 +160,9 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
         }
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.AbstractAdaptableView#getAdapter(java.lang.Class)
      */
     @Override
@@ -168,8 +178,10 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
     private class Renderer extends DefaultListCellRenderer
     {
         private static final long serialVersionUID = 8598881348069202700L;
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
          */
         @Override
@@ -205,6 +217,10 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
             this.label = label;
         }
         
-        public String toString() { return label; }
+        @Override
+        public String toString()
+        {
+            return label;
+        }
     }
 }

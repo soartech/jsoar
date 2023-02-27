@@ -16,8 +16,10 @@ import javax.swing.table.DefaultTableCellRenderer;
 public class DefaultWmeTableCellRenderer extends DefaultTableCellRenderer
 {
     private static final long serialVersionUID = -1107115981550627952L;
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
      */
     @Override
@@ -31,6 +33,5 @@ public class DefaultWmeTableCellRenderer extends DefaultTableCellRenderer
         }
         return c;
     }
-
     
 }

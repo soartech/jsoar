@@ -13,9 +13,9 @@ import java.util.List;
  */
 public class AdaptableContainer extends AbstractAdaptable
 {
-    private final List<Object> adaptables = new ArrayList<Object>();
+    private final List<Object> adaptables = new ArrayList<>();
     
-    public static AdaptableContainer from(Object ... objects)
+    public static AdaptableContainer from(Object... objects)
     {
         final AdaptableContainer result = new AdaptableContainer();
         for(Object o : objects)
@@ -24,8 +24,10 @@ public class AdaptableContainer extends AbstractAdaptable
         }
         return result;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
      */
     @Override

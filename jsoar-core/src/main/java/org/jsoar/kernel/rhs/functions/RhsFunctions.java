@@ -18,7 +18,7 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public final class RhsFunctions
 {
-
+    
     private RhsFunctions()
     {
     }
@@ -30,13 +30,13 @@ public final class RhsFunctions
      * @param handler the handler
      * @param arguments the incoming argument list to check
      * @throws RhsFunctionException if the argument list doesn't comply to the
-     *      min/max args of the handler
+     *     min/max args of the handler
      */
-    public static void checkArgumentCount(RhsFunctionHandler handler, 
-                                          List<Symbol> arguments) throws RhsFunctionException
+    public static void checkArgumentCount(RhsFunctionHandler handler,
+            List<Symbol> arguments) throws RhsFunctionException
     {
-        checkArgumentCount(handler.getName(), arguments, 
-                           handler.getMinArguments(), handler.getMaxArguments());
+        checkArgumentCount(handler.getName(), arguments,
+                handler.getMinArguments(), handler.getMaxArguments());
     }
     
     /**
@@ -48,7 +48,7 @@ public final class RhsFunctions
      * @param min the min number of expected arguments, inclusive
      * @param max the max number of expected arguments, inclusive
      * @throws RhsFunctionException if the argument list doesn't comply to the
-     *      min/max args
+     *     min/max args
      */
     public static void checkArgumentCount(String name, List<Symbol> arguments, int min, int max) throws RhsFunctionException
     {
@@ -78,7 +78,7 @@ public final class RhsFunctions
      */
     public static void checkAllArgumentsAreNumeric(String name, List<Symbol> arguments) throws RhsFunctionException
     {
-        for (Symbol arg : arguments) 
+        for(Symbol arg : arguments)
         {
             if(arg.asInteger() == null && arg.asDouble() == null)
             {

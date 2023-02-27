@@ -20,7 +20,6 @@ public class TableSelectionProvider implements SelectionProvider, ListSelectionL
     private final JTable table;
     private SelectionManager manager;
     
-    
     /**
      * @param table
      */
@@ -28,13 +27,15 @@ public class TableSelectionProvider implements SelectionProvider, ListSelectionL
     {
         this.table = table;
     }
-
+    
     public boolean isActive()
     {
         return manager != null;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionProvider#activate(org.jsoar.debugger.selection.SelectionManager)
      */
     @Override
@@ -43,8 +44,10 @@ public class TableSelectionProvider implements SelectionProvider, ListSelectionL
         this.manager = manager;
         this.table.getSelectionModel().addListSelectionListener(this);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionProvider#deactivate()
      */
     @Override
@@ -53,8 +56,10 @@ public class TableSelectionProvider implements SelectionProvider, ListSelectionL
         this.manager = null;
         this.table.getSelectionModel().removeListSelectionListener(this);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionProvider#getSelectedObject()
      */
     @Override
@@ -63,14 +68,16 @@ public class TableSelectionProvider implements SelectionProvider, ListSelectionL
         List<Object> s = getSelection();
         return !s.isEmpty() ? s.get(0) : null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionProvider#getSelection()
      */
     @Override
     public List<Object> getSelection()
     {
-        List<Object> result = new ArrayList<Object>();
+        List<Object> result = new ArrayList<>();
         for(int row : table.getSelectedRows())
         {
             final Object value = getValueAt(row);
@@ -78,8 +85,10 @@ public class TableSelectionProvider implements SelectionProvider, ListSelectionL
         }
         return result;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
      */
     @Override

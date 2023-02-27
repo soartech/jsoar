@@ -58,8 +58,10 @@ public class JSoarTestAgent implements TestAgent
         this.listener = new InputListener();
         this.initListener = new InitSoarListener();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgent#dispose()
      */
     @Override
@@ -87,8 +89,10 @@ public class JSoarTestAgent implements TestAgent
         failFunction = null;
         output = null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgent#getFiringCounts()
      */
     @Override
@@ -101,8 +105,10 @@ public class JSoarTestAgent implements TestAgent
         }
         return result;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgent#getOutput()
      */
     @Override
@@ -111,8 +117,10 @@ public class JSoarTestAgent implements TestAgent
         agent.getPrinter().flush();
         return output.toString();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgent#isFailCalled()
      */
     @Override
@@ -120,8 +128,10 @@ public class JSoarTestAgent implements TestAgent
     {
         return failFunction.isCalled();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgent#getFailMessage()
      */
     @Override
@@ -129,8 +139,10 @@ public class JSoarTestAgent implements TestAgent
     {
         return StringTools.join(failFunction.getArguments(), ", ");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgent#printMatchesOnFailure()
      */
     @Override
@@ -148,8 +160,10 @@ public class JSoarTestAgent implements TestAgent
         }
         printer.flush();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgent#isPassCalled()
      */
     @Override
@@ -157,8 +171,10 @@ public class JSoarTestAgent implements TestAgent
     {
         return passFunction.isCalled();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgent#getPassMessage()
      */
     @Override
@@ -166,12 +182,14 @@ public class JSoarTestAgent implements TestAgent
     {
         return StringTools.join(passFunction.getArguments(), ", ");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgent#initialize(org.jsoar.soarunit.Test)
      */
     @Override
-    public void initialize(Test test) throws SoarException 
+    public void initialize(Test test) throws SoarException
     {
         commonInitialize(test, true);
         agent.getTrace().setWatchLevel(0);
@@ -179,7 +197,7 @@ public class JSoarTestAgent implements TestAgent
         agent.getPrinter().addPersistentWriter(output);
         loadTestCode(test);
     }
-
+    
     @Override
     public void reinitialize(Test test) throws SoarException
     {
@@ -189,10 +207,10 @@ public class JSoarTestAgent implements TestAgent
         agent.getPrinter().addPersistentWriter(output);
         loadTestCode(test);
     }
-
+    
     public void commonInitialize(Test test, boolean recreateAgent)
     {
-        if (recreateAgent || agent == null)
+        if(recreateAgent || agent == null)
         {
             agent = ThreadedAgent.create(test.getName());
         }
@@ -208,10 +226,10 @@ public class JSoarTestAgent implements TestAgent
         {
             final InputEvent ie = (InputEvent) event;
             update(ie.getInputOutput());
-        }); 
+        });
         
     }
-
+    
     private void initializeRhsFunctions()
     {
         passFunction = TestRhsFunction.addTestFunction(agent, "pass");
@@ -220,16 +238,21 @@ public class JSoarTestAgent implements TestAgent
     
     private void loadTestCode(Test test) throws SoarException
     {
-        try {
+        try
+        {
             agent.getInterpreter().eval(String.format("pushd \"%s\"", UrlTools.getParent(test.getTestCase().getUrl()).toString().replace('\\', '/')));
-        } catch (RuntimeException | MalformedURLException | URISyntaxException e) {
+        }
+        catch(RuntimeException | MalformedURLException | URISyntaxException e)
+        {
             throw new SoarException(e);
         }
         agent.getInterpreter().eval(test.getTestCase().getSetup());
         agent.getInterpreter().eval(test.getContent());
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgent#run()
      */
     @Override
@@ -240,8 +263,10 @@ public class JSoarTestAgent implements TestAgent
         agent.getAgent().runFor(cycles, RunType.DECISIONS);
         agent.getPrinter().flush();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgent#getCycleCount()
      */
     @Override
@@ -268,7 +293,9 @@ public class JSoarTestAgent implements TestAgent
     
     private class InputListener implements SoarEventListener
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.events.SoarEventListener#onEvent(org.jsoar.kernel.events.SoarEvent)
          */
         @Override
@@ -281,7 +308,9 @@ public class JSoarTestAgent implements TestAgent
     
     private class InitSoarListener implements SoarEventListener
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.util.events.SoarEventListener#onEvent(org.jsoar.util.events.SoarEvent)
          */
         @Override
@@ -292,23 +321,23 @@ public class JSoarTestAgent implements TestAgent
         }
         
     }
-
+    
     public void debug(Test test, boolean exitOnClose) throws SoarException, InterruptedException
     {
         commonInitialize(test, true);
         
-        final Map<String, Object> debugProps = new HashMap<String, Object>();
+        final Map<String, Object> debugProps = new HashMap<>();
         debugProps.put(DebuggerProvider.CLOSE_ACTION, exitOnClose ? CloseAction.EXIT : CloseAction.DISPOSE);
         agent.getDebuggerProvider().setProperties(debugProps);
         agent.openDebuggerAndWait();
-       
+        
         loadTestCode(test);
         
         agent.getPrinter().print("SoarUnit: Debugging %s%n", test);
         agent.getPrinter().flush();
         
     }
-
+    
     @Override
     public SoarCommandInterpreter getInterpreter()
     {

@@ -47,9 +47,12 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
     private final JTextField idField = new JTextField(getPreferences().get("id", "*"), 3);
     private final JTextField attrField = new JTextField(getPreferences().get("attr", "*"), 6);
     private final JTextField valueField = new JTextField(getPreferences().get("value", "*"), 6);
-    private final TableSelectionProvider selectionProvider = new TableSelectionProvider(wmeTable) {
-
-        /* (non-Javadoc)
+    private final TableSelectionProvider selectionProvider = new TableSelectionProvider(wmeTable)
+    {
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.debugger.selection.TableSelectionProvider#getValueAt(int)
          */
         @Override
@@ -57,7 +60,8 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         {
             row = wmeTable.convertRowIndexToModel(row);
             return ((DefaultWmeTableModel) wmeTable.getModel()).getWmes().get(row);
-        }};
+        }
+    };
     private JToggleButton synch = new JToggleButton(Images.SYNCH, getPreferences().getBoolean("synch", false));
     {
         synch.setToolTipText("Re-run search when run ends");
@@ -90,7 +94,7 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         searchPanel.add(idField);
         idField.addActionListener(action);
         SwingTools.addSelectAllOnFocus(idField);
-
+        
         searchPanel.add(new JLabel("^"));
         searchPanel.add(attrField);
         attrField.addActionListener(action);
@@ -102,22 +106,26 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         SwingTools.addSelectAllOnFocus(valueField);
         searchPanel.add(new JLabel(")"));
         
-        searchPanel.add(new JButton(new AbstractAction("Search") {
-
+        searchPanel.add(new JButton(new AbstractAction("Search")
+        {
+            
             private static final long serialVersionUID = -98843167878839240L;
-
+            
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 doSearch();
-            }}));
+            }
+        }));
         
         p.add(searchPanel, BorderLayout.SOUTH);
         
         getContentPane().add(p);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.AbstractAdaptableView#getAdapter(java.lang.Class)
      */
     @Override
@@ -129,8 +137,10 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         }
         return super.getAdapter(klass);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
      */
     @Override
@@ -141,8 +151,10 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
             doSearch();
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Disposable#dispose()
      */
     @Override
@@ -154,7 +166,7 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         prefs.put("attr", attrField.getText().trim());
         prefs.put("value", valueField.getText().trim());
     }
-
+    
     private JToolBar createToolbar()
     {
         JToolBar bar = new JToolBar();
@@ -162,25 +174,28 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         
         bar.add(synch);
         
-        bar.add(new AbstractDebuggerAction("Print to trace", Images.COPY) {
+        bar.add(new AbstractDebuggerAction("Print to trace", Images.COPY)
+        {
             private static final long serialVersionUID = -3614573079885324027L;
-
+            
             {
                 setToolTip("Print wmes to trace");
             }
+            
             @Override
             public void update()
             {
             }
-
+            
             @Override
             public void actionPerformed(ActionEvent arg0)
             {
                 print();
-            }});
+            }
+        });
         return bar;
     }
-
+    
     private void print()
     {
         final Printer printer = debugger.getAgent().getPrinter();
@@ -199,15 +214,17 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         final String attr = attrField.getText().trim();
         final String value = valueField.getText().trim();
         
-        final Callable<List<Wme>> call = () -> {
+        final Callable<List<Wme>> call = () ->
+        {
             final Agent agent = debugger.getAgent().getAgent();
             return Wmes.search(agent, id, attr, value);
         };
         
-        final CompletionHandler<List<Wme>> done =  result -> {
+        final CompletionHandler<List<Wme>> done = result ->
+        {
             wmeModel.setWmes(result);
             description.setText(String.format(
-               "<html>&nbsp;WMEs matching pattern <b><code>(%s ^%s %s)</code></b>", id, attr, value));
+                    "<html>&nbsp;WMEs matching pattern <b><code>(%s ^%s %s)</code></b>", id, attr, value));
         };
         
         debugger.getAgent().execute(call, SwingCompletionHandler.newInstance(done));

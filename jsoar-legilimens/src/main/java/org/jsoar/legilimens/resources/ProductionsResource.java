@@ -31,8 +31,9 @@ public class ProductionsResource extends BaseAgentResource
 {
     private boolean internal;
     
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.resources.BaseAgentResource#doInit()
      */
     @Override
@@ -40,18 +41,20 @@ public class ProductionsResource extends BaseAgentResource
     {
         super.doInit();
         
-        internal = Boolean.valueOf(getQuery().getFirstValue("internal"));
+        internal = Boolean.parseBoolean(getQuery().getFirstValue("internal"));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.resources.BaseAgentResource#setTemplateAttributes(java.util.Map)
      */
     @Override
     public void setTemplateAttributes(Map<String, Object> attrs)
     {
         super.setTemplateAttributes(attrs);
-
-        final List<Production> rules = new ArrayList<Production>();
+        
+        final List<Production> rules = new ArrayList<>();
         for(Production p : agent.getProductions().getProductions(null))
         {
             rules.add(p);
@@ -66,7 +69,7 @@ public class ProductionsResource extends BaseAgentResource
         });
         attrs.put("productions", rules);
     }
- 
+    
     @Get("txt")
     public Representation getTextRepresentation()
     {

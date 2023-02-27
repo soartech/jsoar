@@ -16,7 +16,7 @@ public class SelectionManager
 {
     private static final SelectionProvider NULL_PROVIDER = new NullProvider();
     
-    private List<SelectionListener> listeners = new CopyOnWriteArrayList<SelectionListener>();
+    private List<SelectionListener> listeners = new CopyOnWriteArrayList<>();
     private SelectionProvider provider = NULL_PROVIDER;
     
     public void addListener(SelectionListener listener)
@@ -36,7 +36,7 @@ public class SelectionManager
         this.provider.activate(this);
         fireSelectionChanged();
     }
-
+    
     /**
      * 
      */
@@ -52,41 +52,48 @@ public class SelectionManager
     {
         return provider.getSelectedObject();
     }
-
+    
     public List<Object> getSelection()
     {
         return provider.getSelection();
     }
     
-    
     private static class NullProvider implements SelectionProvider
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.debugger.selection.SelectionProvider#activate(org.jsoar.debugger.selection.SelectionManager)
          */
         @Override
         public void activate(SelectionManager manager)
         {
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.debugger.selection.SelectionProvider#deactivate()
          */
         @Override
         public void deactivate()
         {
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.debugger.selection.SelectionProvider#getSelection()
          */
         @Override
         public List<Object> getSelection()
         {
-            return new ArrayList<Object>();
+            return new ArrayList<>();
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.debugger.selection.SelectionProvider#getSelectedObject()
          */
         @Override

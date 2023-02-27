@@ -32,7 +32,7 @@ public class Wmes
 {
     /**
      * Given an iterator over a list of values, constructs a linked list of WMEs
-     * using {@link Symbols#create(SymbolFactory, Object)} to convert the values. 
+     * using {@link Symbols#create(SymbolFactory, Object)} to convert the values.
      * 
      * <p>For example, this code
      * <pre>{@code
@@ -53,12 +53,12 @@ public class Wmes
      * }</pre>
      * 
      * The end of the list is marked with {@code ^next nil}. If the list is empty,
-     * just {@code nil} will be returned rather than an {@link Identifier}. 
+     * just {@code nil} will be returned rather than an {@link Identifier}.
      * 
      * @param context the RHS function context
-     * @param values iterator over the list of values 
+     * @param values iterator over the list of values
      * @return the id of the head of the list. If the list is empty, the id will have
-     *      no attributes.
+     * no attributes.
      */
     public static Symbol createLinkedList(WmeFactory<?> context, Iterator<?> values)
     {
@@ -66,15 +66,15 @@ public class Wmes
     }
     
     /**
-     * Same as {@link #createLinkedList(WmeFactory, Iterator)}, but the name of 
+     * Same as {@link #createLinkedList(WmeFactory, Iterator)}, but the name of
      * the "value" and "next" attributes in the list can be specified
-     *  
+     * 
      * @param context the RHS function context
-     * @param values iterator over the list of values 
+     * @param values iterator over the list of values
      * @param nextName the name of the next attribute
      * @param valueName the name of the value attribute
      * @return the id of the head of the list. If the list is empty, the id will have
-     *      no attributes.
+     * no attributes.
      */
     public static Symbol createLinkedList(WmeFactory<?> context, Iterator<?> values, String nextName, String valueName)
     {
@@ -98,7 +98,7 @@ public class Wmes
                 context.addWme(last, nextSym, current);
             }
             context.addWme(current, valueSym, Symbols.create(syms, o));
-
+            
             last = current;
         }
         if(last != null)
@@ -123,22 +123,23 @@ public class Wmes
         final Pattern attrPattern = Pattern.compile(StringTools.createRegexFromGlob(attr));
         final Pattern valuePattern = Pattern.compile(StringTools.createRegexFromGlob(value));
         
-        final Predicate<Wme> predicate = new Predicate<Wme>() {
-
+        final Predicate<Wme> predicate = new Predicate<>()
+        {
+            
             @Override
             public boolean apply(Wme w)
             {
                 return idPattern.matcher(w.getIdentifier().toString()).matches() &&
-                       attrPattern.matcher(w.getAttribute().toString()).matches() &&
-                       valuePattern.matcher(w.getValue().toString()).matches();
+                        attrPattern.matcher(w.getAttribute().toString()).matches() &&
+                        valuePattern.matcher(w.getValue().toString()).matches();
             }
             
         };
         return Iterators.filter(wmes, predicate);
     }
-
+    
     /**
-     * Convenience version of {@link Wmes#search(Iterator, String, String, String)} 
+     * Convenience version of {@link Wmes#search(Iterator, String, String, String)}
      * which searches all WMEs in working memory and returns a list.
      * 
      * @param agent the agent
@@ -153,7 +154,7 @@ public class Wmes
     }
     
     /**
-     * Begin constructing a new WME matcher. This uses a builder pattern. 
+     * Begin constructing a new WME matcher. This uses a builder pattern.
      * Chain methods together to construct a predicate the WME you'd like to
      * find.
      * 
@@ -202,10 +203,10 @@ public class Wmes
     public static Predicate<Wme> newMatcher(SymbolFactory syms, Identifier id, Object attr, Object value, int timetag)
     {
         Arguments.checkNotNull(syms, "syms");
-        return new MatcherPredicate(id, 
-                                   attr != null ? Symbols.create(syms, attr) : null,
-                                   value != null ? Symbols.create(syms, value) : null,
-                                   timetag);
+        return new MatcherPredicate(id,
+                attr != null ? Symbols.create(syms, attr) : null,
+                value != null ? Symbols.create(syms, value) : null,
+                timetag);
     }
     
     /**
@@ -234,11 +235,11 @@ public class Wmes
      * @param it the WME iterator
      * @param pred predicate that tests WMEs
      * @return list of all WMEs {@code w} for whom {@code pred.apply(w)} is
-     *      true
+     * true
      */
     public static List<Wme> filter(Iterator<Wme> it, Predicate<Wme> pred)
     {
-        List<Wme> result = new ArrayList<Wme>();
+        List<Wme> result = new ArrayList<>();
         for(; it.hasNext();)
         {
             final Wme w = it.next();
@@ -253,8 +254,8 @@ public class Wmes
     /**
      * compare two collections of wmes by value
      * if ignoreIdentifers, then doesn't check identifiers for equality
-     * this is useful, e.g., if testing a set of wmes produced by Soar against an expected set, 
-     *   but the ids might be different due to implementation detail changes
+     * this is useful, e.g., if testing a set of wmes produced by Soar against an expected set,
+     * but the ids might be different due to implementation detail changes
      * return true if "equal"
      * return false if not
      */
@@ -269,8 +270,8 @@ public class Wmes
         {
             boolean foundMatch = false;
             for(Wme w2 : c2)
-            {        
-                if (equal(w1, w2, ignoreIdentifiers))
+            {
+                if(equal(w1, w2, ignoreIdentifiers))
                 {
                     foundMatch = true;
                     break;
@@ -463,8 +464,10 @@ public class Wmes
             this.value = value;
             this.timetag = timetag;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see com.google.common.base.Predicate#apply(java.lang.Object)
          */
         @Override

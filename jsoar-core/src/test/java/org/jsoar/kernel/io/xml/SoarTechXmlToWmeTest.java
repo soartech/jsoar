@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel.io.xml;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
@@ -14,42 +16,42 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.memory.Wmes.MatcherBuilder;
 import org.jsoar.kernel.symbols.Identifier;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SoarTechXmlToWmeTest
+class SoarTechXmlToWmeTest
 {
-
-    @Before
-    public void setUp() throws Exception
+    
+    @BeforeEach
+    void setUp() throws Exception
     {
     }
-
-    @After
-    public void tearDown() throws Exception
+    
+    @AfterEach
+    void tearDown() throws Exception
     {
     }
-
+    
     @Test
-    public void testFromXml() throws Exception
+    void testFromXml() throws Exception
     {
         final Agent agent = new Agent();
-                
+        
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.getProductions().loadProduction(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
-                "(<il> ^xml (from-st-xml |" +
-                "<ignored>" +
-                "<location link-id='L1'>" +
-                "   <name>Ann Arbor</name>" +
-                "   <population type='integer'>100000</population>" +
-                "</location>" +
-                "<person>" +
-                "   <name>Bill</name>" +
-                "   <where link='L1'/>" +
-                "</person>" +
-                "</ignored>|))");
+                        "(<il> ^xml (from-st-xml |" +
+                        "<ignored>" +
+                        "<location link-id='L1'>" +
+                        "   <name>Ann Arbor</name>" +
+                        "   <population type='integer'>100000</population>" +
+                        "</location>" +
+                        "<person>" +
+                        "   <name>Bill</name>" +
+                        "   <where link='L1'/>" +
+                        "</person>" +
+                        "</ignored>|))");
         agent.runFor(1, RunType.DECISIONS);
         
         final Identifier il = agent.getInputOutput().getInputLink();
@@ -67,21 +69,21 @@ public class SoarTechXmlToWmeTest
         assertEquals("Bill", m.attr("name").find(person).getValue().asString().getValue());
         assertSame(location.getValue(), m.attr("where").find(person).getValue());
     }
-
+    
     @Test
-    public void testValueAttributeIsHandled() throws Exception
+    void testValueAttributeIsHandled() throws Exception
     {
         final Agent agent = new Agent();
-                
+        
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.getProductions().loadProduction(
                 "testValueAttributeIsHandled (state <s> ^superstate nil ^io.input-link <il>) -->" +
-                "(<il> ^xml (from-st-xml |" +
-                "<ignored>" +
-                "<name value='hello'/>" +
-                "<age type='integer' value='33'/>" +
-                "<weight type='double' value='180.5'/>" +
-                "</ignored>|))");
+                        "(<il> ^xml (from-st-xml |" +
+                        "<ignored>" +
+                        "<name value='hello'/>" +
+                        "<age type='integer' value='33'/>" +
+                        "<weight type='double' value='180.5'/>" +
+                        "</ignored>|))");
         agent.runFor(1, RunType.DECISIONS);
         
         final Identifier il = agent.getInputOutput().getInputLink();

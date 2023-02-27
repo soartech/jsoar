@@ -35,11 +35,11 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
     private final SelectionManager selectionManager;
     private final Highlighter highlighter;
     private JTextPane textArea = new JTextPane();
-
+    
     public PartialMatchesView(JSoarDebugger debugger)
     {
         super("partialmatches", "Partial Matches");
-
+        
         this.highlighter = Highlighter.getInstance(debugger);
         this.agent = debugger.getAgent();
         this.selectionManager = debugger.getSelectionManager();
@@ -47,16 +47,18 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         JPanel p = new JPanel(new BorderLayout());
         this.textArea.setEditable(false);
         this.textArea.setContentType("text/html");
-
+        
         p.add(new JScrollPane(textArea), BorderLayout.CENTER);
         
         getContentPane().add(p);
-
+        
         this.selectionManager.addListener(this);
         selectionChanged(selectionManager);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionListener#selectionChanged(org.jsoar.debugger.selection.SelectionManager)
      */
     @Override
@@ -65,7 +67,9 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         getMatchOutput(new ArrayList<Object>(manager.getSelection()));
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
      */
     @Override
@@ -73,8 +77,10 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
     {
         getMatchOutput(new ArrayList<Object>(selectionManager.getSelection()));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
      */
     @Override
@@ -82,7 +88,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
     {
         return "ctrl M";
     }
-
+    
     private void getMatchOutput(final List<Object> selection)
     {
         Color background = highlighter.getPatterns().getBackground();
@@ -114,8 +120,8 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         final StringBuilder b = new StringBuilder();
         b.append("<html>");
         b.append("<body bgcolor='")
-         .append(String.format("#%02x%02x%02x", background.getRed(), background.getGreen(), background.getBlue()))
-         .append("'>");
+                .append(String.format("#%02x%02x%02x", background.getRed(), background.getGreen(), background.getBlue()))
+                .append("'>");
         int count = 0;
         for(Object o : selection)
         {
@@ -125,13 +131,13 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
                 b.append("<h3>" + escape(p.getName()) + "</h3>");
                 final PartialMatches pm = p.getPartialMatches();
                 final List<Entry> entries = pm.getEntries();
-                if(entries.size() > 0)
+                if(!entries.isEmpty())
                 {
                     formatEntries(b, entries, 0);
                     b.append("<br>");
                     final Entry lastEntry = entries.get(entries.size() - 1);
                     final int total = lastEntry.matches;
-                    b.append(String.format("<b><font color='%s'>%d complete match%s.</font><b>", 
+                    b.append(String.format("<b><font color='%s'>%d complete match%s.</font><b>",
                             total > 0 ? "green" : "red",
                             total,
                             total != 1 ? "es" : ""));
@@ -148,7 +154,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         b.append("</body></html>");
         return count != 0 ? b.toString() : null;
     }
-
+    
     private String escape(String s)
     {
         return s.replace("&", "&amp;").replace("<", "&lt;");
@@ -170,13 +176,13 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         b.append(escape(String.format("%s", e.condition)));
         b.append("</font>");
     }
-
+    
     private void formatNegativeEntry(final StringBuilder b, Entry e, int level, Entry previous)
     {
         printEntryLeader(b, e, previous);
         // how about &not; ??
         b.append("-{<br>");
-        formatEntries(b, e.negatedSubConditions, level+1);
+        formatEntries(b, e.negatedSubConditions, level + 1);
         spaces(b, level);
         b.append("&nbsp;&nbsp;&nbsp;");
         b.append(String.format("} <b><font color='%s'>%d</font></b>", e.matches > 0 ? "green" : "red", e.matches));
@@ -194,7 +200,6 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
             b.append("&nbsp;&nbsp;&nbsp;");
         }
     }
-
     
     private void formatEntries(final StringBuilder b, final List<Entry> entries, int level)
     {
@@ -228,7 +233,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         if(processed != entries.size())
         {
             final int remaining = entries.size() - processed;
-            b.append(String.format("&nbsp;&nbsp;&nbsp;... %d more condition%s ...<br>", remaining, (remaining != 1 ? "s": "")));
+            b.append(String.format("&nbsp;&nbsp;&nbsp;... %d more condition%s ...<br>", remaining, (remaining != 1 ? "s" : "")));
         }
         
         b.append("</font>");

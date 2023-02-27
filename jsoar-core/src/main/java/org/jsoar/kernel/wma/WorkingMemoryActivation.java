@@ -13,7 +13,7 @@ import org.jsoar.kernel.memory.Wme;
 public interface WorkingMemoryActivation
 {
     //////////////////////////////////////////////////////////
-    //Parameter Functions
+    // Parameter Functions
     //////////////////////////////////////////////////////////
     
     /**
@@ -21,10 +21,9 @@ public interface WorkingMemoryActivation
      * wma.h:wma_enabled
      */
     boolean wma_enabled();
-
-
+    
     //////////////////////////////////////////////////////////
-    //Add/Remove Decay Element/Set
+    // Add/Remove Decay Element/Set
     //////////////////////////////////////////////////////////
     
     /**
@@ -36,10 +35,13 @@ public interface WorkingMemoryActivation
      * @param o_set
      * @param o_only
      */
-    void wma_activate_wme( Wme w, long num_references /*= 1*/, Set<Wme> o_set /*= null*/, boolean o_only /*= false*/ );
-    void wma_activate_wme( Wme w, long num_references /*= 1*/, Set<Wme> o_set /*= null*/ );
-    void wma_activate_wme( Wme w, long num_references /*= 1*/ );
-    void wma_activate_wme( Wme w );
+    void wma_activate_wme(Wme w, long num_references /* = 1 */, Set<Wme> o_set /* = null */, boolean o_only /* = false */ );
+    
+    void wma_activate_wme(Wme w, long num_references /* = 1 */, Set<Wme> o_set /* = null */ );
+    
+    void wma_activate_wme(Wme w, long num_references /* = 1 */ );
+    
+    void wma_activate_wme(Wme w);
     
     /**
      * Removes a decay element from an existing WME so that it is no longer activated.
@@ -47,10 +49,10 @@ public interface WorkingMemoryActivation
      * 
      * @param w
      */
-    void wma_remove_decay_element( Wme w );
+    void wma_remove_decay_element(Wme w);
     
     //////////////////////////////////////////////////////////
-    //Updating Activation
+    // Updating Activation
     //////////////////////////////////////////////////////////
     
     /**
@@ -58,29 +60,28 @@ public interface WorkingMemoryActivation
      * reference count of all its WMEs (as necessary).
      * wma.h:wma_activate_wmes_in_pref
      */
-    void wma_activate_wmes_in_pref( Preference pref );
+    void wma_activate_wmes_in_pref(Preference pref);
     
     /**
      * This routine performs WME activation
      * and forgetting at the end of each cycle.
      * wma.h:wma_go
      */
-    void wma_go( wma_go_action go_action );
-    
+    void wma_go(wma_go_action go_action);
     
     //////////////////////////////////////////////////////////
-    //Retrieving Activation
+    // Retrieving Activation
     //////////////////////////////////////////////////////////
     
     /**
      * Retrieve wme activation exact/approximate
      * wma.h:wma_get_wme_activation
      */
-    double wma_get_wme_activation( Wme w, boolean log_result );
+    double wma_get_wme_activation(Wme w, boolean log_result);
     
     /**
      * Debugging: get list of wme references
      * wma.h:wma_get_wme_history
      */
-    String wma_get_wme_history( Wme w );
+    String wma_get_wme_history(Wme w);
 }

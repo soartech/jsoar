@@ -22,9 +22,10 @@ public interface Goal
     /**
      * Get the identifier associated with the goal, e.g. {@code S1}.
      * 
-     * @return the identifier associated with the goal. 
+     * @return the identifier associated with the goal.
      */
     Identifier getIdentifier();
+    
     /**
      * Get the goal's currently selected operator.
      * 

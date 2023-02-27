@@ -6,17 +6,16 @@
 package org.jsoar.kernel.modules;
 
 import org.jsoar.kernel.Agent;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class SoarModuleTest
+class SoarModuleTest
 {
-
+    
     @Test
-    public void testCanInitializeWithAgentAsContext()
+    void testCanInitializeWithAgentAsContext()
     {
         final Agent a = new Agent();
         final SoarModule m = new SoarModule();

@@ -25,11 +25,11 @@ public class ReinforcementLearningInfo
     /**
      * traces associated with productions
      */
-    public final Map<Production, Double> eligibility_traces = new HashMap<Production, Double>();
+    public final Map<Production, Double> eligibility_traces = new HashMap<>();
     /**
      * rl rules associated with the previous operator
      */
-    public final LinkedList<Production> prev_op_rl_rules = new LinkedList<Production>();
+    public final LinkedList<Production> prev_op_rl_rules = new LinkedList<>();
     
     /**
      * q-value of the previous state
@@ -48,5 +48,5 @@ public class ReinforcementLearningInfo
      * the number of steps in a subgoal
      */
     long hrl_age;
-
+    
 }

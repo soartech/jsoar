@@ -17,7 +17,9 @@ import org.jsoar.util.properties.PropertyKey;
  */
 public class PropertiesResource extends BaseAgentResource
 {
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.resources.BaseAgentResource#setTemplateAttributes(java.util.Map)
      */
     @Override
@@ -25,7 +27,7 @@ public class PropertiesResource extends BaseAgentResource
     {
         super.setTemplateAttributes(attrs);
         
-        final List<Property> props = new ArrayList<Property>();
+        final List<Property> props = new ArrayList<>();
         final List<PropertyKey<?>> keys = agent.getProperties().getKeys();
         Collections.sort(keys, PropertyKey.NAME_COMPARATOR);
         for(PropertyKey<?> key : keys)
@@ -46,7 +48,7 @@ public class PropertiesResource extends BaseAgentResource
             this.key = key;
             this.value = value;
         }
-
+        
         /**
          * @return the key
          */
@@ -54,7 +56,7 @@ public class PropertiesResource extends BaseAgentResource
         {
             return key;
         }
-
+        
         /**
          * @return the value
          */
@@ -62,7 +64,6 @@ public class PropertiesResource extends BaseAgentResource
         {
             return value != null ? value.toString() : "null";
         }
-        
         
     }
     

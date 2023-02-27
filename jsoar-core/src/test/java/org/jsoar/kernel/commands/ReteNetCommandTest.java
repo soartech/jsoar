@@ -1,16 +1,18 @@
 package org.jsoar.kernel.commands;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.FunctionalTests;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarProperties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Tests for the <pre>load rete-net --load</pre> command.
@@ -18,14 +20,14 @@ import org.junit.Test;
  * @author charles.newton
  * @see org.jsoar.kernel.commands.LoadCommand.ReteNet
  */
-public class ReteNetCommandTest
+class ReteNetCommandTest
 {
     private Agent revivedAgent;
     private Agent originalAgent;
     private FunctionalTests funTests;
-
-    @Before
-    public void setUp() throws Exception
+    
+    @BeforeEach
+    void setUp() throws Exception
     {
         funTests = new FunctionalTests();
         funTests.setUp();
@@ -34,92 +36,102 @@ public class ReteNetCommandTest
         revivedAgent = new Agent();
         revivedAgent.getTrace().disableAll();
     }
-
-    @After
-    public void tearDown() throws Exception
+    
+    @AfterEach
+    void tearDown() throws Exception
     {
         funTests.tearDown();
         revivedAgent.dispose();
         File file = new File("test.jrete");
-        if (file.exists())
+        if(file.exists())
         {
             file.delete();
         }
     }
     
-    @Test(timeout=2*5000)
+    @Test
+    @Timeout(value = 2 * 5, unit = TimeUnit.SECONDS)
     public void testWaterJug() throws Exception
     {
         runTest("testWaterJug", 416, 0);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testWaterJugLookAhead() throws Exception
     {
         runTest("testWaterJugLookAhead", 27, 2000);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testWaterJugHierarchy() throws Exception
     {
         runTest("testWaterJugHierarchy", 1093, 0);
     }
     
     @Test
-    public void testTowersOfHanoi() throws Exception
+    void testTowersOfHanoi() throws Exception
     {
         runTest("testTowersOfHanoi", 2048, 0);
     }
     
     @Test
-    public void testTowersOfHanoiFast() throws Exception
+    void testTowersOfHanoiFast() throws Exception
     {
         runTest("testTowersOfHanoiFast", 2047, 0);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testEightPuzzle() throws Exception
     {
         runTest("testEightPuzzle", 40, 0);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorld() throws Exception
     {
         runTest("testBlocksWorld", 12, 0);
     }
- 
-    @Test(timeout=2*10000)
+    
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorldOperatorSubgoaling() throws Exception
     {
         runTest("testBlocksWorldOperatorSubgoaling", 5, 0);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorldLookAhead() throws Exception
     {
         runTest("testBlocksWorldLookAhead", 27, 1);
     }
     
     @Test
-    public void testBlocksWorldLookAhead2() throws Exception
+    void testBlocksWorldLookAhead2() throws Exception
     {
         runTest("testBlocksWorldLookAhead", 29, 100000000002L);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorldLookAheadRandom() throws Exception
     {
         runTest("testBlocksWorldLookAhead", 32, 0);
     }
     
-    @Test(timeout=2*80000)
+    @Test
+    @Timeout(value = 2 * 80, unit = TimeUnit.SECONDS)
     public void testArithmetic() throws Exception
     {
         runTest("testArithmetic", 41982, 0);
-    } 
+    }
     
-    @Test(timeout=2*80000)
+    @Test
+    @Timeout(value = 2 * 80, unit = TimeUnit.SECONDS)
     public void testCountTest() throws Exception
     {
         runTest("testCountTest", 45047, 0);
@@ -152,9 +164,22 @@ public class ReteNetCommandTest
         funTests.runTestSetup(testName);
         funTests.agent.getRandom().setSeed(randSeed);
         funTests.agent.getInterpreter().eval("save rete-net -s test.jrete");
+        
+        // save properties for test. These set in the soar files.
+        boolean learning = funTests.agent.getProperties().get(SoarProperties.LEARNING_ON);
+        int maxElaborations = funTests.agent.getProperties().get(SoarProperties.MAX_ELABORATIONS);
+        
         funTests.installRHS(funTests.agent);
         funTests.runTestExecute(testName, expectedDecisions);
         revivedAgent.getInterpreter().eval("load rete-net -l test.jrete");
+        
+        // restore required properties for test
+        if(learning)
+        {
+            revivedAgent.getInterpreter().eval("chunk --on");
+        }
+        revivedAgent.getInterpreter().eval("soar max-elaborations " + maxElaborations);
+        
         funTests.installRHS(revivedAgent);
         revivedAgent.getRandom().setSeed(randSeed);
         funTests.agent = revivedAgent;

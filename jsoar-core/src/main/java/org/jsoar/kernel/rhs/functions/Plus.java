@@ -2,14 +2,14 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.IntegerSymbol;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * Takes any number of int_constant or float_constant arguments, and
  * returns their sum.
- *  
+ * 
  * <p>rhsfun_math.cpp:41:plus_rhs_function_code
  */
 public final class Plus extends AbstractRhsFunctionHandler
@@ -18,12 +18,12 @@ public final class Plus extends AbstractRhsFunctionHandler
     {
         super("+");
     }
-
+    
     @Override
     public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
-
+        
         long i = 0;
         double f = 0;
         boolean float_found = false;

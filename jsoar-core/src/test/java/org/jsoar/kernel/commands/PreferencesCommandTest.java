@@ -5,34 +5,33 @@
  */
 package org.jsoar.kernel.commands;
 
-
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.RunType;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class PreferencesCommandTest
+class PreferencesCommandTest
 {
     private Agent agent;
     
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
     }
-
-    @After
-    public void tearDown() throws Exception
+    
+    @AfterEach
+    void tearDown() throws Exception
     {
         if(this.agent != null)
         {
@@ -42,15 +41,15 @@ public class PreferencesCommandTest
     }
     
     @Test
-    public void testThatRequiredAgentInternalsArePresent()
+    void testThatRequiredAgentInternalsArePresent()
     {
         // PreferencesCommand relies on Decider and PredefinedSymbols
-        assertNotNull("Decider not found in Agent", Adaptables.adapt(agent, Decider.class));
-        assertNotNull("PredefinedSymbols not found in Agent", Adaptables.adapt(agent, PredefinedSymbols.class));
+        assertNotNull(Adaptables.adapt(agent, Decider.class), "Decider not found in Agent");
+        assertNotNull(Adaptables.adapt(agent, PredefinedSymbols.class), "PredefinedSymbols not found in Agent");
     }
-
+    
     @Test
-    public void testThatAttributeParametersAreHandledCorrectly() throws Exception
+    void testThatAttributeParametersAreHandledCorrectly() throws Exception
     {
         agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (<s> ^foo 10)");
         agent.runFor(1, RunType.DECISIONS);
@@ -58,8 +57,9 @@ public class PreferencesCommandTest
         
         // No exception should be thrown
     }
+    
     @Test
-    public void testThatAttributeParametersWithHyphensAreHandledCorrectly() throws Exception
+    void testThatAttributeParametersWithHyphensAreHandledCorrectly() throws Exception
     {
         agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (<s> ^foo-bar 10)");
         agent.runFor(1, RunType.DECISIONS);

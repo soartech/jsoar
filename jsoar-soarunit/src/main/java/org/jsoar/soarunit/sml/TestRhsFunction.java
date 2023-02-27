@@ -32,7 +32,7 @@ public class TestRhsFunction implements RhsFunctionInterface
         this.called = false;
         this.arguments = null;
     }
-
+    
     /**
      * @return the called
      */
@@ -40,7 +40,7 @@ public class TestRhsFunction implements RhsFunctionInterface
     {
         return called;
     }
-
+    
     /**
      * @return the arguments
      */
@@ -48,8 +48,10 @@ public class TestRhsFunction implements RhsFunctionInterface
     {
         return arguments;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see sml.Kernel.RhsFunctionInterface#rhsFunctionHandler(int, java.lang.Object, java.lang.String, java.lang.String, java.lang.String)
      */
     @Override

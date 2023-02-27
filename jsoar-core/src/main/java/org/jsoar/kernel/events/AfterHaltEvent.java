@@ -21,5 +21,5 @@ public class AfterHaltEvent extends AbstractAgentEvent
     {
         super(agent);
     }
-
+    
 }

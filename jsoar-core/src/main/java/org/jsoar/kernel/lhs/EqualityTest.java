@@ -15,15 +15,17 @@ import org.jsoar.util.markers.Marker;
  */
 public abstract class EqualityTest extends Test
 {
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#copy()
      */
     @Override
     public Test copy()
     {
-        return this; //new EqualityTest(sym);
+        return this; // new EqualityTest(sym);
     }
-
+    
     /**
      * <p>gdatastructs.h:395:referent_of_equality_test
      * 
@@ -31,7 +33,9 @@ public abstract class EqualityTest extends Test
      */
     public abstract SymbolImpl getReferent();
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#asBlankTest()
      */
     @Override
@@ -39,8 +43,10 @@ public abstract class EqualityTest extends Test
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#addAllVariables(int, java.util.List)
      */
     @Override
@@ -53,8 +59,10 @@ public abstract class EqualityTest extends Test
             var.markIfUnmarked(tc_number, var_list);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#addBoundVariables(int, java.util.List)
      */
     @Override
@@ -67,9 +75,5 @@ public abstract class EqualityTest extends Test
             var.markIfUnmarked(tc_number, var_list);
         }
     }
-    
-    
-
-    
     
 }

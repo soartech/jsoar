@@ -22,7 +22,7 @@ public class FloatRhsFunction extends AbstractRhsFunctionHandler
     {
         super("float", 1, 1);
     }
-
+    
     public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);

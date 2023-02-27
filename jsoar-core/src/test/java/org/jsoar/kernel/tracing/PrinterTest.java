@@ -5,26 +5,28 @@
  */
 package org.jsoar.kernel.tracing;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class PrinterTest
+class PrinterTest
 {
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.tracing.Printer#pushWriter(java.io.Writer)}.
      */
     @Test
-    public void testPushWriter()
+    void testPushWriter()
     {
         StringWriter first = new StringWriter();
         StringWriter second = new StringWriter();
@@ -45,19 +47,19 @@ public class PrinterTest
         assertEquals("firstfirst", first.toString());
         assertEquals("second", second.toString());
     }
-
-    @Test(expected=NoSuchElementException.class)
-    public void testPopWriterThrowsNoSuchElementException()
+    
+    @Test
+    void testPopWriterThrowsNoSuchElementException()
     {
         Printer printer = new Printer(new StringWriter());
-        printer.popWriter();
+        assertThrows(NoSuchElementException.class, () -> printer.popWriter());
     }
     
     /**
      * Test method for {@link org.jsoar.kernel.tracing.Printer#spaces(int)}.
      */
     @Test
-    public void testSpaces()
+    void testSpaces()
     {
         StringWriter first = new StringWriter();
         
@@ -68,5 +70,5 @@ public class PrinterTest
         Arrays.fill(spaceArray, ' ');
         assertEquals(new String(spaceArray), result);
     }
-
+    
 }

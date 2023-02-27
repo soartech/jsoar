@@ -28,7 +28,9 @@ public class BooleanPropertyProvider implements PropertyProvider<Boolean>
         value = new AtomicBoolean(key.getDefaultValue());
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.properties.PropertyProvider#get()
      */
     @Override
@@ -36,17 +38,21 @@ public class BooleanPropertyProvider implements PropertyProvider<Boolean>
     {
         return value.get();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.properties.PropertyProvider#set(java.lang.Object)
      */
     @Override
     public Boolean set(Boolean value)
     {
-        return this.value.getAndSet(value.booleanValue());
+        return this.value.getAndSet(value);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -54,5 +60,5 @@ public class BooleanPropertyProvider implements PropertyProvider<Boolean>
     {
         return value.toString();
     }
-
+    
 }

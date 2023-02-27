@@ -15,7 +15,7 @@ import org.jsoar.debugger.Images;
 public class InitSoarAction extends AbstractDebuggerAction
 {
     private static final long serialVersionUID = -1460902354871319429L;
-
+    
     /**
      * @param manager the owning action manager
      */
@@ -25,8 +25,10 @@ public class InitSoarAction extends AbstractDebuggerAction
         
         setToolTip("init-soar");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
@@ -34,8 +36,10 @@ public class InitSoarAction extends AbstractDebuggerAction
     {
         setEnabled(!getApplication().getAgent().isRunning());
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -43,5 +47,5 @@ public class InitSoarAction extends AbstractDebuggerAction
     {
         getApplication().getAgent().initialize();
     }
-
+    
 }

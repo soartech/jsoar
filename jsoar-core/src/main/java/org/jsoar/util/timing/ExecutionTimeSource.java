@@ -6,7 +6,7 @@
 package org.jsoar.util.timing;
 
 /**
- * An interface representing a time source used by timers. 
+ * An interface representing a time source used by timers.
  * 
  * @author ray
  */

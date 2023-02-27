@@ -35,37 +35,37 @@ public abstract class Test implements Formattable
     {
         return null;
     }
-
+    
     public ConjunctiveTest asConjunctiveTest()
     {
         return null;
     }
-
+    
     public GoalIdTest asGoalIdTest()
     {
         return null;
     }
-
+    
     public ImpasseIdTest asImpasseIdTest()
     {
         return null;
     }
-
+    
     public DisjunctionTest asDisjunctionTest()
     {
         return null;
     }
-
+    
     public RelationalTest asRelationalTest()
     {
         return null;
     }
-
+    
     public void addAllVariables(Marker tc_number, ListHead<Variable> var_list)
     {
         // Do nothing by default
     }
-
+    
     /**
      * production.cpp:1113:add_bound_variables_in_test
      * 
@@ -77,4 +77,3 @@ public abstract class Test implements Formattable
         // Do nothing by default
     }
 }
-

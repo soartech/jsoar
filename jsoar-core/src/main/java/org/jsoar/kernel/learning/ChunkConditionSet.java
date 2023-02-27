@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.lhs.Condition;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
@@ -31,14 +31,14 @@ public class ChunkConditionSet
     /**
      * hash table buckets. Defaults to null, so no need to initialize
      */
-    final List<ListHead<ChunkCondition>> table = new ArrayList<ListHead<ChunkCondition>>(CHUNK_COND_HASH_TABLE_SIZE);
+    final List<ListHead<ChunkCondition>> table = new ArrayList<>(CHUNK_COND_HASH_TABLE_SIZE);
     {
         for(int i = 0; i < CHUNK_COND_HASH_TABLE_SIZE; ++i)
         {
-            table.add(ListHead.<ChunkCondition>newInstance());
+            table.add(ListHead.<ChunkCondition> newInstance());
         }
     }
-
+    
     /**
      * 
      * <p>chunk.cpp:356:add_to_chunk_cond_set
@@ -48,12 +48,18 @@ public class ChunkConditionSet
     {
         ListItem<ChunkCondition> old;
         final ListHead<ChunkCondition> bucket = this.table.get(new_cc.compressed_hash_value);
-        for (old = bucket.first; old != null; old = old.next)
-            if (old.item.hash_value == new_cc.hash_value)
-                if (Condition.conditions_are_equal(old.item.cond, new_cc.cond))
+        for(old = bucket.first; old != null; old = old.next)
+        {
+            if(old.item.hash_value == new_cc.hash_value)
+            {
+                if(Condition.conditions_are_equal(old.item.cond, new_cc.cond))
+                {
                     break;
+                }
+            }
+        }
         
-        if (old != null)
+        if(old != null)
         {
             // the new condition was already in the set; so don't add it
             return false;
@@ -63,7 +69,7 @@ public class ChunkConditionSet
         new_cc.in_bucket.insertAtHead(bucket);
         return true;
     }
-
+    
     /**
      * 
      * <p>chunk.cpp:376:remove_from_chunk_cond_set

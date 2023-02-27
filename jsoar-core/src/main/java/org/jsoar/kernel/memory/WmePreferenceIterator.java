@@ -46,8 +46,10 @@ class WmePreferenceIterator implements Iterator<Preference>
             this.next = null;
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Iterator#hasNext()
      */
     @Override
@@ -55,8 +57,10 @@ class WmePreferenceIterator implements Iterator<Preference>
     {
         return next != null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Iterator#next()
      */
     @Override
@@ -71,8 +75,10 @@ class WmePreferenceIterator implements Iterator<Preference>
         next = getNext(next.nextOfSlot, value);
         return result;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Iterator#remove()
      */
     @Override
@@ -80,7 +86,7 @@ class WmePreferenceIterator implements Iterator<Preference>
     {
         throw new UnsupportedOperationException();
     }
-
+    
     private static Preference getNext(Preference start, Symbol value)
     {
         while(start != null)

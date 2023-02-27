@@ -5,64 +5,75 @@
  */
 package org.jsoar.kernel;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * @author ray
  */
 public class FunctionalTests extends FunctionalTestHarness
 {
-    @Test(timeout=5000)
+    @Test
+    @Timeout(value = 5, unit = TimeUnit.SECONDS)
     public void testWaterJug() throws Exception
     {
         runTest("testWaterJug", -1);
     }
-    @Test(timeout=10000)
+    
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaterJugLookAhead() throws Exception
     {
         runTest("testWaterJugLookAhead", -1);
     }
-    @Test(timeout=10000)
+    
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaterJugHierarchy() throws Exception
     {
         runTest("testWaterJugHierarchy", -1);
     }
     
     @Test
-    public void testTowersOfHanoi() throws Exception
+    void testTowersOfHanoi() throws Exception
     {
         runTest("testTowersOfHanoi", 2048);
     }
     
     @Test
-    public void testTowersOfHanoiFast() throws Exception
+    void testTowersOfHanoiFast() throws Exception
     {
         runTest("testTowersOfHanoiFast", 2047);
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testEightPuzzle() throws Exception
     {
         runTest("testEightPuzzle", -1);
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorld() throws Exception
     {
         runTest("testBlocksWorld", -1);
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorldOperatorSubgoaling() throws Exception
     {
         runTest("testBlocksWorldOperatorSubgoaling", 5);
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorldLookAhead() throws Exception
     {
         String testName = "testBlocksWorldLookAhead";
@@ -72,7 +83,7 @@ public class FunctionalTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testBlocksWorldLookAhead2() throws Exception
+    void testBlocksWorldLookAhead2() throws Exception
     {
         String testName = "testBlocksWorldLookAhead";
         runTestSetup(testName);
@@ -80,20 +91,23 @@ public class FunctionalTests extends FunctionalTestHarness
         runTestExecute(testName, 29);
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorldLookAheadRandom() throws Exception
     {
         runTest("testBlocksWorldLookAhead", -1);
     }
     
-    @Test(timeout=80000)
+    @Test
+    @Timeout(value = 80, unit = TimeUnit.SECONDS)
     public void testArithmetic() throws Exception
     {
         runTest("testArithmetic", -1);
         assertTrue(agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue() > 40000);
     }
     
-    @Test(timeout=80000)
+    @Test
+    @Timeout(value = 80, unit = TimeUnit.SECONDS)
     public void testCountTest() throws Exception
     {
         runTest("testCountTest", 45047);

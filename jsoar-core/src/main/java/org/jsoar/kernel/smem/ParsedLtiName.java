@@ -22,5 +22,5 @@ class ParsedLtiName
         id_letter = idLetter;
         id_number = idNumber;
     }
-
+    
 }

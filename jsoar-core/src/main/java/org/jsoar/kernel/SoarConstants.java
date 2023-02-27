@@ -20,7 +20,7 @@ public final class SoarConstants
     /**
      * kernel.h:207:ATTRIBUTE_IMPASSE_LEVEL
      */
-    public static final int ATTRIBUTE_IMPASSE_LEVEL = Integer.MAX_VALUE; 
+    public static final int ATTRIBUTE_IMPASSE_LEVEL = Integer.MAX_VALUE;
     
     /**
      * UNcomment the following line to have Soar maintain reference counts on
@@ -40,5 +40,5 @@ public final class SoarConstants
      * <p>kernel.h:129:DO_TOP_LEVEL_REF_CTS (pre-processor macro defaults to <b>not defined</b> in csoar)
      * <p>Defaults to <code>false</code>
      */
-    public static final boolean DO_TOP_LEVEL_REF_CTS = Boolean.valueOf(System.getProperty("jsoar.do_top_level_ref_cts", "false"));
+    public static final boolean DO_TOP_LEVEL_REF_CTS = Boolean.parseBoolean(System.getProperty("jsoar.do_top_level_ref_cts", "false"));
 }

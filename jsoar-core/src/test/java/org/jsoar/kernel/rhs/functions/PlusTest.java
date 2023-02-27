@@ -5,21 +5,20 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class PlusTest extends JSoarTest
+class PlusTest extends JSoarTest
 {
     
     @Test
-    public void testZeroArgs() throws Exception
+    void testZeroArgs() throws Exception
     {
         Plus plus = new Plus();
         
@@ -27,7 +26,7 @@ public class PlusTest extends JSoarTest
     }
     
     @Test
-    public void testOneIntArg() throws Exception
+    void testOneIntArg() throws Exception
     {
         Plus plus = new Plus();
         
@@ -35,7 +34,7 @@ public class PlusTest extends JSoarTest
     }
     
     @Test
-    public void testOneFloatArg() throws Exception
+    void testOneFloatArg() throws Exception
     {
         Plus plus = new Plus();
         
@@ -43,7 +42,7 @@ public class PlusTest extends JSoarTest
     }
     
     @Test
-    public void testMixedArgs() throws Exception
+    void testMixedArgs() throws Exception
     {
         Plus plus = new Plus();
         
@@ -51,7 +50,7 @@ public class PlusTest extends JSoarTest
     }
     
     @Test
-    public void testIntArgs() throws Exception
+    void testIntArgs() throws Exception
     {
         Plus plus = new Plus();
         
@@ -59,11 +58,11 @@ public class PlusTest extends JSoarTest
     }
     
     @Test
-    public void testFloatArgs() throws Exception
+    void testFloatArgs() throws Exception
     {
         Plus plus = new Plus();
         
         assertEquals(7.0, plus.execute(rhsFuncContext, Symbols.asList(syms, 2.0, 3.0, 4.0, -2.0)).asDouble().getValue(), 0.0001);
     }
-
+    
 }

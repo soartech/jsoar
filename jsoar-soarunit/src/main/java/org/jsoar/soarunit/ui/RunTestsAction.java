@@ -28,7 +28,9 @@ public class RunTestsAction extends AbstractAction implements PropertyChangeList
         this.tp.addPropertyChangeListener(TestPanel.RUNNING_TESTS, this);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -42,5 +44,5 @@ public class RunTestsAction extends AbstractAction implements PropertyChangeList
     {
         setEnabled(!((Boolean) evt.getNewValue()).booleanValue());
     }
-
+    
 }

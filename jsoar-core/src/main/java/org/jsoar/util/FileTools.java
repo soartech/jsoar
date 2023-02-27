@@ -38,7 +38,7 @@ public class FileTools
         {
             return new URL(url);
         }
-        catch (MalformedURLException e)
+        catch(MalformedURLException e)
         {
             return null;
         }
@@ -50,7 +50,7 @@ public class FileTools
      * 
      * @param name the file name
      * @return the extension of the file, without the dot, or {@code null} if
-     *  there is no extension.
+     * there is no extension.
      */
     public static String getExtension(String name)
     {
@@ -58,7 +58,7 @@ public class FileTools
         final int slash = name.lastIndexOf('/');
         if(dot != -1)
         {
-            return slash != -1 && slash > dot ? null : name.substring(dot+1);
+            return slash != -1 && slash > dot ? null : name.substring(dot + 1);
         }
         else
         {

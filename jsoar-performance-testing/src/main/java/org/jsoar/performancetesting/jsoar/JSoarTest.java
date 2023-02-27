@@ -25,41 +25,42 @@ import org.jsoar.util.commands.SoarCommands;
 public class JSoarTest implements Test
 {
     private String testName;
-
+    
     private Path testFile;
-
+    
     private Agent agent;
-
+    
     private Double cpuTime;
-
+    
     private Double kernelTime;
-
+    
     private int decisionsRunFor;
-
+    
     private long memoryForRun;
-
+    
     private TestSettings settings;
-
+    
     private JSoarAgentFactory agentFactory;
     
     /**
      * Sets all the values used in the test to be impossible values so we know
      * if something failed horribly.
-     * @throws ClassNotFoundException 
-     * @throws MalformedURLException 
+     * 
+     * @throws ClassNotFoundException
+     * @throws MalformedURLException
      */
     public JSoarTest(Path jsoarCoreJar) throws MalformedURLException, ClassNotFoundException
     {
         this.agent = null;
-
+        
         this.cpuTime = -1.0;
         this.kernelTime = -1.0;
         this.decisionsRunFor = -1;
         this.memoryForRun = -1;
-
+        
         this.agentFactory = new JSoarAgentFactory(jsoarCoreJar);
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -74,9 +75,10 @@ public class JSoarTest implements Test
         this.testFile = testFile;
         this.settings = settings;
     }
-
+    
     @Override
-    public Path getSoarPath() {
+    public Path getSoarPath()
+    {
         return this.agentFactory.getSoarPath();
     }
     
@@ -90,7 +92,7 @@ public class JSoarTest implements Test
     {
         return testName;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -101,7 +103,7 @@ public class JSoarTest implements Test
     {
         return testFile;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -115,10 +117,10 @@ public class JSoarTest implements Test
         // http://stackoverflow.com/questions/1481178/forcing-garbage-collection-in-java
         System.gc();
         System.gc();
-
+        
         memoryForRun = Runtime.getRuntime().totalMemory()
                 - Runtime.getRuntime().freeMemory();
-
+        
         agent = (Agent) agentFactory
                 .newAgent("JSoar Performance Testing Agent - " + testName
                         + " - " + runCount);
@@ -128,36 +130,40 @@ public class JSoarTest implements Test
         SoarCommandInterpreter ifc = agent.getInterpreter();
         
         SoarCommands.source(ifc, testFile);
-
-        if (settings.isUsingSeed())
+        
+        if(settings.isUsingSeed())
         {
             ifc.eval("srand " + settings.getSeed());
         }
-
+        
         ifc.eval("soar stop-phase output");
-
-        if (settings.getDecisionCycles().size() == 0
+        
+        if(settings.getDecisionCycles().isEmpty()
                 || settings.getDecisionCycles().get(0) == 0)
+        {
             agent.runForever();
+        }
         else
+        {
             agent.runFor(settings.getDecisionCycles().get(0), RunType.DECISIONS);
-
+        }
+        
         cpuTime = agent.getTotalCpuTimer().getTotalSeconds();
         kernelTime = agent.getTotalKernelTimer().getTotalSeconds();
-
+        
         // This is the same counter as the stats command
         decisionsRunFor = agent.getProperties()
                 .get(SoarProperties.DECISION_PHASES_COUNT).intValue();
         memoryForRun = Runtime.getRuntime().totalMemory()
                 - Runtime.getRuntime().freeMemory() - memoryForRun;
-
+        
         agent.dispose();
-
+        
         agent = null;
-
+        
         return true;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -166,15 +172,15 @@ public class JSoarTest implements Test
     @Override
     public boolean reset()
     {
-        if (agent != null)
+        if(agent != null)
         {
             agent.dispose();
             agent = null;
         }
-
+        
         return true;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -185,7 +191,7 @@ public class JSoarTest implements Test
     {
         return cpuTime;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -196,7 +202,7 @@ public class JSoarTest implements Test
     {
         return kernelTime;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -207,7 +213,7 @@ public class JSoarTest implements Test
     {
         return decisionsRunFor;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -218,7 +224,7 @@ public class JSoarTest implements Test
     {
         return memoryForRun;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -229,7 +235,7 @@ public class JSoarTest implements Test
     {
         return "JSoar";
     }
-
+    
     /*
      * (non-Javadoc)
      * 

@@ -27,7 +27,7 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class OutputEvent extends AbstractInputOutputEvent
 {
-    public static enum OutputMode
+    public enum OutputMode
     {
         UNCHANGED_OUTPUT_COMMAND,
         ADDED_OUTPUT_COMMAND,
@@ -55,7 +55,7 @@ public class OutputEvent extends AbstractInputOutputEvent
         this.wmes = Collections.unmodifiableSet(wmes);
         this.lastOutputSet = lastOutputSet;
     }
-
+    
     /**
      * @return the mode
      */
@@ -63,9 +63,9 @@ public class OutputEvent extends AbstractInputOutputEvent
     {
         return mode;
     }
-
+    
     /**
-     * @return an iterator over all wmes currently on the output-link, 
+     * @return an iterator over all wmes currently on the output-link,
      * i.e. all WMEs reachable from {@link InputOutput#getOutputLink()}.
      */
     public Iterator<Wme> getWmes()
@@ -75,7 +75,7 @@ public class OutputEvent extends AbstractInputOutputEvent
     
     /**
      * @return an iterator over all WME changes since the last {@link OutputEvent}
-     *  was fired.
+     * was fired.
      */
     public Iterator<OutputChange> getChanges()
     {
@@ -92,14 +92,15 @@ public class OutputEvent extends AbstractInputOutputEvent
         }
         return changes.iterator();
     }
+    
     /**
-     * This is a simple utility function for use in users' output functions. 
-     * It finds things in an io_wme chain. It takes "outputs" (the io_wme 
-     * chain), and "id" and "attr" (symbols to match against the wmes), and 
-     * returns the value from the first wme in the chain with a matching id 
-     * and attribute. Either "id" or "attr" (or both) can be specified as 
-     * "don't care" by giving NULL (0) pointers for them instead of pointers 
-     * to symbols. If no matching wme is found, the function returns a NULL 
+     * This is a simple utility function for use in users' output functions.
+     * It finds things in an io_wme chain. It takes "outputs" (the io_wme
+     * chain), and "id" and "attr" (symbols to match against the wmes), and
+     * returns the value from the first wme in the chain with a matching id
+     * and attribute. Either "id" or "attr" (or both) can be specified as
+     * "don't care" by giving NULL (0) pointers for them instead of pointers
+     * to symbols. If no matching wme is found, the function returns a NULL
      * pointer.
      * 
      * <p>io.cpp::get_output_value
@@ -110,12 +111,16 @@ public class OutputEvent extends AbstractInputOutputEvent
      */
     public Symbol getOutputValue(Identifier id, Symbol attr)
     {
-        for (Wme iw : wmes)
-            if (((id == null) || (id == iw.getIdentifier())) && ((attr == null) || (attr == iw.getAttribute())))
+        for(Wme iw : wmes)
+        {
+            if(((id == null) || (id == iw.getIdentifier())) && ((attr == null) || (attr == iw.getAttribute())))
+            {
                 return iw.getValue();
+            }
+        }
         return null;
     }
-
+    
     private void calculateRemovals()
     {
         if(lastOutputSet != null)
@@ -129,7 +134,7 @@ public class OutputEvent extends AbstractInputOutputEvent
             }
         }
     }
-
+    
     private void calculateAdditions()
     {
         for(Wme w : wmes)
@@ -141,5 +146,4 @@ public class OutputEvent extends AbstractInputOutputEvent
         }
     }
     
-
 }

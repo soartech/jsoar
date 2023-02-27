@@ -1,6 +1,6 @@
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -10,28 +10,30 @@ import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.ByRef;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SetCountTest
+class SetCountTest
 {
-
+    
     private Agent agent;
     ByRef<Boolean> matched;
     
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.matched = ByRef.create(Boolean.FALSE);
-        agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match"){
-
+        agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
             {
                 matched.value = true;
                 return null;
-            }});
+            }
+        });
         
         // A production to create some set to count
         agent.getProductions().loadProduction("" +
@@ -43,7 +45,7 @@ public class SetCountTest
     }
     
     @Test
-    public void TestNoArgs() throws Exception
+    void TestNoArgs() throws Exception
     {
         // A production to call set-count with bad args
         agent.getProductions().loadProduction("" +
@@ -61,7 +63,7 @@ public class SetCountTest
     }
     
     @Test
-    public void TestOneArg() throws Exception
+    void TestOneArg() throws Exception
     {
         // A production to call set-count with one arg, which will always return 0
         agent.getProductions().loadProduction("" +
@@ -84,10 +86,10 @@ public class SetCountTest
     }
     
     @Test
-    public void TestTwoArgs() throws Exception
+    void TestTwoArgs() throws Exception
     {
         // A production to call set-count with two args: <tc> and foo,
-        // which means count how many WMEs have the identifier <tc> with the attribute "foo"  
+        // which means count how many WMEs have the identifier <tc> with the attribute "foo"
         agent.getProductions().loadProduction("" +
                 "countSet\n" +
                 "(state <s> ^superstate nil ^to-count <tc>)\n" +
@@ -108,7 +110,7 @@ public class SetCountTest
     }
     
     @Test
-    public void TestThreeArgs() throws Exception
+    void TestThreeArgs() throws Exception
     {
         // A production to call set-count with bad args
         agent.getProductions().loadProduction("" +

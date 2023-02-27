@@ -5,18 +5,18 @@
  */
 package org.jsoar.tcl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.jsoar.kernel.RunType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author charles.newton
  */
-public class TclDictTest extends TclTestBase
+class TclDictTest extends TclTestBase
 {
     @Test
-    public void testExecute() throws Exception
+    void testExecute() throws Exception
     {
         sourceTestFile(getClass(), "testExecute.soar");
         
@@ -25,5 +25,5 @@ public class TclDictTest extends TclTestBase
         assertEquals("alice", ifc.eval("set value1"));
         assertEquals("bob", ifc.eval("set value2"));
     }
-
+    
 }

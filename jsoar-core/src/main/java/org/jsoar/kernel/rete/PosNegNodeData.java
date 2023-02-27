@@ -12,13 +12,13 @@ package org.jsoar.kernel.rete;
  * 
  * @author ray
  */
-class PosNegNodeData implements BReteNodeData
+public class PosNegNodeData implements BReteNodeData
 {
     ReteTest other_tests; /* tests other than the hashed test */
-    AlphaMemory alpha_mem_;  /* the alpha memory this node uses */
+    AlphaMemory alpha_mem_; /* the alpha memory this node uses */
     ReteNode next_from_alpha_mem; /* dll of nodes using that */
     boolean node_is_right_unlinked;
-    ReteNode prev_from_alpha_mem; /*   ... alpha memory */
+    ReteNode prev_from_alpha_mem; /* ... alpha memory */
     ReteNode nearest_ancestor_with_same_am;
     
     /**
@@ -36,5 +36,5 @@ class PosNegNodeData implements BReteNodeData
         
         return n;
     }
-
+    
 }

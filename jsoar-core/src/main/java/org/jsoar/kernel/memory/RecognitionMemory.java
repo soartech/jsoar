@@ -87,7 +87,7 @@ import com.google.common.collect.Lists;
  */
 public class RecognitionMemory
 {
-    private static final Logger logger = LoggerFactory.getLogger(RecognitionMemory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RecognitionMemory.class);
     
     private final Agent context;
     private PredefinedSymbols predefinedSyms;
@@ -109,13 +109,14 @@ public class RecognitionMemory
     
     /**
      * agent.h:571:newly_created_instantiations
+     * 
      * @see Instantiation#insertAtHeadOfProdList(Instantiation)
      * @see Instantiation#removeFromProdList(Instantiation)
      */
     public Instantiation newly_created_instantiations;
     
     /**
-     * during firing, points to the prod. being fired 
+     * during firing, points to the prod. being fired
      * 
      * agent.h:574:production_being_fired
      */
@@ -136,7 +137,7 @@ public class RecognitionMemory
     /**
      * List of preferences created by currently executing RHS function
      */
-    private final LinkedList<Preference> rhsFunctionPreferences = new LinkedList<Preference>();
+    private final LinkedList<Preference> rhsFunctionPreferences = new LinkedList<>();
     
     /**
      * Preference type of currently executing action, used when instantiating preferences from
@@ -151,7 +152,7 @@ public class RecognitionMemory
     {
         this.context = context;
     }
-
+    
     /**
      * As the "firer", this object is in charge of implementing the {@link RhsFunctionContext}
      * that is passed to RHS functions when they are executed.
@@ -195,11 +196,11 @@ public class RecognitionMemory
      * Build context-dependent preference set
      * 
      * This function will copy the CDPS from a slot to the backtrace info for the
-     * corresponding condition.  The copied CDPS will later be backtraced through.
+     * corresponding condition. The copied CDPS will later be backtraced through.
      * 
      * Note: Until prohibits are included explicitly as part of the CDPS, we will
      * just copy them directly from the prohibits list so that there is no
-     * additional overhead.  Once the CDPS is on by default, we can eliminate the
+     * additional overhead. Once the CDPS is on by default, we can eliminate the
      * second half of the big else (and not call this function at all if the
      * sysparam is not set.
      * 
@@ -208,30 +209,30 @@ public class RecognitionMemory
      * recmem.cpp:95:build_CDPS
      * 
      */
-
+    
     void build_CDPS(Instantiation inst)
     {
-        for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
+        for(Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
             final PositiveCondition pc = cond.asPositiveCondition();
             final BackTraceInfo bt = pc != null ? pc.bt() : null;
-            if (pc != null)
+            if(pc != null)
             {
                 bt.clearContextDependentPreferenceSet(context);
             }
-
-            if (pc != null && bt.trace != null)
+            
+            if(pc != null && bt.trace != null)
             {
-                if (bt.trace.slot != null)
+                if(bt.trace.slot != null)
                 {
-                    if (this.chunker.chunkThroughEvaluationRules)
+                    if(this.chunker.chunkThroughEvaluationRules)
                     {
-                        if (bt.trace.slot.hasContextDependentPreferenceSet())
+                        if(bt.trace.slot.hasContextDependentPreferenceSet())
                         {
                             for(Preference pref : bt.trace.slot.getContextDependentPreferenceSet())
                             {
                                 Preference new_pref = null;
-                                if (pref.inst.match_goal_level == inst.match_goal_level
+                                if(pref.inst.match_goal_level == inst.match_goal_level
                                         && pref.isInTempMemory())
                                 {
                                     bt.addContextDependentPreference(pref);
@@ -240,9 +241,9 @@ public class RecognitionMemory
                                 {
                                     new_pref = Preference.find_clone_for_level(
                                             pref, inst.match_goal_level);
-                                    if (new_pref != null)
+                                    if(new_pref != null)
                                     {
-                                        if (new_pref.isInTempMemory())
+                                        if(new_pref.isInTempMemory())
                                         {
                                             bt.addContextDependentPreference(new_pref);
                                         }
@@ -254,10 +255,10 @@ public class RecognitionMemory
                     else
                     {
                         Preference pref = bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT);
-                        while (pref != null)
+                        while(pref != null)
                         {
                             Preference new_pref = null;
-                            if (pref.inst.match_goal_level == inst.match_goal_level
+                            if(pref.inst.match_goal_level == inst.match_goal_level
                                     && pref.isInTempMemory())
                             {
                                 bt.addContextDependentPreference(pref);
@@ -266,9 +267,9 @@ public class RecognitionMemory
                             {
                                 new_pref = Preference.find_clone_for_level(
                                         pref, inst.match_goal_level);
-                                if (new_pref != null)
+                                if(new_pref != null)
                                 {
-                                    if (new_pref.isInTempMemory())
+                                    if(new_pref.isInTempMemory())
                                     {
                                         bt.addContextDependentPreference(new_pref);
                                     }
@@ -281,7 +282,7 @@ public class RecognitionMemory
             }
         }
     }
-
+    
     /**
      * Given an instantiation, this routines looks at the instantiated
      * conditions to find its match goal. It fills in {@code inst->match_goal} and
@@ -299,16 +300,16 @@ public class RecognitionMemory
     {
         IdentifierImpl lowest_goal_so_far = null;
         int lowest_level_so_far = -1;
-        for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
+        for(Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
             final PositiveCondition pc = cond.asPositiveCondition();
-            if (pc != null)
+            if(pc != null)
             {
                 final BackTraceInfo bt = pc.bt();
                 final IdentifierImpl id = bt.wme_.id;
-                if (id.isGoal())
+                if(id.isGoal())
                 {
-                    if (bt.level > lowest_level_so_far)
+                    if(bt.level > lowest_level_so_far)
                     {
                         lowest_goal_so_far = id;
                         lowest_level_so_far = bt.level;
@@ -316,9 +317,9 @@ public class RecognitionMemory
                 }
             }
         }
-
+        
         inst.match_goal = lowest_goal_so_far;
-        if (lowest_goal_so_far != null)
+        if(lowest_goal_so_far != null)
         {
             inst.match_goal_level = lowest_level_so_far;
         }
@@ -327,7 +328,7 @@ public class RecognitionMemory
             inst.match_goal_level = SoarConstants.ATTRIBUTE_IMPASSE_LEVEL;
         }
     }
-
+    
     /**
      * Execute_action() executes a given RHS action. For MAKE_ACTION's, it
      * returns the created preference structure, or NIL if an error occurs. For
@@ -356,7 +357,7 @@ public class RecognitionMemory
     public SymbolImpl instantiate_rhs_value(RhsValue rv, int new_id_level, char new_id_letter, Token tok, WmeImpl w)
     {
         final RhsSymbolValue rsv = rv.asSymbolValue();
-        if (rsv != null)
+        if(rsv != null)
         {
             final SymbolImpl result = rsv.getSym();
             
@@ -369,26 +370,26 @@ public class RecognitionMemory
             }
             return result;
         }
-
+        
         final UnboundVariable uv = rv.asUnboundVariable();
-        if (uv != null)
+        if(uv != null)
         {
-
+            
             int index = uv.getIndex();
-            if (this.firer_highest_rhs_unboundvar_index < index)
+            if(this.firer_highest_rhs_unboundvar_index < index)
             {
                 this.firer_highest_rhs_unboundvar_index = index;
             }
             SymbolImpl sym = this.rete.getRhsVariableBinding(index);
-
+            
             final SymbolFactoryImpl syms = predefinedSyms.getSyms();
-            if (sym == null)
+            if(sym == null)
             {
                 sym = syms.make_new_identifier(new_id_letter, new_id_level);
                 this.rete.setRhsVariableBinding(index, sym);
                 return sym;
             }
-            else if (sym.asVariable() != null)
+            else if(sym.asVariable() != null)
             {
                 final Variable v = sym.asVariable();
                 new_id_letter = v.getFirstLetter();
@@ -401,50 +402,50 @@ public class RecognitionMemory
                 return sym;
             }
         }
-
+        
         final ReteLocation rl = rv.asReteLocation();
-        if (rl != null)
+        if(rl != null)
         {
             return rl.lookupSymbol(tok, w);
         }
-
+        
         final RhsFunctionCall fc = rv.asFunctionCall();
-        if (fc == null)
+        if(fc == null)
         {
             throw new IllegalStateException("Unknow RhsValue type: " + rv);
         }
         
         // build up list of argument values
-        final List<Symbol> arguments = new ArrayList<Symbol>(fc.getArguments().size());
+        final List<Symbol> arguments = new ArrayList<>(fc.getArguments().size());
         boolean nil_arg_found = false;
-        for (RhsValue arg : fc.getArguments())
+        for(RhsValue arg : fc.getArguments())
         {
             SymbolImpl instArg = instantiate_rhs_value(arg, new_id_level, new_id_letter, tok, w);
-            if (instArg == null)
+            if(instArg == null)
             {
                 nil_arg_found = true;
             }
             arguments.add(instArg);
         }
-
+        
         // if all args were ok, call the function
-
-        if (!nil_arg_found)
+        
+        if(!nil_arg_found)
         {
             // stop the kernel timer while doing RHS funcalls KJC 11/04
             // the total_cpu timer needs to be updated in case RHS fun is
             // statsCmd
             ExecutionTimers.pause(context.getTotalKernelTimer());
             ExecutionTimers.update(context.getTotalCpuTimer());
-
+            
             try
             {
                 // we provide the RhsFunctionContext so we know this will return SymbolImpl
                 return (SymbolImpl) context.getRhsFunctions().execute(fc.getName().getValue(), arguments);
             }
-            catch (RhsFunctionException e)
+            catch(RhsFunctionException e)
             {
-                logger.error("Error executing RHS function '" + fc.getName() + "' with args " + arguments + ": " + e.getMessage(), e);
+                LOG.error("Error executing RHS function '" + fc.getName() + "' with args " + arguments + ": " + e.getMessage(), e);
                 context.getPrinter().error("Error executing RHS function '%s' with args %s: %s\n", fc.getName(), arguments, e.getMessage());
             }
             finally
@@ -452,10 +453,10 @@ public class RecognitionMemory
                 ExecutionTimers.start(context.getTotalKernelTimer());
             }
         }
-
+        
         return null;
     }
-
+    
     /**
      * <p>recmem.cpp:292:execute_action
      * 
@@ -469,114 +470,115 @@ public class RecognitionMemory
         rhsFunctionPreferenceType = a.preference_type;
         
         final FunctionAction fa = a.asFunctionAction();
-        if (fa != null)
+        if(fa != null)
         {
             instantiate_rhs_value(fa.getCall(), -1, 'v', tok, w);
             return null;
         }
-
+        
         final MakeAction ma = a.asMakeAction();
-
+        
         final SymbolImpl idSym = instantiate_rhs_value(ma.id, -1, 's', tok, w);
-        if (idSym == null)
+        if(idSym == null)
         {
             return null; // goto abort_execute_action;
         }
         
         final IdentifierImpl id = idSym.asIdentifier();
-        if (id == null)
+        if(id == null)
         {
             context.getPrinter().error("[%s] RHS makes a preference for %s (not an identifier)\n", production_being_fired, idSym);
             return null; // goto abort_execute_action;
         }
-
+        
         final SymbolImpl attr = instantiate_rhs_value(ma.attr, id.level, 'a', tok, w);
-        if (attr == null)
+        if(attr == null)
         {
             return null;
         }
         
         final char first_letter = attr.getFirstLetter();
-
+        
         final SymbolImpl value = instantiate_rhs_value(ma.value, id.level, first_letter, tok, w);
-        if (value == null)
+        if(value == null)
         {
             return null; // goto abort_execute_action;
         }
-
+        
         SymbolImpl referent = null;
-        if (a.preference_type.isBinary())
+        if(a.preference_type.isBinary())
         {
             referent = instantiate_rhs_value(ma.referent, id.level, first_letter, tok, w);
-            if (referent == null)
+            if(referent == null)
             {
                 return null; // goto abort_execute_action;
             }
         }
-
-        if (a.preference_type != PreferenceType.ACCEPTABLE && 
-            a.preference_type != PreferenceType.REJECT     && 
-            !(id.isGoal() && attr == predefinedSyms.operator_symbol))
+        
+        if(a.preference_type != PreferenceType.ACCEPTABLE &&
+                a.preference_type != PreferenceType.REJECT &&
+                !(id.isGoal() && attr == predefinedSyms.operator_symbol))
         {
             context.getPrinter().error("[%s] attribute preference other than +/- for %s ^%s -- ignoring it.", production_being_fired, id, attr);
             return null;
         }
         
-       /* The parser assumes that any rhs preference of the form 
-        *
-        * (<s> ^operator <o> = <x>)
-        * 
-        * is a binary indifferent preference, because it assumes <x> is an
-        * operator. However, it could be the case that <x> is actually bound to
-        * a number, which would make this a numeric indifferent preference. The
-        * parser had no way of easily figuring this out, but it's easy to check
-        * here.
-        *
-        * jsoar note: in csoar this was put in create_instantiation(). I (dr) put
-        * it here so that Preference.type could remain final. Joseph said there
-        * was no particular reason it was in create_instantiation().
-        * 
-        * jzxu April 22, 2009
-        */
+        /*
+         * The parser assumes that any rhs preference of the form
+         *
+         * (<s> ^operator <o> = <x>)
+         * 
+         * is a binary indifferent preference, because it assumes <x> is an
+         * operator. However, it could be the case that <x> is actually bound to
+         * a number, which would make this a numeric indifferent preference. The
+         * parser had no way of easily figuring this out, but it's easy to check
+         * here.
+         *
+         * jsoar note: in csoar this was put in create_instantiation(). I (dr) put
+         * it here so that Preference.type could remain final. Joseph said there
+         * was no particular reason it was in create_instantiation().
+         * 
+         * jzxu April 22, 2009
+         */
         PreferenceType type = a.preference_type;
-        if (type == PreferenceType.BINARY_INDIFFERENT && 
-            (referent.asDouble() != null || referent.asInteger() != null))
+        if(type == PreferenceType.BINARY_INDIFFERENT &&
+                (referent.asDouble() != null || referent.asInteger() != null))
         {
             type = PreferenceType.NUMERIC_INDIFFERENT;
         }
-
+        
         return new Preference(type, id, attr, value, referent);
     }
-
+    
     /**
      * This routine fills in a newly created instantiation structure with
      * various information.
-     *     
+     * 
      * <p>At input, the instantiation should have:
      * <ul>
-     *   <li>preferences_generated filled in; 
-     *   <li>instantiated conditions filled in;
-     *   <li>top-level positive conditions should have bt.wme_, bt.level, and
-     *      bt.trace filled in, but bt.wme_ and bt.trace shouldn't have their
-     *      reference counts incremented yet.
+     * <li>preferences_generated filled in;
+     * <li>instantiated conditions filled in;
+     * <li>top-level positive conditions should have bt.wme_, bt.level, and
+     * bt.trace filled in, but bt.wme_ and bt.trace shouldn't have their
+     * reference counts incremented yet.
      * </ul>
      * 
      * This routine does the following:
      * <ul>
-     *   <li>increments reference count on production;
-     *   <li>fills in match_goal and match_goal_level;
-     *   <li>for each top-level positive cond:
-     *   <ul>
-     *        <li>replaces bt.trace with the preference for the correct level,
-     *        <li>updates reference counts on bt.pref and bt.wmetraces and wmes
-     *   </ul>
-     *   <li>for each preference_generated, adds that pref to the list of all
-     *       pref's for the match goal
-     *   <li>fills in backtrace_number;
-     *   <li>if "need_to_do_support_calculations" is TRUE, calculates o-support
-     *       for preferences_generated;
+     * <li>increments reference count on production;
+     * <li>fills in match_goal and match_goal_level;
+     * <li>for each top-level positive cond:
+     * <ul>
+     * <li>replaces bt.trace with the preference for the correct level,
+     * <li>updates reference counts on bt.pref and bt.wmetraces and wmes
      * </ul>
-     *   
+     * <li>for each preference_generated, adds that pref to the list of all
+     * pref's for the match goal
+     * <li>fills in backtrace_number;
+     * <li>if "need_to_do_support_calculations" is TRUE, calculates o-support
+     * for preferences_generated;
+     * </ul>
+     * 
      * <p>recmem.cpp:385:fill_in_new_instantiation_stuff
      * 
      * @param inst
@@ -585,9 +587,9 @@ public class RecognitionMemory
     public void fill_in_new_instantiation_stuff(Instantiation inst, boolean need_to_do_support_calculations)
     {
         find_match_goal(inst);
-
+        
         int level = inst.match_goal_level;
-
+        
         /*
          * Note: since we'll never backtrace through instantiations at the top
          * level, it might make sense to not increment the reference counts on
@@ -599,7 +601,7 @@ public class RecognitionMemory
          * because if we go to S-Support, we'll (I think) need to save these
          * around (maybe).
          */
-
+        
         /*
          * KJC 6/00: maintaining all the top level ref cts does have a big
          * impact on memory pool usage and also performance (due to malloc).
@@ -609,61 +611,65 @@ public class RecognitionMemory
          * cts may be desireable: they can be added by defining
          * DO_TOP_LEVEL_REF_CTS
          */
-
-        for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
+        
+        for(Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
             final PositiveCondition pc = cond.asPositiveCondition();
-            if (pc != null)
+            if(pc != null)
             {
                 // TODO This should all be a method on pc.bt. What should it be called?
-                if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
+                if(SoarConstants.DO_TOP_LEVEL_REF_CTS)
                 {
                     // (removed in jsoar) pc.bt.wme_.wme_add_ref();
                 }
                 else
                 {
-                    if (level > SoarConstants.TOP_GOAL_LEVEL)
+                    if(level > SoarConstants.TOP_GOAL_LEVEL)
                     {
                         // (removed in jsoar) pc.bt.wme_.wme_add_ref();
                     }
                 }
                 // if trace is for a lower level, find one for this level
                 final BackTraceInfo bt = pc.bt();
-                if (bt.trace != null)
+                if(bt.trace != null)
                 {
-                    if (bt.trace.inst.match_goal_level > level)
+                    if(bt.trace.inst.match_goal_level > level)
                     {
                         bt.trace = Preference.find_clone_for_level(bt.trace, level);
                     }
                     
-                    if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
+                    if(SoarConstants.DO_TOP_LEVEL_REF_CTS)
                     {
-                        if (bt.trace != null)
+                        if(bt.trace != null)
+                        {
                             bt.trace.preference_add_ref();
+                        }
                     }
                     else
                     {
-                        if ((bt.trace != null) && (level > SoarConstants.TOP_GOAL_LEVEL))
+                        if((bt.trace != null) && (level > SoarConstants.TOP_GOAL_LEVEL))
+                        {
                             bt.trace.preference_add_ref();
+                        }
                     }
                 }
             }
         }
-
-        if (inst.match_goal != null)
+        
+        if(inst.match_goal != null)
         {
-            for (Preference p = inst.preferences_generated; p != null; p = p.inst_next)
+            for(Preference p = inst.preferences_generated; p != null; p = p.inst_next)
             {
                 inst.match_goal.goalInfo.addGoalPreference(p);
                 p.on_goal_list = true;
             }
         }
         inst.backtrace_number = 0;
-
-        // former o_support_calculation_type (0 or 3 or 4)  test site
+        
+        // former o_support_calculation_type (0 or 3 or 4) test site
         
         // do calc's the normal Soar 6 way
-        if (need_to_do_support_calculations)
+        if(need_to_do_support_calculations)
         {
             osupport.calculate_support_for_instantiation_preferences(inst);
         }
@@ -684,34 +690,34 @@ public class RecognitionMemory
         // RPM workaround for bug #139: don't fire justifications
         // code moved to do_preference_phase
         assert prod.getType() != ProductionType.JUSTIFICATION;
-
+        
         final Instantiation inst = new Instantiation(prod, tok, w);
         this.newly_created_instantiations = inst.insertAtHeadOfProdList(this.newly_created_instantiations);
-
+        
         trace.print(Category.VERBOSE, "\n in create_instantiation: %s", inst.prod.getName());
-
+        
         this.production_being_fired = inst.prod;
         prod.incrementFiringCount(); // TODO move into Instantiation constructor
         this.production_firing_count.increment();
-
+        
         // build the instantiated conditions, and bind LHS variables
         ConditionsAndNots cans = this.rete.p_node_to_conditions_and_nots(prod.getReteNode(), tok, w, false);
         inst.top_of_instantiated_conditions = cans.top;
         inst.bottom_of_instantiated_conditions = cans.bottom;
         inst.nots = cans.nots;
-
+        
         // record the level of each of the wmes that was positively tested
-        for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
+        for(Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
             final PositiveCondition pc = cond.asPositiveCondition();
-            if (pc != null)
+            if(pc != null)
             {
                 final BackTraceInfo bt = pc.bt();
                 bt.level = bt.wme_.id.level;
                 bt.trace = bt.wme_.preference;
             }
         }
-
+        
         boolean trace_it = trace.isEnabled(inst.prod.getType().getTraceCategory()) || inst.prod.isTraceFirings();
         if(trace_it)
         {
@@ -721,27 +727,27 @@ public class RecognitionMemory
         // initialize rhs_variable_bindings array with names of variables
         // (if there are any stored on the production -- for chunks there won't be any)
         int index = 0;
-        for (Variable c : prod.getRhsUnboundVariables())
+        for(Variable c : prod.getRhsUnboundVariables())
         {
             this.rete.setRhsVariableBinding(index, c);
             index++;
         }
         this.firer_highest_rhs_unboundvar_index = index - 1;
-
+        
         // Before executing the RHS actions, tell the user that the
         // phases has changed to output by printing the arrow
         if(trace_it && trace.isEnabled(Category.FIRINGS_PREFERENCES))
         {
             trace.startNewLine().print("-->");
         }
-
+        
         // execute the RHS actions, collect the results
         assert inst.preferences_generated == null;
         boolean need_to_do_support_calculations = false;
-        for (Action a = prod.getFirstAction(); a != null; a = a.next)
+        for(Action a = prod.getFirstAction(); a != null; a = a.next)
         {
             Preference pref = null;
-            if (prod.getType() != ProductionType.TEMPLATE)
+            if(prod.getType() != ProductionType.TEMPLATE)
             {
                 pref = execute_action(a, tok, w);
             }
@@ -750,20 +756,20 @@ public class RecognitionMemory
                 pref = null;
                 /* SymbolImpl *result = */rl.rl_build_template_instantiation(inst, tok, w);
             }
-
+            
             /*
              * SoarTech changed from an IF stmt to a WHILE loop to support
              * GlobalDeepCpy
              */
-            while (pref != null)
+            while(pref != null)
             {
                 pref.setInstantiation(inst);
-                                
-                if (inst.prod.getDeclaredSupport() == Support.DECLARED_O_SUPPORT)
+                
+                if(inst.prod.getDeclaredSupport() == Support.DECLARED_O_SUPPORT)
                 {
                     pref.o_supported = true;
                 }
-                else if (inst.prod.getDeclaredSupport() == Support.DECLARED_I_SUPPORT)
+                else if(inst.prod.getDeclaredSupport() == Support.DECLARED_I_SUPPORT)
                 {
                     pref.o_supported = false;
                 }
@@ -771,28 +777,28 @@ public class RecognitionMemory
                 {
                     pref.o_supported = this.FIRING_TYPE == SavedFiringType.PE_PRODS;
                 }
-
+                
                 pref = !rhsFunctionPreferences.isEmpty() ? rhsFunctionPreferences.pop() : null;
             }
         }
-
+        
         // reset rhs_variable_bindings array to all zeros
         index = 0;
-        for (; index <= firer_highest_rhs_unboundvar_index; ++index)
+        for(; index <= firer_highest_rhs_unboundvar_index; ++index)
         {
             this.rete.setRhsVariableBinding(index, null);
         }
-
+        
         // fill in lots of other stuff
         fill_in_new_instantiation_stuff(inst, need_to_do_support_calculations);
-
-        // print trace info: printing preferences 
+        
+        // print trace info: printing preferences
         // Note: can't move this up, since fill_in_new_instantiation_stuff gives
         // the o-support info for the preferences we're about to print
-        if (trace_it && trace.isEnabled(Category.FIRINGS_PREFERENCES))
+        if(trace_it && trace.isEnabled(Category.FIRINGS_PREFERENCES))
         {
             trace.startNewLine();
-            for (Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next)
+            for(Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next)
             {
                 trace.print("%s", pref);
             }
@@ -800,18 +806,18 @@ public class RecognitionMemory
         
         // Copy any context-dependent preferences for conditions of this instantiation
         build_CDPS(inst);
-
+        
         this.production_being_fired = null;
-
+        
         // build chunks/justifications if necessary
         final ByRef<Instantiation> new_created_byref = ByRef.create(newly_created_instantiations);
         this.chunker.chunk_instantiation(inst, false, new_created_byref);
         newly_created_instantiations = new_created_byref.value;
-
+        
         // TODO callback FIRING_CALLBACK
-        //   if (!thisAgent->system_halted) {
-        //      soar_invoke_callbacks(thisAgent, FIRING_CALLBACK, (soar_call_data) inst);
-        //   }
+        // if (!thisAgent->system_halted) {
+        // soar_invoke_callbacks(thisAgent, FIRING_CALLBACK, (soar_call_data) inst);
+        // }
     }
     
     /**
@@ -825,29 +831,29 @@ public class RecognitionMemory
      */
     private boolean shouldCreateInstantiation(Production prod, Token tok, WmeImpl w)
     {
-        if (decider.active_level == decider.highest_active_level)
+        if(decider.active_level == decider.highest_active_level)
         {
             return true;
         }
         
-        if (prod.getType() == ProductionType.TEMPLATE)
+        if(prod.getType() == ProductionType.TEMPLATE)
         {
             return true;
         }
-
+        
         // Scan RHS identifiers for their levels, don't fire those at or higher than the change level
-        for (Action a = prod.getFirstAction(); a != null; a = a.next)
+        for(Action a = prod.getFirstAction(); a != null; a = a.next)
         {
             // These next three calls get the identifier which has the level,
             // skipping anything that isn't an identifier.
             MakeAction ma = a.asMakeAction();
-            if (ma == null)
+            if(ma == null)
             {
                 continue;
             }
             
             // Skip unbound variables
-            if (ma.id.asUnboundVariable() != null)
+            if(ma.id.asUnboundVariable() != null)
             {
                 continue;
             }
@@ -855,14 +861,14 @@ public class RecognitionMemory
             // Get the symbol or determine that it is a function call
             SymbolImpl idSym = null;
             RhsSymbolValue rsv = ma.id.asSymbolValue();
-            if (rsv != null)
+            if(rsv != null)
             {
                 idSym = rsv.getSym();
-            } 
+            }
             else
             {
                 ReteLocation rl = ma.id.asReteLocation();
-                if (rl != null)
+                if(rl != null)
                 {
                     idSym = rl.lookupSymbol(tok, w);
                 }
@@ -873,22 +879,22 @@ public class RecognitionMemory
                 }
             }
             assert idSym != null;
-
+            
             IdentifierImpl id = idSym.asIdentifier();
-            if (id == null)
+            if(id == null)
             {
                 continue;
             }
             
-            if (id.level <= decider.change_level)
+            if(id.level <= decider.change_level)
             {
                 context.getTrace().print(Category.WATERFALL, "*** Waterfall: aborting firing because (%s * *)" +
-                        " level %d is on or higher (lower int) than change level %d\n", 
+                        " level %d is on or higher (lower int) than change level %d\n",
                         id, id.level, decider.change_level);
                 return false;
             }
         }
-
+        
         return true;
     }
     
@@ -900,47 +906,48 @@ public class RecognitionMemory
      * 
      * @param inst
      */
-    private void deallocate_instantiation (Instantiation inst) 
+    private void deallocate_instantiation(Instantiation inst)
     {
         Condition cond;
-        //Preference pref;
+        // Preference pref;
         int level;
-
-        Stack<Condition> cond_stack = new Stack<Condition>();
-        List<Instantiation> inst_list = new LinkedList<Instantiation>();
+        
+        Stack<Condition> cond_stack = new Stack<>();
+        List<Instantiation> inst_list = new LinkedList<>();
         inst_list.add(inst);
         ListIterator<Instantiation> next_iter = inst_list.listIterator();
-
-        while ( next_iter.hasNext() ) 
+        
+        while(next_iter.hasNext())
         {
             inst = next_iter.next();
-            assert(inst != null);
-
+            assert (inst != null);
+            
             level = inst.match_goal_level;
-
-            for (cond=inst.top_of_instantiated_conditions; cond!=null; cond=cond.next) 
+            
+            for(cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
             {
                 final PositiveCondition pc = cond.asPositiveCondition();
-                if (pc != null)
+                if(pc != null)
                 {
                     final BackTraceInfo bt = pc.bt();
                     bt.clearContextDependentPreferenceSet(context);
-
-                    /*      voigtjr, nlderbin:
-                            We flattened out the following recursive loop in order to prevent a stack
-                            overflow that happens when the chain of backtrace instantiations is very long:
-
-                                    retract_instantiation
-                                    possibly_deallocate_instantiation
-                                    loop start:
-                                    deallocate_instantiation (here)
-                                    preference_remove_ref
-                                    possibly_deallocate_preferences_and_clones
-                                    deallocate_preference
-                                    possibly_deallocate_instantiation
-                                    goto loop start
+                    
+                    /*
+                     * voigtjr, nlderbin:
+                     * We flattened out the following recursive loop in order to prevent a stack
+                     * overflow that happens when the chain of backtrace instantiations is very long:
+                     * 
+                     * retract_instantiation
+                     * possibly_deallocate_instantiation
+                     * loop start:
+                     * deallocate_instantiation (here)
+                     * preference_remove_ref
+                     * possibly_deallocate_preferences_and_clones
+                     * deallocate_preference
+                     * possibly_deallocate_instantiation
+                     * goto loop start
                      */
-                    if (!SoarConstants.DO_TOP_LEVEL_REF_CTS && level <= SoarConstants.TOP_GOAL_LEVEL)
+                    if(!SoarConstants.DO_TOP_LEVEL_REF_CTS && level <= SoarConstants.TOP_GOAL_LEVEL)
                     {
                         continue;
                     }
@@ -948,82 +955,86 @@ public class RecognitionMemory
                     {
                         // (removed in jsoar) wme_remove_ref (thisAgent, cond->bt.wme_);
                         final Preference trace = bt.trace;
-                        if (trace != null) 
+                        if(trace != null)
                         {
                             trace.reference_count--;
-                            if (trace.reference_count == 0) 
+                            if(trace.reference_count == 0)
                             {
-                                //Preference clone;
-                    
+                                // Preference clone;
+                                
                                 boolean has_active_clones = false;
-                                for (Preference clone=trace.next_clone; clone != null; clone=clone.next_clone) 
+                                for(Preference clone = trace.next_clone; clone != null; clone = clone.next_clone)
                                 {
-                                    if ( clone.reference_count != 0 ) 
+                                    if(clone.reference_count != 0)
                                     {
                                         has_active_clones = true;
+                                        break;
                                     }
                                 }
-                                if ( has_active_clones ) 
+                                if(has_active_clones)
                                 {
                                     continue;
                                 }
-                                for ( Preference clone = trace.prev_clone; clone != null; clone = clone.prev_clone ) 
+                                for(Preference clone = trace.prev_clone; clone != null; clone = clone.prev_clone)
                                 {
-                                    if ( clone.reference_count != 0 ) 
+                                    if(clone.reference_count != 0)
                                     {
                                         has_active_clones = true;
+                                        break;
                                     }
                                 }
-                                if ( has_active_clones ) 
+                                if(has_active_clones)
                                 {
                                     continue;
                                 }
-
+                                
                                 // The clones are hopefully a simple case so we just call deallocate_preference on them.
                                 // Someone needs to create a test case to push this boundary...
                                 {
                                     Preference clone = trace.next_clone;
                                     Preference next;
-                                    while (clone != null) {
+                                    while(clone != null)
+                                    {
                                         next = clone.next_clone;
-                                        Preference.deallocate_preference (clone, this);
+                                        Preference.deallocate_preference(clone, this);
                                         clone = next;
                                     }
                                     clone = trace.prev_clone;
-                                    while (clone != null) {
+                                    while(clone != null)
+                                    {
                                         next = clone.prev_clone;
-                                        Preference.deallocate_preference (clone, this);
+                                        Preference.deallocate_preference(clone, this);
                                         clone = next;
                                     }
                                 }
-
+                                
                                 /* --- deallocate pref --- */
                                 /* --- remove it from the list of bt.trace's for its match goal --- */
-                                if ( trace.on_goal_list ) 
+                                if(trace.on_goal_list)
                                 {
                                     // The code below is an expansion of this remove_from_dll macro...
-                                    //remove_from_dll( 
-                                    //        cond->bt.trace->inst->match_goal->id.preferences_from_goal, 
-                                    //        cond->bt.trace, all_of_goal_next, all_of_goal_prev );
+                                    // remove_from_dll(
+                                    // cond->bt.trace->inst->match_goal->id.preferences_from_goal,
+                                    // cond->bt.trace, all_of_goal_next, all_of_goal_prev );
                                     trace.inst.match_goal.goalInfo.removeGoalPreference(trace);
                                 }
-
+                                
                                 /* --- remove it from the list of bt.trace's from that instantiation --- */
                                 // The code below is an expansion of this remove_from_dll macro...
-                                //remove_from_dll( cond->bt.trace->inst->preferences_generated, cond->bt.trace, inst_next, inst_prev );
-
+                                // remove_from_dll( cond->bt.trace->inst->preferences_generated, cond->bt.trace, inst_next, inst_prev );
+                                
                                 trace.inst.removeGeneratedPreferece(trace);
-
-                                if ( ( trace.inst.preferences_generated == null ) && ( !trace.inst.in_ms ) ) 
+                                
+                                if((trace.inst.preferences_generated == null) && (!trace.inst.in_ms))
                                 {
-                                    //next_iter = inst_list.insert( next_iter, trace.inst );
+                                    // next_iter = inst_list.insert( next_iter, trace.inst );
                                     // TODO: there must be a better way -- this looks terribly inefficient and ugly
-                                    int index = next_iter.previousIndex()+1;
+                                    int index = next_iter.previousIndex() + 1;
                                     inst_list.add(index, trace.inst);
                                     next_iter = inst_list.listIterator(index);
                                 }
-
-                                cond_stack.push( cond );
+                                
+                                cond_stack.push(cond);
                             } // if
                         } // if
                     } // if
@@ -1031,46 +1042,46 @@ public class RecognitionMemory
                 } // if
             } // for
         } // while
-
-        //        // free condition symbols and pref
-        //        while( !cond_stack.empty() ) 
-        //        {
-        //                condition* temp = cond_stack.top();
-        //                cond_stack.pop();
+        
+        // // free condition symbols and pref
+        // while( !cond_stack.empty() )
+        // {
+        // condition* temp = cond_stack.top();
+        // cond_stack.pop();
         //
-        //                /* --- dereference component symbols --- */
-        //                symbol_remove_ref( thisAgent, temp->bt.trace->id );
-        //                symbol_remove_ref( thisAgent, temp->bt.trace->attr );
-        //                symbol_remove_ref( thisAgent, temp->bt.trace->value );
-        //                if ( preference_is_binary( temp->bt.trace->type ) ) 
-        //                {
-        //                        symbol_remove_ref( thisAgent, temp->bt.trace->referent );
-        //                }
+        // /* --- dereference component symbols --- */
+        // symbol_remove_ref( thisAgent, temp->bt.trace->id );
+        // symbol_remove_ref( thisAgent, temp->bt.trace->attr );
+        // symbol_remove_ref( thisAgent, temp->bt.trace->value );
+        // if ( preference_is_binary( temp->bt.trace->type ) )
+        // {
+        // symbol_remove_ref( thisAgent, temp->bt.trace->referent );
+        // }
         //
-        //                if ( temp->bt.trace->wma_o_set )
-        //                {
-        //                        wma_remove_pref_o_set( thisAgent, temp->bt.trace );
-        //                }
+        // if ( temp->bt.trace->wma_o_set )
+        // {
+        // wma_remove_pref_o_set( thisAgent, temp->bt.trace );
+        // }
         //
-        //                /* --- free the memory --- */
-        //                free_with_pool( &thisAgent->preference_pool, temp->bt.trace );
-        //        }
-
-        //        // free instantiations in the reverse order
-        //        std::list<instantiation*>::reverse_iterator riter = inst_list.rbegin();
-        //        while( riter != inst_list.rend() ) 
-        //        {
-        //                instantiation* temp = *riter;
-        //                ++riter;
+        // /* --- free the memory --- */
+        // free_with_pool( &thisAgent->preference_pool, temp->bt.trace );
+        // }
+        
+        // // free instantiations in the reverse order
+        // std::list<instantiation*>::reverse_iterator riter = inst_list.rbegin();
+        // while( riter != inst_list.rend() )
+        // {
+        // instantiation* temp = *riter;
+        // ++riter;
         //
-        //                deallocate_condition_list( thisAgent, temp->top_of_instantiated_conditions );
-        //                deallocate_list_of_nots( thisAgent, temp->nots );
-        //                if ( temp->prod ) 
-        //                {
-        //                        production_remove_ref( thisAgent, temp->prod );
-        //                }
-        //                free_with_pool( &thisAgent->instantiation_pool, temp );
-        //        }
+        // deallocate_condition_list( thisAgent, temp->top_of_instantiated_conditions );
+        // deallocate_list_of_nots( thisAgent, temp->nots );
+        // if ( temp->prod )
+        // {
+        // production_remove_ref( thisAgent, temp->prod );
+        // }
+        // free_with_pool( &thisAgent->instantiation_pool, temp );
+        // }
         
         // TODO: are these next loops really necessary?
         
@@ -1099,9 +1110,9 @@ public class RecognitionMemory
         
         for(Instantiation temp : inst_list)
         {
-            temp.top_of_instantiated_conditions = null;//  deallocate_condition_list (thisAgent, inst->top_of_instantiated_conditions);
+            temp.top_of_instantiated_conditions = null;// deallocate_condition_list (thisAgent, inst->top_of_instantiated_conditions);
             temp.bottom_of_instantiated_conditions = null; // This is very important to avoid memory leaks!
-            temp.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);
+            temp.nots = null; // deallocate_list_of_nots (thisAgent, inst->nots);
             
             temp.prod = null;
         }
@@ -1114,11 +1125,12 @@ public class RecognitionMemory
      */
     void possibly_deallocate_instantiation(Instantiation inst)
     {
-        if (inst.preferences_generated == null && !inst.in_ms)
+        if(inst.preferences_generated == null && !inst.in_ms)
+        {
             deallocate_instantiation(inst);
+        }
     }
-
-
+    
     /**
      * This retracts the given instantiation.
      * 
@@ -1130,22 +1142,23 @@ public class RecognitionMemory
     {
         // TODO callback RETRACTION_CALLBACK
         // soar_invoke_callbacks(thisAgent, RETRACTION_CALLBACK, (soar_call_data) inst);
-
+        
         boolean retracted_a_preference = false;
-
+        
         final Trace trace = context.getTrace();
         final boolean trace_it = trace.isEnabled(inst.prod.getType().getTraceCategory()) || inst.prod.isTraceFirings();
-
+        
         // retract any preferences that are in TM and aren't o-supported
         Preference pref = inst.preferences_generated;
-
-        while (pref != null)
+        
+        while(pref != null)
         {
             final Preference next = pref.inst_next;
-            if (pref.isInTempMemory() && !pref.o_supported)
+            if(pref.isInTempMemory() && !pref.o_supported)
             {
-                if (trace_it) {
-                    if (!retracted_a_preference) 
+                if(trace_it)
+                {
+                    if(!retracted_a_preference)
                     {
                         trace.startNewLine().print("Retracting %s", inst);
                         if(trace.isEnabled(Category.FIRINGS_PREFERENCES))
@@ -1163,10 +1176,10 @@ public class RecognitionMemory
             }
             pref = next;
         }
-
+        
         // remove inst from list of instantiations of this production
         inst.prod.instantiations = inst.removeFromProdList(inst.prod.instantiations);
-
+        
         // if retracting a justification, excise it
         /*
          * if the reference_count on the production is 1 (or less) then the only
@@ -1177,16 +1190,16 @@ public class RecognitionMemory
         // and never made a difference in the tests. If this comes up, it seems
         // better to just make exciseProduction smarter so it doesn't crash if
         // a production is excised multiple times.
-        if (inst.prod.getType() == ProductionType.JUSTIFICATION /*&& inst.prod.getReferenceCount() > 1*/)
+        if(inst.prod.getType() == ProductionType.JUSTIFICATION /* && inst.prod.getReferenceCount() > 1 */)
         {
             context.getProductions().exciseProduction(inst.prod, false);
         }
-
+        
         // mark as no longer in MS, and possibly deallocate
         inst.in_ms = false;
         possibly_deallocate_instantiation(inst);
     }
-
+    
     /**
      * This routine scans through newly_created_instantiations, asserting each
      * preference generated except for o-rejects. It also removes each
@@ -1210,59 +1223,59 @@ public class RecognitionMemory
         // Preference object. When I tried to do that, I was getting some occasional
         // weird behavior. So, since this list is really supposed to be independent
         // for this function anyway, why not just use a normal list? Yay.
-        final LinkedList<Preference> o_rejects = new LinkedList<Preference>();
-
+        final LinkedList<Preference> o_rejects = new LinkedList<>();
+        
         trace.print(Category.VERBOSE, "\n in assert_new_preferences:");
-
         
         // Do an initial loop to process o-rejects, then re-loop to process
         // normal preferences.
         Instantiation inst, next_inst;
-        for (inst = this.newly_created_instantiations; inst != null; inst = next_inst)
+        for(inst = this.newly_created_instantiations; inst != null; inst = next_inst)
         {
             next_inst = inst.nextInProdList;
-
+            
             Preference pref, next_pref;
-            for (pref = inst.preferences_generated; pref != null; pref = next_pref)
+            for(pref = inst.preferences_generated; pref != null; pref = next_pref)
             {
                 next_pref = pref.inst_next;
-                if ((pref.type == PreferenceType.REJECT) && (pref.o_supported))
+                if((pref.type == PreferenceType.REJECT) && (pref.o_supported))
                 {
                     // o-reject: just put it in the buffer for later
                     o_rejects.push(pref);
                 }
             }
         }
-
-        if (!o_rejects.isEmpty())
+        
+        if(!o_rejects.isEmpty())
+        {
             process_o_rejects_and_deallocate_them(o_rejects, bufdeallo);
+        }
         
         // Note: In CSoar there is some random code commented out at this point. Is it important? Who knows?
-
-        for (inst = this.newly_created_instantiations; inst != null; inst = next_inst)
+        
+        for(inst = this.newly_created_instantiations; inst != null; inst = next_inst)
         {
             next_inst = inst.nextInProdList;
-            if (inst.in_ms)
+            if(inst.in_ms)
             {
                 inst.prod.instantiations = inst.insertAtHeadOfProdList(inst.prod.instantiations);
-				trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.prod.getName());
+                trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.prod.getName());
             }
-
-
+            
             Preference pref, next_pref;
-            for (pref = inst.preferences_generated; pref != null; pref = next_pref)
+            for(pref = inst.preferences_generated; pref != null; pref = next_pref)
             {
                 next_pref = pref.inst_next;
                 
                 // removed old code specific to !O_REJECTS_FIRST, which isn't supported by jsoar
                 
-                if ( inst.in_ms || pref.o_supported )
+                if(inst.in_ms || pref.o_supported)
                 {
                     // normal case
                     add_preference_to_tm(pref);
                     // No knowledge retrieval necessary in Operand2
                     
-                    if (wma.wma_enabled())
+                    if(wma.wma_enabled())
                     {
                         wma.wma_activate_wmes_in_pref(pref);
                     }
@@ -1270,16 +1283,20 @@ public class RecognitionMemory
                 else
                 {
                     // inst. is refracted chunk, and pref. is not o-supported: remove the preference
-
-                    // first splice it out of the clones list--otherwise we 
+                    
+                    // first splice it out of the clones list--otherwise we
                     // might accidentally deallocate some clone that happens to
                     // have refcount==0 just because it hasn't been asserted yet
-                    if (pref.next_clone != null)
+                    if(pref.next_clone != null)
+                    {
                         pref.next_clone.prev_clone = pref.prev_clone;
-                    if (pref.prev_clone != null)
+                    }
+                    if(pref.prev_clone != null)
+                    {
                         pref.prev_clone.next_clone = pref.next_clone;
+                    }
                     pref.next_clone = pref.prev_clone = null;
-
+                    
                     // now add then remove ref--this should result in deallocation
                     pref.preference_add_ref();
                     pref.preference_remove_ref(this);
@@ -1300,33 +1317,33 @@ public class RecognitionMemory
      * 
      * @param o_rejects
      * @param bufdeallo Preferences buffered for deallocation after inner
-     * elaboration loop completes.
+     *     elaboration loop completes.
      */
     private void process_o_rejects_and_deallocate_them(List<Preference> o_rejects, List<Preference> bufdeallo)
     {
-        for (Preference pref : o_rejects)
+        for(Preference pref : o_rejects)
         {
-            // prevents it from being deallocated if it's a clone of some other 
+            // prevents it from being deallocated if it's a clone of some other
             // pref we're about to remove
-            pref.preference_add_ref(); 
+            pref.preference_add_ref();
             // #ifdef DEBUG_PREFS
             // print (thisAgent, "\nO-reject posted at 0x%8x: ",(unsigned
             // long)pref);
             // print_preference (thisAgent, pref);
             // #endif
         }
-
+        
         for(Preference pref : o_rejects)
         {
             Slot s = Slot.find_slot(pref.id, pref.attr);
-            if (s != null)
+            if(s != null)
             {
                 // remove all pref's in the slot that have the same value
                 Preference p = s.getAllPreferences();
-                while (p != null)
+                while(p != null)
                 {
                     final Preference next_p = p.nextOfSlot;
-                    if (p.value == pref.value)
+                    if(p.value == pref.value)
                     {
                         // Buffer deallocation by adding a reference here and putting it
                         // on a list. These are deallocated after the inner elaboration
@@ -1344,7 +1361,7 @@ public class RecognitionMemory
     
     /**
      * Add_preference_to_tm() adds a given preference to preference memory (and
-     * hence temporary memory). 
+     * hence temporary memory).
      * 
      * <p>prefmem.cpp:216:add_preference_to_tm
      * 
@@ -1352,98 +1369,98 @@ public class RecognitionMemory
      * 
      * @param pref
      */
-    public void add_preference_to_tm (Preference pref) 
+    public void add_preference_to_tm(Preference pref)
     {
-//    #ifdef DEBUG_PREFS
-//       print (thisAgent, "\nAdd preference at 0x%8x:  ",reinterpret_cast<uintptr_t>(pref));
-//       print_preference (thisAgent, pref);
-//    #endif
-       
-       Slot s = Slot.make_slot( pref.id, pref.attr, predefinedSyms.operator_symbol );
-       
-       pref.slot = s;
-       s.addPreference(pref); // note this handles inserting at the head of the all_preferences list and inserting into the correct preference type list
-       
-       /* --- other miscellaneous stuff --- */    
-       pref.preference_add_ref();
-       
-       // if it's the case that the slot is unchanged, but has
-       // some references laying around, clear them
-       // this doesn't cause immediate memory deallocate/allocate
-       // but once the WMEs are resolved, this should free the
-       // memory, as opposed to lead to a "leak"
-       if ( wma.wma_enabled() && !s.isa_context_slot )
-       {
-           if ( s.changed == null )
-           {
-               if ( s.wma_val_references != null )
-               {
-                   s.wma_val_references.clear();
-               }
-           }
-       }
-
-       tempMemory.mark_slot_as_changed(s);
-
-       if ( wma.wma_enabled() && !s.isa_context_slot )
-       {
-          boolean exists = false;
-          WmeImpl w = pref.slot.getWmes();
-          while ( !exists && w != null )
-          {
-             if ( w.getValue() == pref.value )
-             {
-                exists = true;
-             }
-
-             w = w.next;
-          }
-
-          // if wme exists, it should already have been updated
-          // during assertion of new preferences
-          if ( !exists )
-          {
-             if ( s.wma_val_references == null )
-             {
-                 s.wma_val_references = new HashMap<Symbol, Long>();
-             }
-
-             Long numRef = s.wma_val_references.get(pref.value);
-             if(numRef == null)
-             {
-                 numRef = 0L;
-             }
-             
-             s.wma_val_references.put(pref.value, ++numRef);
-          }
-       }
-       
-       // --- update identifier levels ---
-       IdentifierImpl valueId = pref.value.asIdentifier();
-       if (valueId != null)
-       {
-           decider.post_link_addition (pref.id, valueId);
-       }
-
-       if (pref.type.isBinary())
-       {
-           IdentifierImpl refId = pref.referent.asIdentifier();
-           if (refId != null)
-           {
-               decider.post_link_addition (pref.id, refId);
-           }
-       }
-       
-       // if acceptable/require pref for context slot, we may need to add a wme
-       // later
-       if (s.isa_context_slot
-               && (pref.type == PreferenceType.ACCEPTABLE || 
-                   pref.type == PreferenceType.REQUIRE))
-       {
-           decider.mark_context_slot_as_acceptable_preference_changed (s);
-       }
+        // #ifdef DEBUG_PREFS
+        // print (thisAgent, "\nAdd preference at 0x%8x: ",reinterpret_cast<uintptr_t>(pref));
+        // print_preference (thisAgent, pref);
+        // #endif
+        
+        Slot s = Slot.make_slot(pref.id, pref.attr, predefinedSyms.operator_symbol);
+        
+        pref.slot = s;
+        s.addPreference(pref); // note this handles inserting at the head of the all_preferences list and inserting into the correct preference type list
+        
+        /* --- other miscellaneous stuff --- */
+        pref.preference_add_ref();
+        
+        // if it's the case that the slot is unchanged, but has
+        // some references laying around, clear them
+        // this doesn't cause immediate memory deallocate/allocate
+        // but once the WMEs are resolved, this should free the
+        // memory, as opposed to lead to a "leak"
+        if(wma.wma_enabled() && !s.isa_context_slot)
+        {
+            if(s.changed == null)
+            {
+                if(s.wma_val_references != null)
+                {
+                    s.wma_val_references.clear();
+                }
+            }
+        }
+        
+        tempMemory.mark_slot_as_changed(s);
+        
+        if(wma.wma_enabled() && !s.isa_context_slot)
+        {
+            boolean exists = false;
+            WmeImpl w = pref.slot.getWmes();
+            while(!exists && w != null)
+            {
+                if(w.getValue() == pref.value)
+                {
+                    exists = true;
+                }
+                
+                w = w.next;
+            }
+            
+            // if wme exists, it should already have been updated
+            // during assertion of new preferences
+            if(!exists)
+            {
+                if(s.wma_val_references == null)
+                {
+                    s.wma_val_references = new HashMap<Symbol, Long>();
+                }
+                
+                Long numRef = s.wma_val_references.get(pref.value);
+                if(numRef == null)
+                {
+                    numRef = 0L;
+                }
+                
+                s.wma_val_references.put(pref.value, ++numRef);
+            }
+        }
+        
+        // --- update identifier levels ---
+        IdentifierImpl valueId = pref.value.asIdentifier();
+        if(valueId != null)
+        {
+            decider.post_link_addition(pref.id, valueId);
+        }
+        
+        if(pref.type.isBinary())
+        {
+            IdentifierImpl refId = pref.referent.asIdentifier();
+            if(refId != null)
+            {
+                decider.post_link_addition(pref.id, refId);
+            }
+        }
+        
+        // if acceptable/require pref for context slot, we may need to add a wme
+        // later
+        if(s.isa_context_slot
+                && (pref.type == PreferenceType.ACCEPTABLE ||
+                        pref.type == PreferenceType.REQUIRE))
+        {
+            decider.mark_context_slot_as_acceptable_preference_changed(s);
+        }
     }
-
+    
     /**
      * removes a given preference from PM and TM.
      * 
@@ -1454,46 +1471,46 @@ public class RecognitionMemory
     public void remove_preference_from_tm(Preference pref)
     {
         Slot s = pref.slot;
-
+        
         // #ifdef DEBUG_PREFS
         // print (thisAgent, "\nRemove preference at 0x%8x: ",(unsigned
         // long)pref);
         // print_preference (thisAgent, pref);
         // #endif
-
+        
         // remove preference from the list for the slot
         s.removePreference(pref);
-
+        
         // other miscellaneous stuff
-
+        
         tempMemory.mark_slot_as_changed(s);
-
+        
         /// if acceptable/require pref for context slot, we may need to remove a wme later
-        if ((s.isa_context_slot)
+        if((s.isa_context_slot)
                 && ((pref.type == PreferenceType.ACCEPTABLE) || (pref.type == PreferenceType.REQUIRE)))
         {
             decider.mark_context_slot_as_acceptable_preference_changed(s);
         }
-
+        
         // update identifier levels
         IdentifierImpl valueId = pref.value.asIdentifier();
-        if (valueId != null)
+        if(valueId != null)
         {
-            decider.post_link_removal (pref.id, valueId);
+            decider.post_link_removal(pref.id, valueId);
         }
-        if (pref.type.isBinary())
+        if(pref.type.isBinary())
         {
             IdentifierImpl refId = pref.referent.asIdentifier();
-            if (refId != null)
+            if(refId != null)
             {
-                decider.post_link_removal (pref.id, refId);
+                decider.post_link_removal(pref.id, refId);
             }
         }
-
+        
         // deallocate it and clones if possible
         pref.preference_remove_ref(this);
     }
-
+    
     /**
      * This routine is called from the top level to run the preference phases.
      * 
@@ -1510,13 +1527,13 @@ public class RecognitionMemory
          * get_printer_output_column and see if it's at the beginning of a line
          * or not when we're ready to print a newline. 94.11.14
          */
-
+        
         final Trace trace = context.getTrace();
-        if (trace.isEnabled(Category.PHASES))
+        if(trace.isEnabled(Category.PHASES))
         {
-            if (this.decisionCycle.current_phase.get() == Phase.APPLY)
+            if(this.decisionCycle.current_phase.get() == Phase.APPLY)
             { /* it's always IE for PROPOSE */
-                switch (FIRING_TYPE)
+                switch(FIRING_TYPE)
                 {
                 case PE_PRODS:
                     trace.startNewLine().print("--- Firing Productions (PE) For State At Depth %d ---",
@@ -1541,25 +1558,25 @@ public class RecognitionMemory
         // Save previous active level for usage on next elaboration cycle.
         decider.highest_active_level = decider.active_level;
         decider.highest_active_goal = decider.active_goal;
-
+        
         decider.change_level = decider.highest_active_level;
         decider.next_change_level = decider.highest_active_level;
         
-        // Temporary list to buffer deallocation of some preferences until 
+        // Temporary list to buffer deallocation of some preferences until
         // the inner elaboration loop is over.
         List<Preference> bufdeallo = Lists.newArrayList();
         
         // FIXME: should not do this inner elaboration loop for soar 7 mode.
-        for (;;)
+        for(;;)
         {
             // Inner elaboration loop
             decider.change_level = decider.next_change_level;
             
-            if (trace.isEnabled(Category.WATERFALL))
+            if(trace.isEnabled(Category.WATERFALL))
             {
                 trace.print("--- Inner Elaboration Phase, active level: %d",
                         decider.active_level);
-                if (decider.active_goal != null)
+                if(decider.active_goal != null)
                 {
                     trace.print(" (%s)", decider.active_goal);
                 }
@@ -1570,37 +1587,37 @@ public class RecognitionMemory
             
             SoarReteAssertion assertion = null;
             boolean assertionsExist = false;
-            while ((assertion = this.soarReteListener.postpone_assertion()) != null)
+            while((assertion = this.soarReteListener.postpone_assertion()) != null)
             {
                 assertionsExist = true;
                 
-                if(this.chunker.isMaxChunksReached()) 
+                if(this.chunker.isMaxChunksReached())
                 {
                     this.soarReteListener.consume_last_postponed_assertion();
                     this.decisionCycle.halt("Max chunks reached");
                     return;
                 }
                 
-                if (assertion.production.getType() == ProductionType.JUSTIFICATION)
+                if(assertion.production.getType() == ProductionType.JUSTIFICATION)
                 {
                     this.soarReteListener.consume_last_postponed_assertion();
-
+                    
                     // don't fire justifications
                     continue;
                 }
                 
-                if (shouldCreateInstantiation(assertion.production, assertion.token, assertion.wme))
+                if(shouldCreateInstantiation(assertion.production, assertion.token, assertion.wme))
                 {
                     this.soarReteListener.consume_last_postponed_assertion();
                     create_instantiation(assertion.production, assertion.token, assertion.wme);
                 }
             }
             
-            // New waterfall model: something fired or is pending to fire at this level, 
+            // New waterfall model: something fired or is pending to fire at this level,
             // so this active level becomes the next change level.
-            if (assertionsExist)
+            if(assertionsExist)
             {
-                if (decider.active_level > decider.next_change_level) 
+                if(decider.active_level > decider.next_change_level)
                 {
                     decider.next_change_level = decider.active_level;
                 }
@@ -1610,32 +1627,31 @@ public class RecognitionMemory
             this.soarReteListener.restore_postponed_assertions();
             
             assert_new_preferences(bufdeallo);
-    
+            
             // update accounting
             this.decisionCycle.inner_e_cycle_count.increment();
             
-            if (decider.active_goal == null)
+            if(decider.active_goal == null)
             {
                 trace.print(Category.WATERFALL, " inner preference loop doesn't have active goal.\n");
                 break;
             }
             
-            if (decider.active_goal.goalInfo.lower_goal == null)
+            if(decider.active_goal.goalInfo.lower_goal == null)
             {
                 trace.print(Category.WATERFALL, " inner preference loop at bottom goal.\n");
                 break;
             }
             
-            
-            if (this.decisionCycle.current_phase.get() == Phase.APPLY)
+            if(this.decisionCycle.current_phase.get() == Phase.APPLY)
             {
                 decider.active_goal = this.consistency.highest_active_goal_apply(decider.active_goal.goalInfo.lower_goal, true);
             }
-            else if (this.decisionCycle.current_phase.get() == Phase.PROPOSE)
+            else if(this.decisionCycle.current_phase.get() == Phase.PROPOSE)
             {
                 // PROPOSE
                 decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.goalInfo.lower_goal, true);
-            } 
+            }
             
             if(decider.active_goal != null)
             {
@@ -1650,19 +1666,21 @@ public class RecognitionMemory
         } // inner elaboration loop/cycle end
         
         // Deallocate preferences delayed during inner elaboration loop.
-        for (Preference p : bufdeallo)
+        for(Preference p : bufdeallo)
+        {
             p.preference_remove_ref(this);
-
+        }
+        
         // Restore previous active level.
         decider.active_level = decider.highest_active_level;
         decider.active_goal = decider.highest_active_goal;
         
         Instantiation inst = null;
-        while ((inst = this.soarReteListener.get_next_retraction()) != null)
+        while((inst = this.soarReteListener.get_next_retraction()) != null)
         {
             retract_instantiation(inst);
         }
-
+        
         /*
          * In Waterfall, if there are nil goal retractions, then we want to
          * retract them as well, even though they are not associated with any
@@ -1673,19 +1691,21 @@ public class RecognitionMemory
          * onto a goal) and nil goal retractions that require a special data
          * strucutre (because they don't appear on any goal) REW.
          */
-
-        if (this.soarReteListener.hasNilGoalRetractions())
+        
+        if(this.soarReteListener.hasNilGoalRetractions())
         {
-            while ((inst = this.soarReteListener.get_next_nil_goal_retraction()) != null)
+            while((inst = this.soarReteListener.get_next_nil_goal_retraction()) != null)
             {
                 retract_instantiation(inst);
             }
         }
     }
-
+    
     private class RhsFunctionContextImpl implements RhsFunctionContext
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getSymbols()
          */
         @Override
@@ -1693,8 +1713,10 @@ public class RecognitionMemory
         {
             return context.getSymbols();
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#addWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
          */
         @Override
@@ -1704,14 +1726,16 @@ public class RecognitionMemory
             Arguments.checkNotNull(attr, "attr");
             Arguments.checkNotNull(value, "value");
             
-            Preference p = new Preference(rhsFunctionPreferenceType, 
-                                          (IdentifierImpl) id, (SymbolImpl) attr, (SymbolImpl) value, 
-                                          null);
+            Preference p = new Preference(rhsFunctionPreferenceType,
+                    (IdentifierImpl) id, (SymbolImpl) attr, (SymbolImpl) value,
+                    null);
             rhsFunctionPreferences.add(p);
             return null; // Void
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getProductionBeingFired()
          */
         @Override

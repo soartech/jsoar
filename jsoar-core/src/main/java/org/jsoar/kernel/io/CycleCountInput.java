@@ -28,7 +28,7 @@ public class CycleCountInput
     private InputWme wme;
     
     /**
-     * Construct a new cycle count input object. This object will automatically 
+     * Construct a new cycle count input object. This object will automatically
      * register for input events and update the input-link.
      * 
      * @param io The I/O interface
@@ -45,8 +45,8 @@ public class CycleCountInput
     }
     
     /**
-     * Dispose this object, removing the cycle count from the input link and 
-     * unregistering from the event manager if necessary 
+     * Dispose this object, removing the cycle count from the input link and
+     * unregistering from the event manager if necessary
      */
     public void dispose()
     {
@@ -79,7 +79,9 @@ public class CycleCountInput
     
     private class InputListener implements SoarEventListener
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.events.SoarEventListener#onEvent(org.jsoar.kernel.events.SoarEvent)
          */
         @Override
@@ -91,7 +93,9 @@ public class CycleCountInput
     
     private class InitSoarListener implements SoarEventListener
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.util.events.SoarEventListener#onEvent(org.jsoar.util.events.SoarEvent)
          */
         @Override

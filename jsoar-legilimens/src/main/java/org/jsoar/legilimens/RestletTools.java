@@ -15,17 +15,16 @@ import org.restlet.util.Series;
  */
 public class RestletTools
 {
-
+    
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static void setResponseHeader(Response response, String name, Object value)
     {
-        Series<Header> responseHeaders = (Series<Header>) 
-                response.getAttributes().get(HeaderConstants.ATTRIBUTE_HEADERS);
-        if (responseHeaders == null)  
-        {  
+        Series<Header> responseHeaders = (Series<Header>) response.getAttributes().get(HeaderConstants.ATTRIBUTE_HEADERS);
+        if(responseHeaders == null)
+        {
             responseHeaders = new Series(Header.class);
-            response.getAttributes().put(HeaderConstants.ATTRIBUTE_HEADERS, responseHeaders);  
-        }  
-        responseHeaders.add(new Header(name, value.toString()));  
+            response.getAttributes().put(HeaderConstants.ATTRIBUTE_HEADERS, responseHeaders);
+        }
+        responseHeaders.add(new Header(name, value.toString()));
     }
 }

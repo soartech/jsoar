@@ -5,11 +5,10 @@
  */
 package org.jsoar.util.commands;
 
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,9 +16,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -32,26 +31,26 @@ public class DefaultInterpreterTest
     /**
      * @throws java.lang.Exception
      */
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.interp = new DefaultInterpreter(agent);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown() throws Exception
     {
         this.agent.dispose();
     }
     
     @Test
-    public void testPassesCommandContextToCommand() throws Exception
+    void testPassesCommandContextToCommand() throws Exception
     {
-        final AtomicReference<SoarCommandContext> context = new AtomicReference<SoarCommandContext>();
+        final AtomicReference<SoarCommandContext> context = new AtomicReference<>();
         interp.addCommand("testCommandContext", new SoarCommand()
         {
             @Override
@@ -60,15 +59,17 @@ public class DefaultInterpreterTest
                 context.set(commandContext);
                 return null;
             }
+            
             @Override
-            public Object getCommand() {
-                //todo - when implementing picocli, return the runnable
+            public Object getCommand()
+            {
+                // todo - when implementing picocli, return the runnable
                 return null;
             }
         });
         
         final URL result = getClass().getResource("DefaultInterpreterTest_testPassesCommandContextToCommand.soar");
-        assertNotNull("Couldn't find test resource", result);
+        assertNotNull(result, "Couldn't find test resource");
         
         interp.source(result);
         
@@ -76,9 +77,9 @@ public class DefaultInterpreterTest
         assertEquals(result.toExternalForm(), context.get().getSourceLocation().getFile());
         assertEquals(3, context.get().getSourceLocation().getLine() + 1);
     }
-
+    
     @Test
-    public void testCanChooseACommandBasedOnAPrefix() throws Exception
+    void testCanChooseACommandBasedOnAPrefix() throws Exception
     {
         final AtomicBoolean called = new AtomicBoolean(false);
         interp.addCommand("testCanChoose", new SoarCommand()
@@ -89,18 +90,20 @@ public class DefaultInterpreterTest
                 called.set(true);
                 return null;
             }
+            
             @Override
-            public Object getCommand() {
-                //todo - when implementing picocli, return the runnable
+            public Object getCommand()
+            {
+                // todo - when implementing picocli, return the runnable
                 return null;
             }
         });
         interp.eval("testCa");
-        assertTrue("Expected testCanChoose command to be called", called.get());
+        assertTrue(called.get(), "Expected testCanChoose command to be called");
     }
     
-    @Test(expected=SoarException.class)
-    public void testThrowsAnExceptionWhenACommandPrefixIsAmbiguous() throws Exception
+    @Test()
+    public void testThrowsAnExceptionWhenACommandPrefixIsAmbiguous()
     {
         final AtomicBoolean called = new AtomicBoolean(false);
         final SoarCommand command = new SoarCommand()
@@ -111,20 +114,21 @@ public class DefaultInterpreterTest
                 called.set(true);
                 return null;
             }
+            
             @Override
-            public Object getCommand() {
-                //todo - when implementing picocli, return the runnable
+            public Object getCommand()
+            {
+                // todo - when implementing picocli, return the runnable
                 return null;
             }
         };
         interp.addCommand("testCanChoose", command);
         interp.addCommand("testCanAlsoChoose", command);
-        interp.eval("testCan");
-        assertFalse("Expected an ambiguous command exception", called.get());
+        assertThrows(SoarException.class, () -> interp.eval("testCan"));
     }
     
     @Test
-    public void testCanLoadRelativePathInJar() throws Exception
+    void testCanLoadRelativePathInJar() throws Exception
     {
         // it turns out that loading a file from a jar whose path contains a "." causes problems
         // this problem can arise via a sequence like this (which NGS used to do):
@@ -149,8 +153,8 @@ public class DefaultInterpreterTest
         String inputFile = "jar:" + path + "!/test.soar";
         
         URL url = new URL(inputFile);
-        SoarCommands.source(agent.getInterpreter(), url );
+        SoarCommands.source(agent.getInterpreter(), url);
         
-        assertTrue("Expected a rule to be loaded", agent.getProductions().getProductionCount() == 1);
+        assertEquals(1, agent.getProductions().getProductionCount(), "Expected a rule to be loaded");
     }
 }

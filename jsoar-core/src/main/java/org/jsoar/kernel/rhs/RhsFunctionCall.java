@@ -23,7 +23,7 @@ public class RhsFunctionCall extends AbstractRhsValue
 {
     private final StringSymbol name;
     private final boolean standalone;
-    private final List<RhsValue> arguments = new ArrayList<RhsValue>();
+    private final List<RhsValue> arguments = new ArrayList<>();
     
     /**
      * Construct a new RHS function call value
@@ -46,7 +46,7 @@ public class RhsFunctionCall extends AbstractRhsValue
             this.arguments.add(arg.copy());
         }
     }
-
+    
     /**
      * @return the name of the RHS function
      */
@@ -55,7 +55,6 @@ public class RhsFunctionCall extends AbstractRhsValue
         return name;
     }
     
-    
     /**
      * @return true if the function is in a standalone context
      */
@@ -63,12 +62,12 @@ public class RhsFunctionCall extends AbstractRhsValue
     {
         return standalone;
     }
-
+    
     public void addArgument(RhsValue arg)
     {
         arguments.add(arg);
     }
-
+    
     /**
      * rhsfun.h:rhs_value_to_funcall_list
      * 
@@ -78,8 +77,10 @@ public class RhsFunctionCall extends AbstractRhsValue
     {
         return arguments;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.RhsValue#asFunctionCall()
      */
     @Override
@@ -87,8 +88,10 @@ public class RhsFunctionCall extends AbstractRhsValue
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.RhsValue#copy()
      */
     @Override
@@ -96,8 +99,10 @@ public class RhsFunctionCall extends AbstractRhsValue
     {
         return new RhsFunctionCall(this);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.RhsValue#addAllVariables(int, java.util.List)
      */
     @Override
@@ -108,8 +113,10 @@ public class RhsFunctionCall extends AbstractRhsValue
             arg.addAllVariables(tc_number, var_list);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -117,8 +124,10 @@ public class RhsFunctionCall extends AbstractRhsValue
     {
         return "(" + name + " " + arguments + ")";
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -127,7 +136,7 @@ public class RhsFunctionCall extends AbstractRhsValue
         // + and - are treated specially as RHS function names. They are not
         // put in pipes even though they have to be in pipes in most other places
         // they might appear in a production
-        // TODO is this special handling for  + and - correct, or is there a better way? What about "/" ??
+        // TODO is this special handling for + and - correct, or is there a better way? What about "/" ??
         final StringSymbol name = getName();
         final String nameString = name.getValue();
         if("+".equals(nameString) || "-".equals(nameString) || "/".equals(nameString))

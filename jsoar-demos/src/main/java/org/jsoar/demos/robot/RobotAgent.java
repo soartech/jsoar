@@ -10,24 +10,24 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.DebuggerProvider;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.DebuggerProvider.CloseAction;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.io.CycleCountInput;
 import org.jsoar.kernel.io.quick.DefaultQMemory;
 import org.jsoar.kernel.io.quick.QMemory;
 import org.jsoar.kernel.io.quick.SoarQMemoryAdapter;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommands;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ray
  */
 public class RobotAgent
 {
-    private static final Logger logger = LoggerFactory.getLogger(RobotAgent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RobotAgent.class);
     
     private Robot robot;
     private final ThreadedAgent agent;
@@ -36,18 +36,18 @@ public class RobotAgent
     
     public RobotAgent()
     {
-        logger.info("Creating robot agent " + this);
+        LOG.info("Creating robot agent ", this);
         this.agent = ThreadedAgent.create();
-        final Map<String, Object> props = new HashMap<String, Object>();
+        final Map<String, Object> props = new HashMap<>();
         props.put(DebuggerProvider.CLOSE_ACTION, CloseAction.DETACH);
         this.agent.getDebuggerProvider().setProperties(props);
         
         SoarQMemoryAdapter.attach(this.agent.getAgent(), memory);
         new CycleCountInput(this.agent.getInputOutput());
         
-        //debug();
+        // debug();
     }
-
+    
     private String getWaypointKey(Waypoint w)
     {
         return "self.waypoints.waypoint[" + w.name + "]";
@@ -55,7 +55,7 @@ public class RobotAgent
     
     public void setRobot(Robot robot, Properties config)
     {
-        logger.info("Attaching robot agent " + this + " to robot " + robot.name);
+        LOG.info("Attaching robot agent {} to robot {}", this, robot.name);
         this.robot = robot;
         this.agent.setName(robot.name);
         this.agent.initialize(); // Do an init-soar
@@ -88,29 +88,28 @@ public class RobotAgent
         {
             this.agent.openDebugger();
         }
-        catch (SoarException e)
+        catch(SoarException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error("Error opening debugger", e);
         }
     }
+    
     /**
      * 
      */
     public void dispose()
     {
-        logger.info("Disposing robot agent " + this);
+        LOG.info("Disposing robot agent {}", this);
         this.agent.detach();
     }
     
-    
     public void update()
     {
-        synchronized(memory)
+        synchronized (memory)
         {
             memory.setString("self.name", robot.name);
             memory.setDouble("self.radius", robot.radius);
-
+            
             final double x = robot.shape.getCenterX();
             final double y = robot.shape.getCenterY();
             memory.setDouble("self.pose.x", x);
@@ -136,12 +135,18 @@ public class RobotAgent
                 sub.setDouble("distance", wp.point.distance(x, y));
                 
                 double bearing = Math.toDegrees(Math.atan2(y - wpy, x - wpx) - robot.yaw);
-                while(bearing <= -180.0) bearing += 180.0;
-                while(bearing >= 180.0) bearing -= 180.0;
+                while(bearing <= -180.0)
+                {
+                    bearing += 180.0;
+                }
+                while(bearing >= 180.0)
+                {
+                    bearing -= 180.0;
+                }
                 
                 sub.setDouble("relative-bearing", bearing);
             }
         }
     }
-
+    
 }

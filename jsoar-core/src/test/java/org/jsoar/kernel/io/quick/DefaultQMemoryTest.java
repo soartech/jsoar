@@ -5,36 +5,36 @@
  */
 package org.jsoar.kernel.io.quick;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class DefaultQMemoryTest
+class DefaultQMemoryTest
 {
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#create()}.
      */
     @Test
-    public void testCreate()
+    void testCreate()
     {
         QMemory q = DefaultQMemory.create();
         assertEquals(0, q.getPaths().size());
     }
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#hasPath(java.lang.String)}.
      */
     @Test
-    public void testHasPath()
+    void testHasPath()
     {
         QMemory q = DefaultQMemory.create();
         assertEquals(0, q.getPaths().size());
@@ -45,12 +45,12 @@ public class DefaultQMemoryTest
         assertTrue(q.hasPath("a.b.c.d"));
         assertTrue(q.hasPath("a.b.c.e"));
     }
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#subMemory(java.lang.String)}.
      */
     @Test
-    public void testSubMemory()
+    void testSubMemory()
     {
         QMemory top = DefaultQMemory.create();
         
@@ -79,23 +79,23 @@ public class DefaultQMemoryTest
     }
     
     @Test
-    public void testMultiAttribute()
+    void testMultiAttribute()
     {
         QMemory q = DefaultQMemory.create();
         
         q.setString("a.b[0]", "hi");
         q.setString("a.b[1]", "bye");
         
-        //assertEquals("hi", q.getString("a.b"));
+        // assertEquals("hi", q.getString("a.b"));
         assertEquals("hi", q.getString("a.b[0]"));
         assertEquals("bye", q.getString("a.b[1]"));
     }
     
     @Test
-    public void testDoesNotFireChangeEventWhenChangingDoubleToSameValue()
+    void testDoesNotFireChangeEventWhenChangingDoubleToSameValue()
     {
         QMemory q = DefaultQMemory.create();
-     
+        
         final AtomicInteger count = new AtomicInteger();
         q.addListener(new QMemoryListener()
         {
@@ -116,10 +116,10 @@ public class DefaultQMemoryTest
     }
     
     @Test
-    public void testDoesNotFireChangeEventWhenChangingStringToSameValue()
+    void testDoesNotFireChangeEventWhenChangingStringToSameValue()
     {
         QMemory q = DefaultQMemory.create();
-     
+        
         final AtomicInteger count = new AtomicInteger();
         q.addListener(new QMemoryListener()
         {
@@ -140,10 +140,10 @@ public class DefaultQMemoryTest
     }
     
     @Test
-    public void testDoesNotFireChangeEventWhenChangingIntegerToSameValue()
+    void testDoesNotFireChangeEventWhenChangingIntegerToSameValue()
     {
         QMemory q = DefaultQMemory.create();
-     
+        
         final AtomicInteger count = new AtomicInteger();
         q.addListener(new QMemoryListener()
         {
@@ -166,7 +166,7 @@ public class DefaultQMemoryTest
      * Check support for 64-bit integers
      */
     @Test
-    public void testSupportsLong()
+    void testSupportsLong()
     {
         QMemory q = DefaultQMemory.create();
         q.setInteger("long", Long.MAX_VALUE);
@@ -175,7 +175,5 @@ public class DefaultQMemoryTest
         q.setInteger("integer", Integer.MAX_VALUE);
         assertEquals(Integer.MAX_VALUE, q.getInteger("integer"));
     }
-
-
-
+    
 }

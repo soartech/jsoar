@@ -12,12 +12,12 @@ import java.nio.file.Path;
 public interface CSoarAgentWrapper
 {
     boolean LoadProductions(Path file);
-
+    
     String RunSelfForever();
-
+    
     String RunSelf(Integer decisionCyclesToRun);
-
+    
     String ExecuteCommandLine(String command);
-
+    
     Object getAgentImpl();
 }

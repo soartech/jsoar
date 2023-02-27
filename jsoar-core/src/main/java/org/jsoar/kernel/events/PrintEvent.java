@@ -28,7 +28,7 @@ public class PrintEvent implements SoarEvent
     {
         this.text = text;
     }
-
+    
     /**
      * @return the text of the event
      */
@@ -36,8 +36,10 @@ public class PrintEvent implements SoarEvent
     {
         return text;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

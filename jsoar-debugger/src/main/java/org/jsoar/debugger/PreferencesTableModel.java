@@ -20,9 +20,9 @@ public class PreferencesTableModel extends AbstractTableModel
 {
     private static final long serialVersionUID = 1244490544555893063L;
     
-    private static final String[] columns = {"Type", "Support", "Id", "Attr", "Value", "Referent" };
-    private static final Class<?>[] classes = { PreferenceType.class, String.class, Identifier.class, Symbol.class, String.class, Symbol.class };
-
+    private static final String[] COLUMNS = { "Type", "Support", "Id", "Attr", "Value", "Referent" };
+    private static final Class<?>[] CLASSES = { PreferenceType.class, String.class, Identifier.class, Symbol.class, String.class, Symbol.class };
+    
     private Result result;
     
     public PreferencesTableModel()
@@ -36,7 +36,7 @@ public class PreferencesTableModel extends AbstractTableModel
     {
         return result;
     }
-
+    
     public void setResult(Result result)
     {
         if(result == null)
@@ -52,35 +52,43 @@ public class PreferencesTableModel extends AbstractTableModel
     {
         return result.getEntries().get(r);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
      */
     @Override
     public Class<?> getColumnClass(int c)
     {
-        return classes[c];
+        return CLASSES[c];
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.AbstractTableModel#getColumnName(int)
      */
     @Override
     public String getColumnName(int c)
     {
-        return columns[c];
+        return COLUMNS[c];
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.TableModel#getColumnCount()
      */
     @Override
     public int getColumnCount()
     {
-        return columns.length;
+        return COLUMNS.length;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.TableModel#getRowCount()
      */
     @Override
@@ -88,8 +96,10 @@ public class PreferencesTableModel extends AbstractTableModel
     {
         return result != null ? result.getEntries().size() : 0;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
     @Override
@@ -98,14 +108,20 @@ public class PreferencesTableModel extends AbstractTableModel
         ResultEntry e = result.getEntries().get(r);
         switch(c)
         {
-        case 0: return e.getType();
-        case 1: return e.isOSupported() ? ":O" : ":I";
-        case 2: return e.getIdentifier();
-        case 3: return e.getAttribute();
-        case 4: return e.getValueTrace();
-        case 5: return e.getReferent();
+        case 0:
+            return e.getType();
+        case 1:
+            return e.isOSupported() ? ":O" : ":I";
+        case 2:
+            return e.getIdentifier();
+        case 3:
+            return e.getAttribute();
+        case 4:
+            return e.getValueTrace();
+        case 5:
+            return e.getReferent();
         }
         return null;
     }
-
+    
 }

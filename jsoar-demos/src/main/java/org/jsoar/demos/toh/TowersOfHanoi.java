@@ -21,7 +21,7 @@ import org.jsoar.util.events.SoarEventManager;
 /**
  * @author ray
  */
-public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements JSoarDebuggerPlugin
+public class TowersOfHanoi extends /* AbstractAdaptableView */ JPanel implements JSoarDebuggerPlugin
 {
     private static final long serialVersionUID = -8069709839874209508L;
     
@@ -30,10 +30,12 @@ public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements J
     
     public TowersOfHanoi()
     {
-        //super("toh", "Towers of Hanoi");
+        // super("toh", "Towers of Hanoi");
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.JSoarDebuggerPlugin#initialize(org.jsoar.debugger.LittleDebugger, java.lang.String[])
      */
     @Override
@@ -49,7 +51,7 @@ public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements J
         
         initialize(em, args);
     }
-
+    
     /**
      * @param em
      * @param args
@@ -59,12 +61,12 @@ public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements J
         int numPegs = 3, numDisks = 11;
         if(args.length == 2)
         {
-            numPegs = Integer.valueOf(args[0]);
-            numDisks = Integer.valueOf(args[1]);
+            numPegs = Integer.parseInt(args[0]);
+            numDisks = Integer.parseInt(args[1]);
         }
         this.game = new Game(numPegs, numDisks);
         this.panel = new TohPanel(game);
-
+        
         setLayout(new BorderLayout());
         this.add(panel, BorderLayout.CENTER);
         

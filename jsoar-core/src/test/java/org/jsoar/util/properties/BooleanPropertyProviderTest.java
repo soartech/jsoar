@@ -1,9 +1,10 @@
 package org.jsoar.util.properties;
-import static org.junit.Assert.assertEquals;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /*
  * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
@@ -16,28 +17,28 @@ import org.junit.Test;
  */
 public class BooleanPropertyProviderTest
 {
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown() throws Exception
     {
     }
-
+    
     /**
      * Test method for {@link org.jsoar.util.properties.BooleanPropertyProvider#toString()}.
      */
     @Test
-    public void testToString()
+    void testToString()
     {
         final PropertyKey<Boolean> key = PropertyKey.builder("testToString", Boolean.class).defaultValue(true).build();
         final BooleanPropertyProvider provider = new BooleanPropertyProvider(key);
@@ -45,5 +46,5 @@ public class BooleanPropertyProviderTest
         provider.set(false);
         assertEquals("false", provider.toString());
     }
-
+    
 }

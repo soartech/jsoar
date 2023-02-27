@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DecisionCycle
 {
-    private static final Logger logger = LoggerFactory.getLogger(DecisionCycle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DecisionCycle.class);
     
     private final Agent context;
     
@@ -72,7 +72,7 @@ public class DecisionCycle
     private EpisodicMemory epmem;
     private DefaultWorkingMemoryActivation wma;
     
-    private static enum GoType
+    private enum GoType
     {
         GO_PHASE, GO_ELABORATION, GO_DECISION,
         // unused: GO_STATE, GO_OPERATOR, GO_SLOT, GO_OUTPUT
@@ -86,7 +86,7 @@ public class DecisionCycle
      * agent.h:324:current_phase
      * agent.cpp:153 (init)
      */
-    public final EnumPropertyProvider<Phase> current_phase = new EnumPropertyProvider<Phase>(SoarProperties.CURRENT_PHASE);
+    public final EnumPropertyProvider<Phase> current_phase = new EnumPropertyProvider<>(SoarProperties.CURRENT_PHASE);
     
     /**
      * agent.h:349:go_type
@@ -94,7 +94,7 @@ public class DecisionCycle
      */
     private GoType go_type = GoType.GO_DECISION;
     
-    private EnumPropertyProvider<Phase> stopPhase = new EnumPropertyProvider<Phase>(SoarProperties.STOP_PHASE);
+    private EnumPropertyProvider<Phase> stopPhase = new EnumPropertyProvider<>(SoarProperties.STOP_PHASE);
     
     int e_cycles_this_d_cycle;
     @SuppressWarnings("unused")
@@ -135,8 +135,9 @@ public class DecisionCycle
     /**
      * rhsfun.cpp:199:halt_rhs_function_code
      */
-    private final RhsFunctionHandler haltHandler = new StandaloneRhsFunctionHandler("halt") {
-
+    private final RhsFunctionHandler haltHandler = new StandaloneRhsFunctionHandler("halt")
+    {
+        
         @Override
         public SymbolImpl execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
         {
@@ -145,7 +146,8 @@ public class DecisionCycle
             // callback AFTER_HALT_SOAR_CALLBACK is fired from decision cycle
             
             return null;
-        }};
+        }
+    };
     
     private final AfterHaltEvent afterHaltEvent;
     private final BeforeElaborationEvent beforeElaborationEvent;
@@ -158,7 +160,7 @@ public class DecisionCycle
     public DecisionCycle(Agent context)
     {
         this.context = context;
-
+        
         this.afterHaltEvent = new AfterHaltEvent(context);
         this.beforeElaborationEvent = new BeforeElaborationEvent(context);
         this.afterElaborationEvent = new AfterElaborationEvent(context);
@@ -197,7 +199,7 @@ public class DecisionCycle
     
     /**
      * Extracted from reinitialize_soar()
-     *  
+     * 
      * init_soar.cpp:410:reinitialize_soar
      */
     public void reset()
@@ -211,7 +213,7 @@ public class DecisionCycle
         
         resetStatistics();
     }
-
+    
     /**
      * init_soar.cpp:297:reset_statistics
      */
@@ -223,10 +225,10 @@ public class DecisionCycle
         e_cycles_this_d_cycle = 0;
         pe_cycle_count.reset();
         pe_cycles_this_d_cycle = 0;
-        run_phase_count = 0 ;
-        run_elaboration_count = 0 ;
-        run_last_output_count = 0 ;
-        run_generated_output_count = 0 ;
+        run_phase_count = 0;
+        run_elaboration_count = 0;
+        run_last_output_count = 0;
+        run_generated_output_count = 0;
         inner_e_cycle_count.reset();
     }
     
@@ -244,7 +246,7 @@ public class DecisionCycle
     {
         return maxElaborations.value.get();
     }
-
+    
     /**
      * @return the hitMaxElaborations
      */
@@ -252,7 +254,7 @@ public class DecisionCycle
     {
         return hitMaxElaborations;
     }
-
+    
     /**
      * @param hitMaxElaborations the hitMaxElaborations to set
      */
@@ -260,12 +262,10 @@ public class DecisionCycle
     {
         this.hitMaxElaborations = hitMaxElaborations;
     }
-
-
     
     /**
-     * runs Soar one top-level phases. Note that this does not start/stop the 
-     * total_cpu_time timer--the caller must do this. 
+     * runs Soar one top-level phases. Note that this does not start/stop the
+     * total_cpu_time timer--the caller must do this.
      * 
      * <p>init_soar.cpp:474:do_one_top_level_phase
      */
@@ -279,37 +279,49 @@ public class DecisionCycle
         ExecutionTimers.start(context.getTotalKernelTimer());
         
         // Note: this method of attaching smem diverges from how csoar does it
-        // At least at the time smem was originally ported to jsoar, csoar always attached smem, whereas here we only do it if smem is enabled 
-        if(smem.smem_enabled()) {
+        // At least at the time smem was originally ported to jsoar, csoar always attached smem, whereas here we only do it if smem is enabled
+        if(smem.smem_enabled())
+        {
             try
             {
                 smem.smem_attach();
             }
-            catch (SoarException e)
+            catch(SoarException e)
             {
-                logger.error("While initializing smem: " + e.getMessage(), e);
+                LOG.error("While initializing smem: " + e.getMessage(), e);
                 this.context.getPrinter().error("While initializing smem: " + e.getMessage());
             }
         }
         
-        switch (current_phase.get())
+        switch(current_phase.get())
         {
-        case INPUT:       doInputPhase();         break;
-        case PROPOSE:     doProposePhase();       break;
-        case APPLY:       doApplyPhase();         break; 
-        case OUTPUT:      doOutputPhase();        break;
-        case DECISION:    doDecisionPhase();      break;
-        default: throw new IllegalStateException("Invalid phase enumeration value " + current_phase);
+        case INPUT:
+            doInputPhase();
+            break;
+        case PROPOSE:
+            doProposePhase();
+            break;
+        case APPLY:
+            doApplyPhase();
+            break;
+        case OUTPUT:
+            doOutputPhase();
+            break;
+        case DECISION:
+            doDecisionPhase();
+            break;
+        default:
+            throw new IllegalStateException("Invalid phase enumeration value " + current_phase);
         }
-
+        
         // update WM size statistics
         this.workingMemory.updateStats(context.getNumWmesInRete());
-
+        
         checkForSystemHalt();
-
-        if (stop_soar)
+        
+        if(stop_soar)
         {
-            if (reason_for_stopping != null && reason_for_stopping.length() > 0)
+            if(reason_for_stopping != null && reason_for_stopping.length() > 0)
             {
                 context.getPrinter().print("\n%s", reason_for_stopping);
             }
@@ -318,7 +330,7 @@ public class DecisionCycle
     
     private void beforePhase(Phase phase)
     {
-        context.getEvents().fireEvent(beforePhaseEvents.get(phase));    
+        context.getEvents().fireEvent(beforePhaseEvents.get(phase));
     }
     
     private void afterPhase(Phase phase)
@@ -348,7 +360,7 @@ public class DecisionCycle
         ExecutionTimers.pause(context.getTotalKernelTimer());
         ExecutionTimers.pause(context.getTotalCpuTimer());
     }
-
+    
     /**
      * 
      */
@@ -366,25 +378,26 @@ public class DecisionCycle
         assert current_phase.get() == Phase.DECISION;
         
         /* not yet cleaned up for 8.6.0 release */
-
+        
         final Trace trace = context.getTrace();
         Phase.DECISION.trace(trace, true);
-
+        
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
         
         this.decision_phases_count.increment(); // counts decisions, not cycles, for more accurate stats
-
+        
         beforePhase(Phase.DECISION);
         
         decider.do_decision_phase(false);
-
+        
         this.run_elaboration_count++; // All phases count as a run elaboration
-
+        
         afterPhase(Phase.DECISION);
-
-        if (trace.isEnabled() && trace.isEnabled(Category.CONTEXT_DECISIONS)) {
+        
+        if(trace.isEnabled() && trace.isEnabled(Category.CONTEXT_DECISIONS))
+        {
             final Printer printer = trace.getPrinter();
             try
             {
@@ -392,37 +405,37 @@ public class DecisionCycle
                 traceFormats.print_lowest_slot_in_context_stack(printer.getWriter(), decider.bottom_goal);
                 printer.flush();
             }
-            catch (IOException e)
+            catch(IOException e)
             {
-                logger.warn("While printing current context: " + e);
+                LOG.warn("While printing current context", e);
             }
-         }
-
+        }
+        
         // reset elaboration counter
         this.e_cycles_this_d_cycle = 0;
         this.pe_cycles_this_d_cycle = 0;
-
-        // Note: AGGRESSIVE_ONC used to be here. Dropped from jsoar because 
+        
+        // Note: AGGRESSIVE_ONC used to be here. Dropped from jsoar because
         // it didn't look like it had been used in years.
         
-//        if ( epmem_enabled( thisAgent ) && ( thisAgent->epmem_params->phase->get_value() == epmem_param_container::phase_selection ) )
-//            epmem_go( thisAgent );
-        if ( epmem.epmem_enabled() && epmem.encodeInSelectionPhase() )
+        // if ( epmem_enabled( thisAgent ) && ( thisAgent->epmem_params->phase->get_value() == epmem_param_container::phase_selection ) )
+        // epmem_go( thisAgent );
+        if(epmem.epmem_enabled() && epmem.encodeInSelectionPhase())
         {
-        	epmem.epmem_go();
+            epmem.epmem_go();
         }
         
         Phase.DECISION.trace(trace, false);
-
+        
         recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS;
         current_phase.set(Phase.APPLY);
-
-        //      #ifndef NO_TIMING_STUFF
-        //      stop_timer (thisAgent, &thisAgent->start_phase_tv, 
-        //          &thisAgent->decision_cycle_phase_timers[DECISION_PHASE]);
-        //      #endif
+        
+        // #ifndef NO_TIMING_STUFF
+        // stop_timer (thisAgent, &thisAgent->start_phase_tv,
+        // &thisAgent->decision_cycle_phase_timers[DECISION_PHASE]);
+        // #endif
     }
-
+    
     /**
      * extracted from run_one_top_level_phase(), switch case OUTPUT_PHASE
      */
@@ -432,43 +445,43 @@ public class DecisionCycle
         
         final Trace trace = context.getTrace();
         Phase.OUTPUT.trace(trace, true);
-
+        
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
-
+        
         beforePhase(Phase.OUTPUT);
         io.do_output_cycle();
         
-        if (smem.smem_enabled())
+        if(smem.smem_enabled())
         {
             smem.smem_go(false);
         }
         
         ///////////////////////////////////////////////////////////////////
-        assert( wma.get_d_cycle_count() == this.d_cycle_count.get() );
+        assert (wma.get_d_cycle_count() == this.d_cycle_count.get());
         ///////////////////////////////////////////////////////////////////
-
+        
         // update histories only first, allows:
         // - epmem retrieval cues to be biased by activation
         // - epmem encoding to capture wmes that may be forgotten shortly
-        if ( wma.wma_enabled() )
+        if(wma.wma_enabled())
         {
-            wma.wma_go( wma_go_action.wma_histories );
+            wma.wma_go(wma_go_action.wma_histories);
         }
         
-//      if ( epmem_enabled( thisAgent ) && ( thisAgent->epmem_params->phase->get_value() == epmem_param_container::phase_output ) )
-//      {
-//          // since we consolidated wma histories from this decision,
-//          // we need to pretend it's the next time step in case
-//          // an epmem retrieval wants to know current activation value
-//          thisAgent->wma_d_cycle_count++;
-//          {
-//              epmem_go( thisAgent );
-//          }
-//          thisAgent->wma_d_cycle_count--;
-//      }
-        if (epmem.epmem_enabled() && epmem.encodeInOutputPhase())
+        // if ( epmem_enabled( thisAgent ) && ( thisAgent->epmem_params->phase->get_value() == epmem_param_container::phase_output ) )
+        // {
+        // // since we consolidated wma histories from this decision,
+        // // we need to pretend it's the next time step in case
+        // // an epmem retrieval wants to know current activation value
+        // thisAgent->wma_d_cycle_count++;
+        // {
+        // epmem_go( thisAgent );
+        // }
+        // thisAgent->wma_d_cycle_count--;
+        // }
+        if(epmem.epmem_enabled() && epmem.encodeInOutputPhase())
         {
             wma.d_cycle_count_increment();
             epmem.epmem_go();
@@ -478,29 +491,29 @@ public class DecisionCycle
         // now both update histories and forget, allows
         // - epmem retrieval to affect history
         // - epmem encoding to capture wmes that may be forgotten shortly
-        if ( wma.wma_enabled() )
+        if(wma.wma_enabled())
         {
-            wma.wma_go( wma_go_action.wma_histories );
-            wma.wma_go( wma_go_action.wma_forgetting );
+            wma.wma_go(wma_go_action.wma_histories);
+            wma.wma_go(wma_go_action.wma_forgetting);
         }
         
         ///////////////////////////////////////////////////////////////////
-        assert( wma.get_d_cycle_count() == this.d_cycle_count.get() );
+        assert (wma.get_d_cycle_count() == this.d_cycle_count.get());
         ///////////////////////////////////////////////////////////////////
         
         // Count the outputs the agent generates (or times reaching max-nil-outputs without sending output)
-        if (io.isOutputLinkChanged() || ((++(run_last_output_count)) >= maxNilOutputCycles))
+        if(io.isOutputLinkChanged() || ((++(run_last_output_count)) >= maxNilOutputCycles))
         {
             this.run_last_output_count = 0;
             this.run_generated_output_count++;
         }
-
+        
         this.run_elaboration_count++; // All phases count as a run elaboration
         
         afterPhase(Phase.OUTPUT);
-
+        
         context.getEvents().fireEvent(new AfterDecisionCycleEvent(context, Phase.OUTPUT));
-
+        
         // #ifndef NO_TIMING_STUFF
         // stop_timer (thisAgent, &thisAgent->start_phase_tv,
         // &thisAgent->decision_cycle_phase_timers[OUTPUT_PHASE]);
@@ -511,7 +524,7 @@ public class DecisionCycle
         this.d_cycle_count.increment();
         wma.d_cycle_count_increment();
     }
-
+    
     /**
      * Checks whether max elaborations has been succeeded. If so, prints a
      * warning and sets the current phase to the nextPhase parameter and returns
@@ -522,7 +535,7 @@ public class DecisionCycle
      */
     boolean checkForMaxElaborations(Phase nextPhase)
     {
-        if (this.e_cycles_this_d_cycle >= maxElaborations.value.get() )
+        if(this.e_cycles_this_d_cycle >= maxElaborations.value.get())
         {
             setHitMaxElaborations(true);
             context.getPrinter().warn("\nWarning: reached max-elaborations(%d); proceeding to %s phases.", maxElaborations.value.get(), nextPhase);
@@ -546,46 +559,47 @@ public class DecisionCycle
         final Trace trace = context.getTrace();
         
         // added in 8.6 to clarify Soar8 decision cycle
-
+        
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
-
-        /* e_cycle_count will always be zero UNLESS we are running by ELABORATIONS.
+        
+        /*
+         * e_cycle_count will always be zero UNLESS we are running by ELABORATIONS.
          * We only want to do the following if we've just finished DECISION and are
-         * starting APPLY.  If this is the second elaboration for APPLY, then 
-         * just do the while loop below.   KJC  June 05
+         * starting APPLY. If this is the second elaboration for APPLY, then
+         * just do the while loop below. KJC June 05
          */
-        if (this.e_cycles_this_d_cycle < 1)
+        if(this.e_cycles_this_d_cycle < 1)
         {
             Phase.APPLY.trace(trace, true);
-
+            
             beforePhase(Phase.APPLY);
-
+            
             // We need to generate this event here in case no elaborations fire...
             beforeElaboration();
-
+            
             // 'prime' the cycle for a new round of production firings in the APPLY (pref/wm) phases
             this.consistency.initialize_consistency_calculations_for_new_decision();
-
+            
             recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS; // might get reset in det_high_active_prod_level...
             this.consistency.determine_highest_active_production_level_in_stack_apply();
             
-            if (current_phase.get() == Phase.OUTPUT)
-            { 
+            if(current_phase.get() == Phase.OUTPUT)
+            {
                 // no elaborations will fire this phase
                 this.run_elaboration_count++; // All phases count as a run elaboration
-
+                
                 afterElaboration();
             }
         }
         
         // max-elaborations are checked in determine_highest_active... and if they
-        // are reached, the current phases is set to OUTPUT.  phases is also set
+        // are reached, the current phases is set to OUTPUT. phases is also set
         // to OUTPUT when APPLY is done.
-        while (current_phase.get() != Phase.OUTPUT)
+        while(current_phase.get() != Phase.OUTPUT)
         {
-            if (this.e_cycles_this_d_cycle != 0)
+            if(this.e_cycles_this_d_cycle != 0)
             {
                 // only for 2nd cycle or higher. 1st cycle fired above
                 beforeElaboration();
@@ -594,36 +608,39 @@ public class DecisionCycle
             recMemory.do_preference_phase(decider.top_goal);
             decider.do_working_memory_phase();
             
-            if (smem.smem_enabled())
+            if(smem.smem_enabled())
             {
                 smem.smem_go(true);
             }
-
+            
             // Update accounting
             this.e_cycle_count.increment();
             this.e_cycles_this_d_cycle++;
             this.run_elaboration_count++;
-
-            if (recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
+            
+            if(recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
             {
                 this.pe_cycle_count.increment();
                 this.pe_cycles_this_d_cycle++;
             }
             
             this.consistency.determine_highest_active_production_level_in_stack_apply();
-
+            
             afterElaboration();
-
-            if (this.go_type == GoType.GO_ELABORATION)
+            
+            if(this.go_type == GoType.GO_ELABORATION)
+            {
                 break;
+            }
         }
-
-        //  If we've finished APPLY, then current_phase will be equal to OUTPUT
-        //  otherwise, we're only stopping because we're running by ELABORATIONS, so
-        //  don't do the end-of-phases updating in that case.
-        if (current_phase.get() == Phase.OUTPUT)
+        
+        // If we've finished APPLY, then current_phase will be equal to OUTPUT
+        // otherwise, we're only stopping because we're running by ELABORATIONS, so
+        // don't do the end-of-phases updating in that case.
+        if(current_phase.get() == Phase.OUTPUT)
         {
-            /* This is a HACK for Soar 8.6.0 beta release... KCoulter April 05
+            /*
+             * This is a HACK for Soar 8.6.0 beta release... KCoulter April 05
              * We got here, because we should move to OUTPUT, so APPLY is done
              * Set phases back to APPLY, do print_phase, callbacks and reset phases to OUTPUT
              */
@@ -631,17 +648,17 @@ public class DecisionCycle
             Phase.APPLY.trace(trace, false);
             
             afterPhase(Phase.APPLY);
-
+            
             current_phase.set(Phase.OUTPUT);
         }
-
+        
         // #ifndef NO_TIMING_STUFF
         // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[APPLY_PHASE]);
         // #endif
         
         // END of Soar8 APPLY PHASE
     }
-
+    
     /**
      * extracted from do_one_top_level_phase(), switch case PROPOSE_PHASE
      */
@@ -652,46 +669,47 @@ public class DecisionCycle
         final Trace trace = context.getTrace();
         
         /* added in 8.6 to clarify Soar8 decision cycle */
-
+        
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
-
-        /* e_cycles_this_d_cycle will always be zero UNLESS we are running by ELABORATIONS.
+        
+        /*
+         * e_cycles_this_d_cycle will always be zero UNLESS we are running by ELABORATIONS.
          * We only want to do the following if we've just finished INPUT and are
-         * starting PROPOSE.  If this is the second elaboration for PROPOSE, then 
-         * just do the while loop below.   KJC  June 05
+         * starting PROPOSE. If this is the second elaboration for PROPOSE, then
+         * just do the while loop below. KJC June 05
          */
-        if (this.e_cycles_this_d_cycle < 1)
+        if(this.e_cycles_this_d_cycle < 1)
         {
             Phase.PROPOSE.trace(trace, true);
-
+            
             beforePhase(Phase.PROPOSE);
-
+            
             // We need to generate this event here in case no elaborations fire...
             beforeElaboration();
-
+            
             // 'Prime the decision for a new round of production firings at the end of
             this.consistency.initialize_consistency_calculations_for_new_decision();
-
+            
             recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
             this.consistency.determine_highest_active_production_level_in_stack_propose();
-
-            if (current_phase.get() == Phase.DECISION)
-            { 
+            
+            if(current_phase.get() == Phase.DECISION)
+            {
                 // no elaborations will fire this phases
                 this.run_elaboration_count++; // All phases count as a run elaboration
-
+                
                 afterElaboration();
             }
         }
-
+        
         // max-elaborations are checked in determine_highest_active... and if they
-        // are reached, the current phases is set to DECISION.  phases is also set
+        // are reached, the current phases is set to DECISION. phases is also set
         // to DECISION when PROPOSE is done.
-        while (current_phase.get() != Phase.DECISION)
+        while(current_phase.get() != Phase.DECISION)
         {
-            if (e_cycles_this_d_cycle != 0)
+            if(e_cycles_this_d_cycle != 0)
             {
                 beforeElaboration();
             }
@@ -699,7 +717,7 @@ public class DecisionCycle
             recMemory.do_preference_phase(decider.top_goal);
             decider.do_working_memory_phase();
             
-            if (smem.smem_enabled())
+            if(smem.smem_enabled())
             {
                 smem.smem_go(true);
             }
@@ -713,35 +731,39 @@ public class DecisionCycle
             
             afterElaboration();
             
-            if (this.go_type == GoType.GO_ELABORATION)
+            if(this.go_type == GoType.GO_ELABORATION)
+            {
                 break;
+            }
         }
-
-        /*  If we've finished PROPOSE, then current_phase will be equal to DECISION
-         *  otherwise, we're only stopping because we're running by ELABORATIONS, so
-         *  don't do the end-of-phases updating in that case.
+        
+        /*
+         * If we've finished PROPOSE, then current_phase will be equal to DECISION
+         * otherwise, we're only stopping because we're running by ELABORATIONS, so
+         * don't do the end-of-phases updating in that case.
          */
-        if (current_phase.get() == Phase.DECISION)
+        if(current_phase.get() == Phase.DECISION)
         {
-            /* This is a HACK for Soar 8.6.0 beta release... KCoulter April 05
+            /*
+             * This is a HACK for Soar 8.6.0 beta release... KCoulter April 05
              * We got here, because we should move to DECISION, so PROPOSE is done
              * Set phases back to PROPOSE, do print_phase, callbacks, and then
              * reset phases to DECISION
              */
             this.current_phase.set(Phase.PROPOSE);
             Phase.PROPOSE.trace(trace, false);
-
+            
             afterPhase(Phase.PROPOSE);
             this.current_phase.set(Phase.DECISION);
         }
-
+        
         // #ifndef NO_TIMING_STUFF
         // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[PROPOSE_PHASE]);
         // #endif
-
-        // END of Soar8 PROPOSE PHASE    
+        
+        // END of Soar8 PROPOSE PHASE
     }
-
+    
     /**
      * extracted from do_one_top_level_phase(), switch case INPUT_PHASE
      */
@@ -751,43 +773,38 @@ public class DecisionCycle
         
         final Trace trace = context.getTrace();
         Phase.INPUT.trace(trace, true);
-
+        
         // for Operand2 mode using the new decision cycle ordering,
         // we need to do some initialization in the INPUT PHASE, which
-        // now comes first.  e_cycles are also zeroed before the APPLY Phase.
+        // now comes first. e_cycles are also zeroed before the APPLY Phase.
         this.chunker.chunks_this_d_cycle = 0;
         this.e_cycles_this_d_cycle = 0;
         
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
-
-        // we check e_cycle_count because Soar 7 runs multiple input cycles per decision
-        // always true for Soar 8
-        if (e_cycles_this_d_cycle == 0)
-        {
-            context.getEvents().fireEvent(beforeDecisionCycleEvent);
-        }
-
+        
+        context.getEvents().fireEvent(beforeDecisionCycleEvent);
+        
         beforePhase(Phase.INPUT);
-
+        
         io.do_input_cycle();
-
+        
         run_elaboration_count++; // All phases count as a run elaboration
         
         afterPhase(Phase.INPUT);
         
         Phase.INPUT.trace(trace, false);
-
+        
         // #ifndef NO_TIMING_STUFF /* REW: 28.07.96 */
         // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[INPUT_PHASE]);
         // #endif
-
+        
         current_phase.set(Phase.PROPOSE);
     }
-
+    
     /**
-     * At the beginning of a top level phase, we first check whether the agent 
+     * At the beginning of a top level phase, we first check whether the agent
      * is halted and immediately bail out if it is, printing out a halted
      * message.
      * 
@@ -796,8 +813,8 @@ public class DecisionCycle
     private boolean checkForSystemHaltedAtStartOfTopLevel()
     {
         final Printer printer = context.getPrinter();
-
-        if (system_halted)
+        
+        if(system_halted)
         {
             printer.print("\nSystem halted.  Use (init-soar) before running Soar again.");
             printer.flush();
@@ -807,25 +824,25 @@ public class DecisionCycle
         }
         return false;
     }
-
+    
     /**
      * At the end of a top level phase, we check whether the system has been
      * halted, and if so, fire the halt event and do some cleanup.
      */
     private void checkForSystemHalt()
     {
-        if (system_halted)
+        if(system_halted)
         {
             stop_soar = true;
             reason_for_stopping = "System halted.";
             
             context.getEvents().fireEvent(afterHaltEvent);
-
+            
             // To model episodic task, after halt, perform RL update with next-state value 0
-            if (rl.rl_enabled())
+            if(rl.rl_enabled())
             {
                 // TODO how about a method?
-                for (IdentifierImpl g = decider.bottom_goal; g != null; g = g.goalInfo.higher_goal)
+                for(IdentifierImpl g = decider.bottom_goal; g != null; g = g.goalInfo.higher_goal)
                 {
                     rl.rl_tabulate_reward_value_for_goal(g);
                     rl.rl_perform_update(0, true, g);
@@ -833,7 +850,7 @@ public class DecisionCycle
             }
         }
     }
-
+    
     /**
      * init_soar.cpp:1123:run_for_n_phases
      * 
@@ -849,7 +866,7 @@ public class DecisionCycle
         stop_soar = false;
         reason_for_stopping = null;
         setHitMaxElaborations(false);
-        while (!stop_soar && n != 0)
+        while(!stop_soar && n != 0)
         {
             do_one_top_level_phase();
             n--;
@@ -857,7 +874,7 @@ public class DecisionCycle
         
         pauseTopLevelTimers();
     }
-
+    
     /**
      * Run for n elaboration cycles
      * 
@@ -869,9 +886,9 @@ public class DecisionCycle
     private void run_for_n_elaboration_cycles(long n)
     {
         Arguments.check(n >= 0, "n must be non-negative");
-
+        
         startTopLevelTimers();
-
+        
         stop_soar = false;
         reason_for_stopping = null;
         long d_cycles_at_start = d_cycle_count.value.get();
@@ -882,21 +899,25 @@ public class DecisionCycle
         save_go_type = go_type;
         go_type = GoType.GO_ELABORATION;
         // need next line or runs only the input phases for "d 1" after init-soar
-        if (d_cycles_at_start == 0)
+        if(d_cycles_at_start == 0)
+        {
             d_cycles_at_start++;
+        }
         
-        while (!stop_soar)
+        while(!stop_soar)
         {
             elapsed_cycles++;
-            if (n == elapsed_cycles)
+            if(n == elapsed_cycles)
+            {
                 break;
+            }
             do_one_top_level_phase();
         }
         go_type = save_go_type;
-
+        
         pauseTopLevelTimers();
     }
-
+    
     /**
      * init_soar.cpp:1181:run_for_n_modifications_of_output
      * 
@@ -906,19 +927,21 @@ public class DecisionCycle
     private void run_for_n_modifications_of_output(long n)
     {
         Arguments.check(n >= 0, "n must be non-negative");
-
+        
         startTopLevelTimers();
-
+        
         stop_soar = false;
         reason_for_stopping = null;
         int count = 0;
-        while (!stop_soar && n != 0)
+        
+        while(!stop_soar && n != 0)
         {
             boolean was_output_phase = current_phase.get() == Phase.OUTPUT;
             do_one_top_level_phase();
-            if (was_output_phase)
+            
+            if(was_output_phase)
             {
-                if (io.isOutputLinkChanged())
+                if(io.isOutputLinkChanged())
                 {
                     n--;
                 }
@@ -927,17 +950,17 @@ public class DecisionCycle
                     count++;
                 }
             }
-            if (count >= this.maxNilOutputCycles)
+            if(count >= this.maxNilOutputCycles)
             {
                 break;
-                //stop_soar = true;
-                //reason_for_stopping = "exceeded max_nil_output_cycles with no output";
+                // stop_soar = true;
+                // reason_for_stopping = "exceeded max_nil_output_cycles with no output";
             }
         }
         
         pauseTopLevelTimers();
     }
-
+    
     /**
      * Run for n decision cycles
      * 
@@ -947,24 +970,30 @@ public class DecisionCycle
     private void run_for_n_decision_cycles(long n)
     {
         Arguments.check(n >= 0, "n must be non-negative");
-        final Phase stopPhase = this.stopPhase.get(); // save in case this changes during run
-
+        final Phase stopPhaseAtRunStart = this.stopPhase.get(); // save in case this changes during run
+        
         startTopLevelTimers();
-
+        
         stop_soar = false;
         reason_for_stopping = null;
         long d_cycles_at_start = d_cycle_count.value.get();
         /* need next line or runs only the input phases for "d 1" after init-soar */
-        if (d_cycles_at_start == 0)
-            d_cycles_at_start++;
-        while (!stop_soar)
+        if(d_cycles_at_start == 0)
         {
-            if (n == (d_cycle_count.value.get() - d_cycles_at_start))
+            d_cycles_at_start++;
+        }
+        
+        while(!stop_soar)
+        {
+            if(n == (d_cycle_count.value.get() - d_cycles_at_start))
+            {
                 break;
+            }
+            
             do_one_top_level_phase();
         }
         
-        while(!stop_soar && current_phase.get() != stopPhase)
+        while(!stop_soar && current_phase.get() != stopPhaseAtRunStart)
         {
             do_one_top_level_phase();
         }
@@ -986,16 +1015,24 @@ public class DecisionCycle
         }
         switch(runType)
         {
-        case ELABORATIONS: run_for_n_elaboration_cycles(n); break;
-        case DECISIONS: run_for_n_decision_cycles(n); break;
-        case PHASES: run_for_n_phases(n); break;
+        case ELABORATIONS:
+            run_for_n_elaboration_cycles(n);
+            break;
+        case DECISIONS:
+            run_for_n_decision_cycles(n);
+            break;
+        case PHASES:
+            run_for_n_phases(n);
+            break;
         case MODIFICATIONS_OF_OUTPUT:
             for(long i = 0; i < n; ++i)
             {
                 run_for_n_modifications_of_output(1);
             }
             break;
-        case FOREVER: runForever(); break;
+        case FOREVER:
+            runForever();
+            break;
         default:
             throw new IllegalArgumentException("Unknown run type: " + runType);
         }
@@ -1012,11 +1049,13 @@ public class DecisionCycle
         {
             return;
         }
+        
         startTopLevelTimers();
         
         stop_soar = false;
         reason_for_stopping = null;
-        while (!stop_soar)
+        
+        while(!stop_soar)
         {
             do_one_top_level_phase();
         }
@@ -1024,7 +1063,6 @@ public class DecisionCycle
         pauseTopLevelTimers();
     }
     
-        
     /**
      * @return true if this agent has been stopped, halted, or interrupted
      */
@@ -1035,7 +1073,7 @@ public class DecisionCycle
     
     /**
      * @return The reason for stopping, or <code>null</code> if {@link #isStopped()}
-     *      is false.
+     * is false.
      */
     public String getReasonForStop()
     {
@@ -1059,15 +1097,15 @@ public class DecisionCycle
      * 
      * <p>rhsfun.cpp:231
      * 
-     * @param production The name of the production causing the interrupt, or 
-     *  <code>null</code> if unknown.
+     * @param production The name of the production causing the interrupt, or
+     *     <code>null</code> if unknown.
      */
     public void interrupt(String production)
     {
         this.stop_soar = true;
         this.reason_for_stopping = "*** Interrupt from production " + production + " ***";
     }
-
+    
     /**
      * @return true if the agent is halted
      */

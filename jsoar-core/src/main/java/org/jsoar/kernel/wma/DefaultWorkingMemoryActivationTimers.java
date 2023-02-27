@@ -22,15 +22,15 @@ import org.jsoar.util.timing.ExecutionTimer;
  * 
  * @author bob.marinier
  */
-public class DefaultWorkingMemoryActivationTimers 
+public class DefaultWorkingMemoryActivationTimers
 {
     private final PropertyManager properties;
     
     ExecutionTimer history = DefaultExecutionTimer.newInstance().setName("wma_history");
     ExecutionTimer forgetting = DefaultExecutionTimer.newInstance().setName("wma_forgetting");
     
-    Map<TimerLevels, Set<ExecutionTimer>> timerMap = new HashMap<TimerLevels, Set<ExecutionTimer>>();
-    Set<ExecutionTimer> timerSet = new HashSet<ExecutionTimer>();
+    Map<TimerLevels, Set<ExecutionTimer>> timerMap = new HashMap<>();
+    Set<ExecutionTimer> timerSet = new HashSet<>();
     
     DefaultWorkingMemoryActivationTimers(PropertyManager properties)
     {
@@ -40,7 +40,7 @@ public class DefaultWorkingMemoryActivationTimers
         timerMap.put(TimerLevels.off, new HashSet<ExecutionTimer>());
         
         // put the other timers in the one level
-        Set<ExecutionTimer> one = new HashSet<ExecutionTimer>();
+        Set<ExecutionTimer> one = new HashSet<>();
         one.add(history);
         one.add(forgetting);
         timerMap.put(TimerLevels.one, one);
@@ -57,7 +57,7 @@ public class DefaultWorkingMemoryActivationTimers
             timer.start();
         }
     }
-
+    
     void pause(ExecutionTimer timer)
     {
         if(timerMap.get(properties.get(DefaultWorkingMemoryActivationParams.TIMERS)).contains(timer))

@@ -18,48 +18,49 @@ import picocli.CommandLine.ParentCommand;
 
 /**
  * This is the implementation of the "decide" command.
+ * 
  * @author austin.brehob
  */
 public class DecideCommand extends PicocliSoarCommand
 {
     private static final int DISPLAY_COLUMNS = 55;
-
+    
     public DecideCommand(Agent agent)
     {
         super(agent, new Decide(agent));
     }
-
-    @Command(name="decide", description="Commands and settings related to "
-            + "the selection of operators during the Soar decision process",
-            subcommands={HelpCommand.class,
-                         DecideCommand.IndifferentSelection.class,
-                         DecideCommand.NumericIndifferentMode.class,
-                         DecideCommand.Predict.class,
-                         DecideCommand.Select.class,
-                         DecideCommand.SetRandomSeed.class})
+    
+    @Command(name = "decide", description = "Commands and settings related to "
+            + "the selection of operators during the Soar decision process", subcommands = { HelpCommand.class,
+                    DecideCommand.IndifferentSelection.class,
+                    DecideCommand.NumericIndifferentMode.class,
+                    DecideCommand.Predict.class,
+                    DecideCommand.Select.class,
+                    DecideCommand.SetRandomSeed.class })
     static public class Decide implements Runnable
     {
         private Agent agent;
         private Exploration exploration;
         private DecisionManipulation decisionManipulation;
-
+        
         public Decide(Agent agent)
         {
             this.agent = agent;
             this.exploration = Adaptables.adapt(agent, Exploration.class);
             this.decisionManipulation = Adaptables.adapt(agent, DecisionManipulation.class);
         }
-
+        
         @Override
         public void run()
         {
             printCurrentDecideSettings();
         }
-
-        private void printCurrentDecideSettings() {
+        
+        private void printCurrentDecideSettings()
+        {
             final StringWriter sw = new StringWriter();
             final PrintWriter pw = new PrintWriter(sw);
-
+            
             pw.printf(PrintHelper.generateHeader("Decide Summary", DISPLAY_COLUMNS));
             pw.printf(currentNumericIndifferentMode(exploration));
             pw.printf(PrintHelper.generateSection("Discount", DISPLAY_COLUMNS));
@@ -74,72 +75,67 @@ public class DecideCommand extends PicocliSoarCommand
             pw.printf(currentParameterReductionRate(exploration, "temperature", "exponential"));
             pw.printf(currentParameterReductionRate(exploration, "temperature", "linear"));
             pw.printf(PrintHelper.generateSection("Discount", DISPLAY_COLUMNS));
-
+            
             pw.flush();
             agent.getPrinter().startNewLine().print(sw.toString());
         }
     }
-
-
-    @Command(name="indifferent-selection", description="Allows the user to set options relating to "
-            + "selection between operator proposals that are mutually indifferent in preference memory",
-            subcommands={HelpCommand.class})
+    
+    @Command(name = "indifferent-selection", description = "Allows the user to set options relating to "
+            + "selection between operator proposals that are mutually indifferent in preference memory", subcommands = { HelpCommand.class })
     static public class IndifferentSelection implements Runnable
     {
         @ParentCommand
         Decide parent; // injected by picocli
-
-        @Option(names={"-b", "--boltzmann"}, defaultValue="false", description="Sets the exploration policy to 'boltzmann'")
+        
+        @Option(names = { "-b", "--boltzmann" }, defaultValue = "false", description = "Sets the exploration policy to 'boltzmann'")
         boolean boltzmannPolicy;
-
-        @Option(names={"-E", "--epsilon-greedy"}, defaultValue="false", 
-                description="Sets the exploration policy to 'epsilon-greedy'")
+        
+        @Option(names = { "-E", "--epsilon-greedy" }, defaultValue = "false", description = "Sets the exploration policy to 'epsilon-greedy'")
         boolean epsilonGreedyPolicy;
-
-        @Option(names={"-f", "--first"}, defaultValue="false", description="Sets the exploration policy to 'first'")
+        
+        @Option(names = { "-f", "--first" }, defaultValue = "false", description = "Sets the exploration policy to 'first'")
         boolean firstPolicy;
-
-        @Option(names={"-l", "--last"}, defaultValue="false", description="Sets the exploration policy to 'last'")
+        
+        @Option(names = { "-l", "--last" }, defaultValue = "false", description = "Sets the exploration policy to 'last'")
         boolean lastPolicy;
-
-        @Option(names={"-s", "--softmax"}, defaultValue="false",  description="Sets the exploration policy to 'softmax'")
+        
+        @Option(names = { "-s", "--softmax" }, defaultValue = "false", description = "Sets the exploration policy to 'softmax'")
         boolean softmaxPolicy;
-
-        @Option(names={"-e", "--epsilon"}, defaultValue="false", description="Prints or updates the epsilon value")
+        
+        @Option(names = { "-e", "--epsilon" }, defaultValue = "false", description = "Prints or updates the epsilon value")
         boolean epsilon;
-
-        @Option(names={"-t", "--temperature"}, defaultValue="false", description="Prints or updates temperature value")
+        
+        @Option(names = { "-t", "--temperature" }, defaultValue = "false", description = "Prints or updates temperature value")
         boolean temperature;
-
-        @Option(names={"-p", "--reduction-policy"}, description="Prints or updates the "
+        
+        @Option(names = { "-p", "--reduction-policy" }, description = "Prints or updates the "
                 + "reduction policy for the given parameter")
         String reductionPolicyParam;
-
-        @Option(names={"-r", "--reduction-rate"}, description="Prints or updates the "
+        
+        @Option(names = { "-r", "--reduction-rate" }, description = "Prints or updates the "
                 + "reduction rate for the given parameter")
         String reductionRateParam;
-
-        @Option(names={"-a", "--auto-reduce"}, defaultValue="false",
-                description="Prints or toggles automatic policy parameter reduction")
+        
+        @Option(names = { "-a", "--auto-reduce" }, defaultValue = "false", description = "Prints or toggles automatic policy parameter reduction")
         boolean autoReduce;
-
-        @Option(names={"-S", "--stats"}, defaultValue="false", description="Prints summary of decision settings")
+        
+        @Option(names = { "-S", "--stats" }, defaultValue = "false", description = "Prints summary of decision settings")
         boolean printStats;
-
-        @Parameters(index="0", arity="0..1", description="New epsilon/temperature value; or exploration "
+        
+        @Parameters(index = "0", arity = "0..1", description = "New epsilon/temperature value; or exploration "
                 + "parameter reduction policy: 'linear' or 'exponential'; or toggles auto-reduce: "
                 + "'on' or 'off'")
         private String param;
-
-        @Parameters(index="1", arity="0..1", description="New exploration parameter reduction rate")
+        
+        @Parameters(index = "1", arity = "0..1", description = "New exploration parameter reduction rate")
         private Double reductionRate;
-
-
+        
         @Override
         public void run()
         {
             // If the user specified multiple options...
-            if ((boltzmannPolicy ? 1 : 0) + (epsilonGreedyPolicy ? 1 : 0) + (firstPolicy ? 1 : 0)
+            if((boltzmannPolicy ? 1 : 0) + (epsilonGreedyPolicy ? 1 : 0) + (firstPolicy ? 1 : 0)
                     + (lastPolicy ? 1 : 0) + (softmaxPolicy ? 1 : 0) + (epsilon ? 1 : 0)
                     + (temperature ? 1 : 0) + ((reductionPolicyParam != null) ? 1 : 0)
                     + ((reductionRateParam != null) ? 1 : 0) + (autoReduce ? 1 : 0)
@@ -149,29 +145,29 @@ public class DecideCommand extends PicocliSoarCommand
                         + "takes only one option at a time.");
                 return;
             }
-
+            
             // decide indifferent-selection --<policyName>
-            if (boltzmannPolicy || epsilonGreedyPolicy || firstPolicy || lastPolicy || softmaxPolicy)
+            if(boltzmannPolicy || epsilonGreedyPolicy || firstPolicy || lastPolicy || softmaxPolicy)
             {
                 String policyName = "boltzmann";
-                if (epsilonGreedyPolicy)
+                if(epsilonGreedyPolicy)
                 {
                     policyName = "epsilon-greedy";
                 }
-                else if (firstPolicy)
+                else if(firstPolicy)
                 {
                     policyName = "first";
                 }
-                else if (lastPolicy)
+                else if(lastPolicy)
                 {
                     policyName = "last";
                 }
-                else if (softmaxPolicy)
+                else if(softmaxPolicy)
                 {
                     policyName = "softmax";
                 }
-
-                if (parent.exploration.exploration_set_policy(policyName))
+                
+                if(parent.exploration.exploration_set_policy(policyName))
                 {
                     parent.agent.getPrinter().startNewLine().print("Set decide "
                             + "indifferent-selection policy to " + policyName);
@@ -182,18 +178,18 @@ public class DecideCommand extends PicocliSoarCommand
                             + "indifferent-selection policy to " + policyName);
                 }
             }
-
+            
             // decide indifferent-selection --epsilon/--temperature ...
-            else if (epsilon || temperature)
+            else if(epsilon || temperature)
             {
                 String parameterName = "epsilon";
-                if (temperature)
+                if(temperature)
                 {
                     parameterName = "temperature";
                 }
-
+                
                 // decide indifferent-selection --epsilon/--temperature
-                if (param == null)
+                if(param == null)
                 {
                     parent.agent.getPrinter().startNewLine().print(
                             currentParameterValue(parent.exploration, parameterName));
@@ -202,14 +198,14 @@ public class DecideCommand extends PicocliSoarCommand
                 else
                 {
                     Double newValue = null;
-
+                    
                     try
                     {
                         newValue = Double.parseDouble(param);
-
-                        if (parent.exploration.exploration_valid_parameter_value(parameterName, newValue))
+                        
+                        if(parent.exploration.exploration_valid_parameter_value(parameterName, newValue))
                         {
-                            if (parent.exploration.exploration_set_parameter_value(parameterName, newValue))
+                            if(parent.exploration.exploration_set_parameter_value(parameterName, newValue))
                             {
                                 parent.agent.getPrinter().startNewLine().print("Set decide "
                                         + parameterName + " parameter value to " + newValue);
@@ -226,21 +222,21 @@ public class DecideCommand extends PicocliSoarCommand
                                     + "for decide " + parameterName + " parameter value");
                         }
                     }
-                    catch (NumberFormatException e)
+                    catch(NumberFormatException e)
                     {
                         parent.agent.getPrinter().startNewLine().print(String.format(
                                 "%s is not a valid double: %s", param, e.getMessage()));
                     }
                 }
             }
-
+            
             // decide indifferent-selection --reduction-policy epsilon/temperature ...
-            else if (reductionPolicyParam != null)
+            else if(reductionPolicyParam != null)
             {
-                if (parent.exploration.exploration_valid_parameter(reductionPolicyParam))
+                if(parent.exploration.exploration_valid_parameter(reductionPolicyParam))
                 {
                     // decide indifferent-selection --reduction-policy epsilon/temperature
-                    if (param == null)
+                    if(param == null)
                     {
                         parent.agent.getPrinter().startNewLine().print(currentParameterReductionPolicy(
                                 parent.exploration, reductionPolicyParam));
@@ -248,9 +244,9 @@ public class DecideCommand extends PicocliSoarCommand
                     // decide indifferent-selection --reduction-policy epsilon/temperature exponential/linear
                     else
                     {
-                        if (parent.exploration.exploration_set_reduction_policy(reductionPolicyParam, param))
+                        if(parent.exploration.exploration_set_reduction_policy(reductionPolicyParam, param))
                         {
-                            parent.agent.getPrinter().startNewLine().print("Set "+ reductionPolicyParam
+                            parent.agent.getPrinter().startNewLine().print("Set " + reductionPolicyParam
                                     + " reduction policy to " + param);
                         }
                         else
@@ -266,14 +262,14 @@ public class DecideCommand extends PicocliSoarCommand
                             + "parameter name: " + reductionPolicyParam);
                 }
             }
-
+            
             // decide indifferent-selection --reduction-rate epsilon/temperature ...
-            else if (reductionRateParam != null)
+            else if(reductionRateParam != null)
             {
-                if (parent.exploration.exploration_valid_parameter(reductionRateParam))
+                if(parent.exploration.exploration_valid_parameter(reductionRateParam))
                 {
                     // decide indifferent-selection --reduction-rate epsilon/temperature
-                    if (param == null)
+                    if(param == null)
                     {
                         parent.agent.getPrinter().startNewLine().print("Error: exploration "
                                 + "parameter reduction policy must be specified");
@@ -282,11 +278,11 @@ public class DecideCommand extends PicocliSoarCommand
                     // epsilon/temperature exponential/linear ...
                     else
                     {
-                        if (parent.exploration.exploration_valid_reduction_policy(reductionRateParam, param))
+                        if(parent.exploration.exploration_valid_reduction_policy(reductionRateParam, param))
                         {
                             // decide indifferent-selection --reduction-rate
                             // epsilon/temperature exponential/linear
-                            if (reductionRate == null)
+                            if(reductionRate == null)
                             {
                                 parent.agent.getPrinter().startNewLine().print(currentParameterReductionRate(
                                         parent.exploration, reductionRateParam, param));
@@ -295,7 +291,7 @@ public class DecideCommand extends PicocliSoarCommand
                             // epsilon/temperature exponential/linear <newRate>
                             else
                             {
-                                if (parent.exploration.exploration_set_reduction_rate(
+                                if(parent.exploration.exploration_set_reduction_rate(
                                         reductionRateParam, param, reductionRate))
                                 {
                                     parent.agent.getPrinter().startNewLine().print("Set "
@@ -323,22 +319,22 @@ public class DecideCommand extends PicocliSoarCommand
                             + "parameter name: " + reductionRateParam);
                 }
             }
-
+            
             // decide indifferent-selection --auto-reduce ...
-            else if (autoReduce)
+            else if(autoReduce)
             {
-                if (param == null)
+                if(param == null)
                 {
                     parent.agent.getPrinter().startNewLine().print(
                             currentAutoReduceSetting(parent.exploration));
                 }
-                else if (param.equals("on"))
+                else if(param.equals("on"))
                 {
                     parent.exploration.exploration_set_auto_update(true);
                     parent.agent.getPrinter().startNewLine().print("Enabled "
                             + "decide indifferent-selection auto-update");
                 }
-                else if (param.equals("off"))
+                else if(param.equals("off"))
                 {
                     parent.exploration.exploration_set_auto_update(false);
                     parent.agent.getPrinter().startNewLine().print("Disabled "
@@ -350,13 +346,13 @@ public class DecideCommand extends PicocliSoarCommand
                             + "decide indifferent-selection --auto-reduce: " + param);
                 }
             }
-
+            
             // decide indifferent-selection --stats
-            else if (printStats)
+            else if(printStats)
             {
                 final StringWriter sw = new StringWriter();
                 final PrintWriter pw = new PrintWriter(sw);
-
+                
                 pw.printf(currentPolicy(parent.exploration));
                 pw.printf(currentAutoReduceSetting(parent.exploration));
                 pw.printf(currentParameterValue(parent.exploration, "epsilon"));
@@ -367,11 +363,11 @@ public class DecideCommand extends PicocliSoarCommand
                 pw.printf(currentParameterReductionPolicy(parent.exploration, "temperature"));
                 pw.printf(currentParameterReductionRate(parent.exploration, "temperature", "exponential"));
                 pw.printf(currentParameterReductionRate(parent.exploration, "temperature", "linear"));
-
+                
                 pw.flush();
                 parent.agent.getPrinter().startNewLine().print(sw.toString());
             }
-
+            
             // decide indifferent-selection
             else
             {
@@ -379,28 +375,27 @@ public class DecideCommand extends PicocliSoarCommand
             }
         }
     }
-
-    @Command(name="numeric-indifferent-mode", description="Sets how multiple numeric indifferent preference "
-            + "values given to an operator are combined into a single value for use in random selection",
-            subcommands={HelpCommand.class})
+    
+    @Command(name = "numeric-indifferent-mode", description = "Sets how multiple numeric indifferent preference "
+            + "values given to an operator are combined into a single value for use in random selection", subcommands = { HelpCommand.class })
     static public class NumericIndifferentMode implements Runnable
     {
         @ParentCommand
         Decide parent; // injected by picocli
-
-        @Option(names={"-a", "--avg"}, defaultValue="false", description="Combines multiple preference values via an average")
+        
+        @Option(names = { "-a", "--avg" }, defaultValue = "false", description = "Combines multiple preference values via an average")
         boolean average;
-
-        @Option(names={"-s", "--sum"}, defaultValue="false", description="Combines multiple preference values via a sum")
+        
+        @Option(names = { "-s", "--sum" }, defaultValue = "false", description = "Combines multiple preference values via a sum")
         boolean sum;
-
+        
         @Override
         public void run()
         {
             // decide numeric-indifferent-mode --avg
-            if (average)
+            if(average)
             {
-                if (parent.exploration.exploration_set_numeric_indifferent_mode("avg"))
+                if(parent.exploration.exploration_set_numeric_indifferent_mode("avg"))
                 {
                     parent.agent.getPrinter().startNewLine().print("Set decide "
                             + "numeric-indifferent-mode to avg");
@@ -412,9 +407,9 @@ public class DecideCommand extends PicocliSoarCommand
                 }
             }
             // decide numeric-indifferent-mode --sum
-            else if (sum)
+            else if(sum)
             {
-                if (parent.exploration.exploration_set_numeric_indifferent_mode("sum"))
+                if(parent.exploration.exploration_set_numeric_indifferent_mode("sum"))
                 {
                     parent.agent.getPrinter().startNewLine().print("Set decide "
                             + "numeric-indifferent-mode to sum");
@@ -433,43 +428,39 @@ public class DecideCommand extends PicocliSoarCommand
             }
         }
     }
-
-
-    @Command(name="predict", description="Based upon current operator proposals, determines "
-            + "which operator will be chosen during the next decision phase",
-            subcommands={HelpCommand.class})
+    
+    @Command(name = "predict", description = "Based upon current operator proposals, determines "
+            + "which operator will be chosen during the next decision phase", subcommands = { HelpCommand.class })
     static public class Predict implements Runnable
     {
         @ParentCommand
         Decide parent; // injected by picocli
-
+        
         @Override
         public void run()
         {
             parent.agent.getPrinter().startNewLine().print(parent.decisionManipulation.predict_get());
         }
     }
-
-
-    @Command(name="select", description="Forces the selection of an operator whose ID "
-            + "is supplied as an argument during the next decision phase",
-            subcommands={HelpCommand.class})
+    
+    @Command(name = "select", description = "Forces the selection of an operator whose ID "
+            + "is supplied as an argument during the next decision phase", subcommands = { HelpCommand.class })
     static public class Select implements Runnable
     {
         @ParentCommand
         Decide parent; // injected by picocli
-
-        @Parameters(index="0", arity="0..1", description="The operator's identifier")
+        
+        @Parameters(index = "0", arity = "0..1", description = "The operator's identifier")
         private String operatorID;
-
+        
         @Override
         public void run()
         {
             // decide select
-            if (operatorID == null)
+            if(operatorID == null)
             {
                 String my_selection = parent.decisionManipulation.select_get_operator();
-                if (my_selection == null)
+                if(my_selection == null)
                 {
                     parent.agent.getPrinter().startNewLine().print("No operator selected.");
                 }
@@ -487,60 +478,64 @@ public class DecideCommand extends PicocliSoarCommand
             }
         }
     }
-
-
-    @Command(name="set-random-seed", aliases= {"srand"}, description="Seeds the random number generator with the passed seed",
-            subcommands={HelpCommand.class})
+    
+    @Command(name = "set-random-seed", aliases = { "srand" }, description = "Seeds the random number generator with the passed seed", subcommands = { HelpCommand.class })
     static public class SetRandomSeed implements Runnable
     {
         @ParentCommand
         Decide parent; // injected by picocli
-
-        @Parameters(index="0", arity="0..1", description="The seed for the random number generator")
+        
+        @Parameters(index = "0", arity = "0..1", description = "The seed for the random number generator")
         private Long seed;
-
+        
         @Override
         public void run()
         {
-            if (seed == null)
+            if(seed == null)
             {
                 seed = System.nanoTime();
             }
-
+            
             parent.agent.getRandom().setSeed(seed);
             parent.agent.getPrinter().startNewLine().print("Random number generator seed set to " + seed);
         }
     }
-
-    private static String currentNumericIndifferentMode(Exploration exploration) {
+    
+    private static String currentNumericIndifferentMode(Exploration exploration)
+    {
         return PrintHelper.generateItem("Numeric indifference mode:",
                 exploration.exploration_get_numeric_indifferent_mode().getModeName(), DISPLAY_COLUMNS);
     }
-
-    private static String currentPolicy(Exploration exploration) {
+    
+    private static String currentPolicy(Exploration exploration)
+    {
         return PrintHelper.generateItem("Exploration Policy:",
                 exploration.exploration_get_policy().getPolicyName(), DISPLAY_COLUMNS);
     }
-
-    private static String currentParameterValue(Exploration exploration, String name) {
+    
+    private static String currentParameterValue(Exploration exploration, String name)
+    {
         return PrintHelper.generateItem(name.substring(0, 1).toUpperCase() + name.substring(1) + ":",
                 exploration.exploration_get_parameter_value(name), DISPLAY_COLUMNS);
     }
-
-    private static String currentParameterReductionPolicy(Exploration exploration, String name) {
+    
+    private static String currentParameterReductionPolicy(Exploration exploration, String name)
+    {
         return PrintHelper.generateItem(name.substring(0, 1).toUpperCase() + name.substring(1) +
                 " Reduction Policy:", exploration.exploration_get_reduction_policy(name).getPolicyName(),
                 DISPLAY_COLUMNS);
     }
-
-    private static String currentParameterReductionRate(Exploration exploration, String name, String policy) {
+    
+    private static String currentParameterReductionRate(Exploration exploration, String name, String policy)
+    {
         return PrintHelper.generateItem(
                 name.substring(0, 1).toUpperCase() + name.substring(1) + " " +
-                policy.substring(0, 1).toUpperCase() + policy.substring(1) + " Reduction Rate:",
+                        policy.substring(0, 1).toUpperCase() + policy.substring(1) + " Reduction Rate:",
                 exploration.exploration_get_reduction_rate(name, policy), DISPLAY_COLUMNS);
     }
-
-    private static String currentAutoReduceSetting(Exploration exploration) {
+    
+    private static String currentAutoReduceSetting(Exploration exploration)
+    {
         return PrintHelper.generateItem("Automatic Policy Parameter Reduction:",
                 exploration.exploration_get_auto_update() ? "on" : "off", DISPLAY_COLUMNS);
     }

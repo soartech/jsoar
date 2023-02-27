@@ -106,7 +106,7 @@ public class XmlToWmeTools
      * @param converter XML converter to use
      * @param root the root of the XML tree to convert, i.e. a Document or Element
      * @param attr the attribute of the root WME that is created. If {@code null}, then
-     *      the tag name of the root element is used
+     *     the tag name of the root element is used
      * @throws IllegalArgumentException if root is not a Document or Element object
      */
     public static void addXmlInput(final InputOutput io, Node root, final XmlToWme converter, final String attr)
@@ -124,7 +124,7 @@ public class XmlToWmeTools
      * @param converter XML converter to use
      * @param root the root of the XML tree to convert, i.e. a Document or Element
      * @param attr the attribute of the root WME that is created. If {@code null}, then
-     *      the tag name of the root element is used
+     *     the tag name of the root element is used
      * @throws IllegalArgumentException if root is not a Document or Element object
      */
     public static void addXmlInput(final InputWme parent, Node root, final XmlToWme converter, final String attr)
@@ -143,7 +143,7 @@ public class XmlToWmeTools
      * @param converter XML converter to use
      * @param root the root of the XML tree to convert, i.e. a Document or Element
      * @param attr the attribute of the root WME that is created. If {@code null}, then
-     *      the tag name of the root element is used
+     *     the tag name of the root element is used
      * @throws IllegalArgumentException if root is not a Document or Element object
      */
     private static void addXmlInput(final InputOutput io, final Identifier id, Node root, final XmlToWme converter, final String attr)
@@ -162,7 +162,7 @@ public class XmlToWmeTools
             throw new IllegalArgumentException("root must be of type Document or Element, got " + root.getClass());
         }
         
-        SoarEvents.listenForSingleEvent(io.getEvents(), InputEvent.class, 
+        SoarEvents.listenForSingleEvent(io.getEvents(), InputEvent.class,
                 event -> InputWmes.add(io, id, attr != null ? attr : element.getTagName(), converter.fromXml(element)));
     }
 }

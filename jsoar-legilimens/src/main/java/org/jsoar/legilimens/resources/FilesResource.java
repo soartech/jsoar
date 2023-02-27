@@ -7,6 +7,7 @@ package org.jsoar.legilimens.resources;
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -18,22 +19,17 @@ import org.jsoar.util.FileTools;
  */
 public class FilesResource extends BaseAgentResource
 {
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.resources.BaseAgentResource#setTemplateAttributes(java.util.Map)
      */
     @Override
     public void setTemplateAttributes(Map<String, Object> attrs)
     {
         super.setTemplateAttributes(attrs);
-
-        final Set<File> files = new TreeSet<File>(new Comparator<File>()
-        {
-            @Override
-            public int compare(File o1, File o2)
-            {
-                return o1.location.compareTo(o2.location);
-            }
-        });
+        
+        final Set<File> files = new TreeSet<>(Comparator.comparing((File o1) -> o1.location));
         for(Production p : agent.getProductions().getProductions(null))
         {
             files.add(new File(p.getLocation().getFile()));
@@ -49,7 +45,7 @@ public class FilesResource extends BaseAgentResource
         {
             this.location = location;
         }
-
+        
         /**
          * @return the location
          */
@@ -57,48 +53,57 @@ public class FilesResource extends BaseAgentResource
         {
             return location;
         }
-
+        
         public boolean isUrl()
         {
             return FileTools.asUrl(location) != null;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.lang.Object#hashCode()
          */
         @Override
         public int hashCode()
         {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result
-                    + ((location == null) ? 0 : location.hashCode());
-            return result;
+            return Objects.hash(location);
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.lang.Object#equals(java.lang.Object)
          */
         @Override
         public boolean equals(Object obj)
         {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (!(obj instanceof File))
-                return false;
-            File other = (File) obj;
-            if (location == null)
+            if(this == obj)
             {
-                if (other.location != null)
-                    return false;
+                return true;
             }
-            else if (!location.equals(other.location))
+            if(obj == null)
+            {
                 return false;
+            }
+            if(!(obj instanceof File))
+            {
+                return false;
+            }
+            File other = (File) obj;
+            if(location == null)
+            {
+                if(other.location != null)
+                {
+                    return false;
+                }
+            }
+            else if(!location.equals(other.location))
+            {
+                return false;
+            }
             return true;
         }
-        
         
     }
 }

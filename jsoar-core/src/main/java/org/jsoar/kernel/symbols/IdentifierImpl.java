@@ -33,11 +33,12 @@ import com.google.common.collect.Iterators;
  * <ul>
  * <li>did_PE
  * </ul>
+ * 
  * @author ray
  */
 public class IdentifierImpl extends SymbolImpl implements Identifier
 {
-    private final long name_number; // TODO make this a long
+    private final long name_number;
     private final char name_letter;
     
     /**
@@ -56,18 +57,18 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public SymbolImpl variablization; /* used by the chunker */
     
     public GoalIdentifierInfo goalInfo;
-
+    
     // fields used for Soar I/O stuff
     private WmeImpl input_wmes;
-
-    public int depth; /* used to track depth of print (bug 988) RPM 4/07 */
-
-    public /*smem_lti*/ long smem_lti = 0;
-    public /*epmem_time_id*/ long smem_time_id = 0;
-    public /*uint_ptr_t*/ long id_smem_valid = 0;
     
-    public /*epmem_node_id*/ long epmem_id = 0;
-    public /*uint64_t*/ long epmem_valid = 0;
+    public int depth; /* used to track depth of print (bug 988) RPM 4/07 */
+    
+    public /* smem_lti */ long smem_lti = 0;
+    public /* epmem_time_id */ long smem_time_id = 0;
+    public /* uint_ptr_t */ long id_smem_valid = 0;
+    
+    public /* epmem_node_id */ long epmem_id = 0;
+    // public /* uint64_t */ long epmem_valid = 0;
     
     /**
      * @param hash_id
@@ -79,8 +80,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         this.name_letter = name_letter;
         this.name_number = name_number;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.IdSymbol#getNameLetter()
      */
     @Override
@@ -88,8 +91,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         return name_letter;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.Identifier#getNameNumber()
      */
     @Override
@@ -97,8 +102,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         return name_number;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.IdSymbol#getWmes()
      */
     @Override
@@ -108,8 +115,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         // and the WME in each slot
         return Iterators.concat(new WmeIteratorSet(this));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.Identifier#getWmes(java.util.EnumSet)
      */
     @Override
@@ -119,8 +128,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         // and the WME in each slot
         return Iterators.concat(new WmeIteratorSet(this, desired));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Symbol#asIdentifier()
      */
     @Override
@@ -128,9 +139,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         return this;
     }
-
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -138,9 +150,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         return other.asIdentifier() != null;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#getFirstLetter()
      */
     @Override
@@ -149,9 +162,9 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         return name_letter;
     }
     
-    
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.Identifier#isGoal()
      */
     @Override
@@ -159,8 +172,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         return goalInfo != null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.Identifier#isOperator()
      */
     @Override
@@ -168,7 +183,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         return isa_operator != 0;
     }
-
+    
     /**
      * <p>production.cpp:1043:mark_identifier_if_unmarked
      * 
@@ -177,10 +192,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
      */
     private void mark_identifier_if_unmarked(Marker tc, ListHead<IdentifierImpl> id_list)
     {
-        if (tc_number != (tc))
+        if(tc_number != (tc))
         {
             tc_number = (tc);
-            if (id_list != null)
+            if(id_list != null)
             {
                 id_list.push(this);
             }
@@ -253,16 +268,20 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         slot.next = slot.prev = null;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
     public void add_symbol_to_tc(Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
-        mark_identifier_if_unmarked (tc, id_list);
+        mark_identifier_if_unmarked(tc, id_list);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#symbol_is_in_tc(int)
      */
     @Override
@@ -271,7 +290,9 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         return tc_number == tc;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
      */
     @Override
@@ -280,7 +301,9 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         throw new IllegalStateException("Cannot import identifiers");
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericLess(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -289,74 +312,94 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         IdentifierImpl i = other.asIdentifier();
         if(i != null)
         {
-        	if( this.name_letter == i.name_letter) {
-        		return this.name_number < i.name_number;
-        	} else {
-            	return this.name_letter < i.name_letter;
-        	}
+            if(this.name_letter == i.name_letter)
+            {
+                return this.name_number < i.name_number;
+            }
+            else
+            {
+                return this.name_letter < i.name_letter;
+            }
         }
         
         return super.numericLess(other);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericLessOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
     public boolean numericLessOrEqual(SymbolImpl other)
     {
-    	IdentifierImpl i = other.asIdentifier();
+        IdentifierImpl i = other.asIdentifier();
         if(i != null)
         {
-        	if( this.name_letter == i.name_letter) {
-        		return this.name_number <= i.name_number;
-        	} else {
-            	return this.name_letter <= i.name_letter;
-        	}
+            if(this.name_letter == i.name_letter)
+            {
+                return this.name_number <= i.name_number;
+            }
+            else
+            {
+                return this.name_letter <= i.name_letter;
+            }
         }
         
         return super.numericLessOrEqual(other);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreater(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
     public boolean numericGreater(SymbolImpl other)
     {
-    	IdentifierImpl i = other.asIdentifier();
+        IdentifierImpl i = other.asIdentifier();
         if(i != null)
         {
-        	if( this.name_letter == i.name_letter) {
-        		return this.name_number > i.name_number;
-        	} else {
-            	return this.name_letter > i.name_letter;
-        	}
+            if(this.name_letter == i.name_letter)
+            {
+                return this.name_number > i.name_number;
+            }
+            else
+            {
+                return this.name_letter > i.name_letter;
+            }
         }
         
         return super.numericGreater(other);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreaterOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
     public boolean numericGreaterOrEqual(SymbolImpl other)
     {
-    	IdentifierImpl i = other.asIdentifier();
+        IdentifierImpl i = other.asIdentifier();
         if(i != null)
         {
-        	if( this.name_letter == i.name_letter) {
-        		return this.name_number >= i.name_number;
-        	} else {
-            	return this.name_letter >= i.name_letter;
-        	}
+            if(this.name_letter == i.name_letter)
+            {
+                return this.name_number >= i.name_number;
+            }
+            else
+            {
+                return this.name_letter >= i.name_letter;
+            }
         }
         
         return super.numericGreaterOrEqual(other);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -364,17 +407,21 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         return (smem_lti != 0 ? "@" : "") + name_letter + Long.toString(name_number);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        formatter.format((smem_lti != 0 ? "@" : "") + name_letter + Long.toString(name_number));
+        formatter.format("%s%C%d", (smem_lti != 0 ? "@" : ""), name_letter, name_number);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#getAdapter(java.lang.Class)
      */
     @Override
@@ -388,10 +435,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         {
             return goalInfo.gds;
         }
-                
+        
         return super.getAdapter(klass);
     }
-
+    
     private static class WmeIteratorSet implements Iterator<Iterator<Wme>>
     {
         private final IdentifierImpl id;
@@ -406,23 +453,28 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
             this.didInputs = !desired.contains(WmeType.INPUT);
             this.slot = desired.contains(WmeType.NORMAL) ? id.slots : null;
         }
+        
         public WmeIteratorSet(IdentifierImpl id)
         {
             this.id = id;
             this.slot = id.slots;
         }
         
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.util.Iterator#hasNext()
          */
         @Override
         public boolean hasNext()
         {
-            return (!didImpasseWmes &&  id.goalInfo != null && id.goalInfo.getImpasseWmes() != null) || 
-                   (!didInputs && id.getInputWmes() != null) || slot != null;
+            return (!didImpasseWmes && id.goalInfo != null && id.goalInfo.getImpasseWmes() != null) ||
+                    (!didInputs && id.getInputWmes() != null) || slot != null;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.util.Iterator#next()
          */
         @Override
@@ -456,8 +508,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
             slot = slot.next;
             return r;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.util.Iterator#remove()
          */
         @Override

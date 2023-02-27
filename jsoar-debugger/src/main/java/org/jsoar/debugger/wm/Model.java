@@ -33,8 +33,8 @@ class Model
 {
     final Object lock;
     final ThreadedAgent agent;
-    final Map<Object, RootRow> roots = new HashMap<Object, RootRow>();
-    final ArrayList<Row> rows = new ArrayList<Row>();
+    final Map<Object, RootRow> roots = new HashMap<>();
+    final ArrayList<Row> rows = new ArrayList<>();
     final Multimap<Wme, WmeRow.Value> wmeToRowValues = HashMultimap.create();
     long ts = 0;
     
@@ -51,18 +51,25 @@ class Model
     
     public boolean hasRoot(Object id)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             return roots.containsKey(id);
         }
     }
     
-    public boolean isInputLink(Identifier id) { return agent.getInputOutput().getInputLink() == id; }
-    public boolean isOutputLink(Identifier id) { return agent.getInputOutput().getOutputLink() == id; }
+    public boolean isInputLink(Identifier id)
+    {
+        return agent.getInputOutput().getInputLink() == id;
+    }
+    
+    public boolean isOutputLink(Identifier id)
+    {
+        return agent.getInputOutput().getOutputLink() == id;
+    }
     
     public void addRoot(Object id, CompletionHandler<Void> finish)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             if(roots.containsKey(id))
             {
@@ -78,7 +85,7 @@ class Model
     
     public boolean removeRoot(Object id, CompletionHandler<Void> finish)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             final RootRow root = roots.remove(id);
             if(root != null)
@@ -93,7 +100,7 @@ class Model
             return root != null;
         }
     }
-
+    
     private void removeRootRow(final RootRow root, boolean onlyChildren)
     {
         final ListIterator<Row> it = rows.listIterator(onlyChildren ? root.row + 1 : root.row);
@@ -114,7 +121,7 @@ class Model
     
     public void expandRow(WmeRow.Value v, CompletionHandler<Void> finish)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             if(v.expanded)
             {
@@ -156,7 +163,7 @@ class Model
                     followingRow.row = i;
                 }
             }
-
+            
             final Value existingValue = newRow.getValue(wme);
             if(existingValue == null)
             {
@@ -204,7 +211,7 @@ class Model
     {
         final Callable<Void> start = () ->
         {
-            synchronized(lock)
+            synchronized (lock)
             {
                 expandIdInternal(id, parent);
             }
@@ -212,11 +219,10 @@ class Model
         };
         agent.execute(start, finish);
     }
-
     
     private void removeRowAndChildren(WmeRow row)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             final ListIterator<Row> it = rows.listIterator(row.row);
             cleanupRow(row);
@@ -243,7 +249,7 @@ class Model
     
     public void collapseRow(WmeRow.Value value, CompletionHandler<Void> finish)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             if(!value.expanded)
             {
@@ -299,7 +305,7 @@ class Model
     
     public void expandOrCollapseRow(WmeRow row, CompletionHandler<Void> finish)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             boolean expanded = false;
             for(WmeRow.Value v : row.values)
@@ -330,7 +336,7 @@ class Model
     
     private void cleanupRow(Row row)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             final WmeRow wmeRow = row.asWme();
             if(wmeRow != null)
@@ -366,7 +372,7 @@ class Model
     private void updateRemovedWmes()
     {
         // For all removed WMEs, remove corresponding rows and sub-rows
-        final Set<Wme> removedWmes = new HashSet<Wme>();
+        final Set<Wme> removedWmes = new HashSet<>();
         for(Wme wme : wmeToRowValues.keys())
         {
             if(!agent.getAgent().isWmeInRete(wme))
@@ -410,7 +416,7 @@ class Model
         // For each remaining WME if it's value is an id and it's marked
         // as expanded, re-request the sub-wmes and add any new ones that
         // are missing from the tree.
-        final Set<Wme> currentWmes = new HashSet<Wme>(wmeToRowValues.keys());
+        final Set<Wme> currentWmes = new HashSet<>(wmeToRowValues.keys());
         for(Wme wme : currentWmes)
         {
             final Identifier valueId = wme.getValue().asIdentifier();
@@ -433,7 +439,7 @@ class Model
     {
         final Callable<Void> begin = () ->
         {
-            synchronized(lock)
+            synchronized (lock)
             {
                 ts++;
                 updateRemovedWmes();
@@ -442,7 +448,7 @@ class Model
             return null;
         };
         agent.execute(begin, finish);
-    }    
+    }
     
     private boolean rowIndexesAreValid()
     {
@@ -475,12 +481,14 @@ class Model
     
     private CompletionHandler<Void> timeIncrementCompletionHandler(final CompletionHandler<Void> inner)
     {
-        return new CompletionHandler<Void>() {
+        return new CompletionHandler<>()
+        {
             @Override
             public void finish(Void result)
             {
                 ts++;
-                if(inner != null) {
+                if(inner != null)
+                {
                     inner.finish(result);
                 }
             }

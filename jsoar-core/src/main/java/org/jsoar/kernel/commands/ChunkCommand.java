@@ -10,6 +10,7 @@ import picocli.CommandLine.Option;
 
 /**
  * This is the implementation of the "chunk" command.
+ * 
  * @author austin.brehob
  */
 public class ChunkCommand extends PicocliSoarCommand
@@ -20,8 +21,7 @@ public class ChunkCommand extends PicocliSoarCommand
         super(agent, new Chunk(agent));
     }
     
-    @Command(name="chunk", description="Prints or adjusts Soar's ability to learn new rules",
-            subcommands={HelpCommand.class})
+    @Command(name = "chunk", description = "Prints or adjusts Soar's ability to learn new rules", subcommands = { HelpCommand.class })
     static public class Chunk implements Runnable
     {
         private Agent agent;
@@ -31,25 +31,21 @@ public class ChunkCommand extends PicocliSoarCommand
             this.agent = agent;
         }
         
-        @Option(names={"on", "-e", "--on", "--enable"},
-                defaultValue="false",
-                description="Enables chunking")
+        @Option(names = { "on", "-e", "--on", "--enable" }, defaultValue = "false", description = "Enables chunking")
         boolean enable;
-
-        @Option(names={"off", "-d", "--off", "--disable"},
-                defaultValue="false",
-                description="Disables chunking")
+        
+        @Option(names = { "off", "-d", "--off", "--disable" }, defaultValue = "false", description = "Disables chunking")
         boolean disable;
         
         @Override
         public void run()
         {
-            if (!enable && !disable)
+            if(!enable && !disable)
             {
                 agent.getPrinter().startNewLine().print("The current chunk setting is: " +
                         (agent.getProperties().get(SoarProperties.LEARNING_ON) ? "enabled" : "disabled"));
             }
-            else if (enable)
+            else if(enable)
             {
                 agent.getProperties().set(SoarProperties.LEARNING_ON, true);
             }

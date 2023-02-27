@@ -5,13 +5,13 @@
  */
 package org.jsoar.util.events;
 
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -20,14 +20,14 @@ public class SoarEventsTest
 {
     private static class TestEvent implements SoarEvent
     {
-    };
+    }
     
     @Test
-    public void testListenForSingleEvent()
+    void testListenForSingleEvent()
     {
-        final List<TestEvent> caughtEvents = new ArrayList<TestEvent>();
+        final List<TestEvent> caughtEvents = new ArrayList<>();
         final SoarEventManager manager = new SoarEventManager();
-        SoarEvents.listenForSingleEvent(manager, TestEvent.class, event -> caughtEvents.add((TestEvent) event)); 
+        SoarEvents.listenForSingleEvent(manager, TestEvent.class, event -> caughtEvents.add((TestEvent) event));
         
         assertEquals(0, caughtEvents.size());
         

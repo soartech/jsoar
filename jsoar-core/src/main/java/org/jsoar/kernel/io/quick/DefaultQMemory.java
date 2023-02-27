@@ -23,13 +23,13 @@ public class DefaultQMemory implements QMemory
 {
     /**
      * A fairly arbitrary limit to the depth that we'll search when building up
-     * a QMemory for a particular id.  Simple way to avoid going around loops
+     * a QMemory for a particular id. Simple way to avoid going around loops
      * and causing a stack overflow without a bunch of "visited" book-keeping.
      */
     static final int MAX_DEPTH = 20;
     
-    private Map<String, MemoryNode> memory = new HashMap<String, MemoryNode>();
-    private List<QMemoryListener> listeners = new CopyOnWriteArrayList<QMemoryListener>();
+    private Map<String, MemoryNode> memory = new HashMap<>();
+    private List<QMemoryListener> listeners = new CopyOnWriteArrayList<>();
     
     /**
      * @return A new empty QMemory
@@ -66,15 +66,15 @@ public class DefaultQMemory implements QMemory
             
             String childPath = e.getAttribute().toString();
             
-            if (path != null && path.length() > 0)
+            if(path != null && path.length() > 0)
             {
                 childPath = path + "." + childPath;
             }
             
-            if (struct.hasPath(childPath))
+            if(struct.hasPath(childPath))
             {
                 int ix = 0;
-                while (struct.hasPath(childPath + "[" + ix + "]"))
+                while(struct.hasPath(childPath + "[" + ix + "]"))
                 {
                     ++ix;
                 }
@@ -85,7 +85,7 @@ public class DefaultQMemory implements QMemory
             
             struct.setNode(childPath, childNode);
             
-            if (!childNode.isLeaf())
+            if(!childNode.isLeaf())
             {
                 Identifier childId = e.getValue().asIdentifier();
                 assert (childId != null);
@@ -100,15 +100,19 @@ public class DefaultQMemory implements QMemory
     {
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#hasPath(java.lang.String)
      */
     public synchronized boolean hasPath(String path)
     {
         return memory.containsKey(path);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#getDouble(java.lang.String)
      */
     public synchronized double getDouble(String path)
@@ -117,7 +121,9 @@ public class DefaultQMemory implements QMemory
         return node != null ? node.getDoubleValue() : 0.0;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#getInteger(java.lang.String)
      */
     public synchronized long getInteger(String path)
@@ -126,7 +132,9 @@ public class DefaultQMemory implements QMemory
         return node != null ? node.getIntValue() : 0;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#getString(java.lang.String)
      */
     public synchronized String getString(String path)
@@ -135,17 +143,19 @@ public class DefaultQMemory implements QMemory
         return node != null ? node.getStringValue() : "";
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#getPaths()
      */
     public synchronized Set<String> getPaths()
     {
-        return new HashSet<String>(memory.keySet());
+        return new HashSet<>(memory.keySet());
     }
     
     synchronized Set<String> getPaths(String prefix, boolean strip)
     {
-        Set<String> paths = new HashSet<String>();
+        Set<String> paths = new HashSet<>();
         for(String path : memory.keySet())
         {
             if(path.startsWith(prefix))
@@ -163,7 +173,9 @@ public class DefaultQMemory implements QMemory
         return paths;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#subMemory(java.lang.String)
      */
     @Override
@@ -172,7 +184,9 @@ public class DefaultQMemory implements QMemory
         return new SubQMemory(this, prefix);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#setDouble(java.lang.String, double)
      */
     public synchronized void setDouble(String path, double doubleVal)
@@ -182,16 +196,20 @@ public class DefaultQMemory implements QMemory
             fireChangeEvent();
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#setInteger(java.lang.String, int)
      */
     public synchronized void setInteger(String path, int intVal)
     {
-        setInteger(path, (long)intVal);
+        setInteger(path, (long) intVal);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#setInteger(java.lang.String, int)
      */
     public synchronized void setInteger(String path, long longVal)
@@ -201,8 +219,10 @@ public class DefaultQMemory implements QMemory
             fireChangeEvent();
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#setString(java.lang.String, java.lang.String)
      */
     public synchronized void setString(String path, String strVal)
@@ -212,8 +232,10 @@ public class DefaultQMemory implements QMemory
             fireChangeEvent();
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#clear(java.lang.String)
      */
     public synchronized void clear(String path)
@@ -221,8 +243,10 @@ public class DefaultQMemory implements QMemory
         getNode(path).clearValue();
         fireChangeEvent();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#remove(java.lang.String)
      */
     public synchronized void remove(String path)
@@ -230,8 +254,10 @@ public class DefaultQMemory implements QMemory
         removeNode(path);
         fireChangeEvent();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#addListener(org.jsoar.kernel.io.quick.QMemoryListener)
      */
     @Override
@@ -239,8 +265,10 @@ public class DefaultQMemory implements QMemory
     {
         listeners.add(listener);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#removeListener(org.jsoar.kernel.io.quick.QMemoryListener)
      */
     @Override
@@ -248,7 +276,7 @@ public class DefaultQMemory implements QMemory
     {
         listeners.remove(listener);
     }
-
+    
     private void fireChangeEvent()
     {
         for(QMemoryListener listener : listeners)
@@ -265,7 +293,7 @@ public class DefaultQMemory implements QMemory
     MemoryNode getNode(String path)
     {
         MemoryNode node = memory.get(path);
-        if (node == null)
+        if(node == null)
         {
             node = new MemoryNode();
             memory.put(path, node);
@@ -284,8 +312,8 @@ public class DefaultQMemory implements QMemory
             String fullPath = it.next();
             if(fullPath.startsWith(path))
             {
-                if(fullPath.length() == path.length() || 
-                   (fullPath.length() > path.length() && fullPath.charAt(path.length()) == '.'))
+                if(fullPath.length() == path.length() ||
+                        (fullPath.length() > path.length() && fullPath.charAt(path.length()) == '.'))
                 {
                     it.remove();
                 }
@@ -293,4 +321,3 @@ public class DefaultQMemory implements QMemory
         }
     }
 }
-

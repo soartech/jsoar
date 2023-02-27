@@ -24,7 +24,7 @@ public class CommandsResource extends BaseAgentResource
     public CommandsResource()
     {
     }
-
+    
     @Post()
     public void postTextCommand(Representation entity)
     {
@@ -44,7 +44,7 @@ public class CommandsResource extends BaseAgentResource
                     printer.startNewLine().print(result).flush();
                 }
             }
-            catch (SoarException e)
+            catch(SoarException e)
             {
                 printer.startNewLine().error(e.getMessage()).flush();
                 throw e;
@@ -54,6 +54,6 @@ public class CommandsResource extends BaseAgentResource
         };
         
         executeCallable(callable);
-        //getResponse().redirectSeeOther(getReferrerRef());
+        // getResponse().redirectSeeOther(getReferrerRef());
     }
 }

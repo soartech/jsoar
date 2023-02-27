@@ -17,7 +17,10 @@ import org.jsoar.kernel.memory.Wme;
  */
 public interface MatchSetEntry
 {
-    public static enum EntryType { O_ASSERTION, I_ASSERTION, RETRACTION }
+    public enum EntryType
+    {
+        O_ASSERTION, I_ASSERTION, RETRACTION
+    }
     
     /**
      * @return type of match
@@ -30,7 +33,7 @@ public interface MatchSetEntry
     Production getProduction();
     
     /**
-     * Returns an immutable list of WMEs associated with this match set. It is 
+     * Returns an immutable list of WMEs associated with this match set. It is
      * the list of WMEs that caused the rule to match.
      * 
      * @return immutable list of WMEs

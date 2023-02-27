@@ -21,10 +21,15 @@ public class DefaultWmeTableModel extends AbstractTableModel
 {
     private static final long serialVersionUID = -8187445208277014970L;
     
-    public static enum Columns {
+    public enum Columns
+    {
         Id(Identifier.class), Attr(Symbol.class), Value(Symbol.class), Timetag(Integer.class), Acceptable(String.class);
         
-        Columns(Class<?> type) { this.type = type; }
+        Columns(Class<?> type)
+        {
+            this.type = type;
+        }
+        
         private final Class<?> type;
     }
     
@@ -52,8 +57,10 @@ public class DefaultWmeTableModel extends AbstractTableModel
         }
         fireTableDataChanged();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
      */
     @Override
@@ -61,7 +68,10 @@ public class DefaultWmeTableModel extends AbstractTableModel
     {
         return Columns.values()[columnIndex].type;
     }
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.AbstractTableModel#getColumnName(int)
      */
     @Override
@@ -69,7 +79,10 @@ public class DefaultWmeTableModel extends AbstractTableModel
     {
         return Columns.values()[column].name();
     }
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.TableModel#getColumnCount()
      */
     @Override
@@ -77,7 +90,10 @@ public class DefaultWmeTableModel extends AbstractTableModel
     {
         return Columns.values().length;
     }
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.TableModel#getRowCount()
      */
     @Override
@@ -85,7 +101,10 @@ public class DefaultWmeTableModel extends AbstractTableModel
     {
         return wmes.size();
     }
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
     @Override
@@ -94,14 +113,18 @@ public class DefaultWmeTableModel extends AbstractTableModel
         Wme w = wmes.get(r);
         switch(c)
         {
-        case 0: return w.getIdentifier();
-        case 1: return w.getAttribute();
-        case 2: return w.getValue();
-        case 3: return w.getTimetag();
-        case 4: return w.isAcceptable() ? "+" : "";
+        case 0:
+            return w.getIdentifier();
+        case 1:
+            return w.getAttribute();
+        case 2:
+            return w.getValue();
+        case 3:
+            return w.getTimetag();
+        case 4:
+            return w.isAcceptable() ? "+" : "";
         }
         return null;
     }
-
     
 }

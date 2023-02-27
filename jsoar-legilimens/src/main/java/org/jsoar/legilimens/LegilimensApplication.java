@@ -37,15 +37,15 @@ import freemarker.template.Configuration;
  */
 public class LegilimensApplication extends Application
 {
-    private static final Logger logger = LoggerFactory.getLogger(LegilimensApplication.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(LegilimensApplication.class);
+    
     private final Configuration fmc = new Configuration(Configuration.VERSION_2_3_28);
     private final SoarEventListener attachListener = event -> agentAttached(((ThreadedAgentAttachedEvent) event).getAgent());
     private final SoarEventListener detachListener = event -> agentDetached(((ThreadedAgentDetachedEvent) event).getAgent());
     
     public LegilimensApplication()
     {
-        logger.info("Legilimens application constructed");
+        LOG.info("Legilimens application constructed");
         
         fmc.setURLEscapingCharset("UTF-8");
         fmc.setClassForTemplateLoading(getClass(), "/org/jsoar/legilimens/templates");
@@ -77,13 +77,15 @@ public class LegilimensApplication extends Application
         }
         return null;
     }
-
+    
     public Configuration getFreeMarker()
     {
         return fmc;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.restlet.Application#createInboundRoot()
      */
     @Override
@@ -111,35 +113,35 @@ public class LegilimensApplication extends Application
     
     private static void attachPublicResource(Router router, String name)
     {
-        router.attach(name, new Directory(router.getContext(), 
+        router.attach(name, new Directory(router.getContext(),
                 LocalReference.createClapReference(LocalReference.CLAP_THREAD, "/org/jsoar/legilimens/public" + name)));
     }
     
     protected void agentAttached(ThreadedAgent agent)
     {
-        logger.info("Attaching to agent '" + agent + "' (agent's name may not be accurate if it isn't set yet)");
+        LOG.info("Attaching to agent '{}' (agent's name may not be accurate if it isn't set yet)", agent);
         try
         {
             AgentTraceBuffer.attach(agent.getAgent());
         }
-        catch (IOException e)
+        catch(IOException e)
         {
-            logger.error("Failed to attach trace buffer to agent '" + agent + "': " + e.getMessage(), e);
+            LOG.error("Failed to attach trace buffer to agent '{}'", agent, e);
         }
     }
-
+    
     protected void agentDetached(ThreadedAgent agent)
     {
-        logger.info("Detaching from agent '" + agent + "'");
+        LOG.info("Detaching from agent '{}'", agent);
         final AgentTraceBuffer traceBuffer = agent.getProperties().get(AgentTraceBuffer.KEY);
         try
         {
             traceBuffer.detach();
         }
-        catch (IOException e)
+        catch(IOException e)
         {
-            logger.error("Failed to detach trace buffer from agent '" + agent + "': " + e.getMessage(), e);
+            LOG.error("Failed to detach trace buffer from agent '{}'", agent, e);
         }
     }
-
+    
 }

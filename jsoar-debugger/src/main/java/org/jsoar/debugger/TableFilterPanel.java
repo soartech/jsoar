@@ -7,10 +7,15 @@ package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.util.regex.PatternSyntaxException;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -49,25 +54,27 @@ public class TableFilterPanel extends JPanel
         this.table.setRowSorter(sorter);
         
         // Listen for changes to the text field
-        field.getDocument().addDocumentListener(new DocumentListener() {
-
+        field.getDocument().addDocumentListener(new DocumentListener()
+        {
+            
             @Override
             public void changedUpdate(DocumentEvent e)
             {
                 update();
             }
-
+            
             @Override
             public void insertUpdate(DocumentEvent e)
             {
                 update();
             }
-
+            
             @Override
             public void removeUpdate(DocumentEvent e)
             {
                 update();
-            }});
+            }
+        });
         checkRegex.addChangeListener(new ChangeListener()
         {
             @Override
@@ -76,24 +83,27 @@ public class TableFilterPanel extends JPanel
                 setPrompt();
             }
         });
-
+        
         add(new JLabel("Filter: "), BorderLayout.WEST);
         add(field, BorderLayout.CENTER);
         add(checkRegex, BorderLayout.SOUTH);
-
+        
         setPrompt();
     }
-
+    
     public void setPrompt()
     {
-        if (checkRegex.isSelected()) {
+        if(checkRegex.isSelected())
+        {
             PromptSupport.setPrompt("Enter a regex...", field);
-        } else {
+        }
+        else
+        {
             PromptSupport.setPrompt("Enter a string...", field);
         }
         update();
     }
-
+    
     private void update()
     {
         try
@@ -106,14 +116,17 @@ public class TableFilterPanel extends JPanel
             }
             else
             {
-                if (checkRegex.isSelected()) {
+                if(checkRegex.isSelected())
+                {
                     sorter.setRowFilter(RowFilter.regexFilter(patternText, column));
-                } else {
+                }
+                else
+                {
                     sorter.setRowFilter(RowFilters.regexFilter(Pattern.CASE_INSENSITIVE, Pattern.quote(patternText), column));
                 }
             }
         }
-        catch (PatternSyntaxException e)
+        catch(PatternSyntaxException e)
         {
             field.setBackground(badBackground);
         }

@@ -5,38 +5,39 @@
  */
 package org.jsoar.kernel;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
 import org.jsoar.kernel.ProductionFinder.Options;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class ProductionFinderTest
+class ProductionFinderTest
 {
     private Agent agent;
     
     /**
      * @throws java.lang.Exception
      */
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         this.agent = new Agent();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown() throws Exception
     {
         this.agent.dispose();
     }
@@ -45,12 +46,12 @@ public class ProductionFinderTest
     {
         final String path = "/" + ProductionFinderTest.class.getCanonicalName().replace('.', '/') + "_" + testName + ".soar";
         final URL url = ProductionFinderTest.class.getResource(path);
-        assertNotNull("Could not location resource: " + path, url);
+        assertNotNull(url, "Could not location resource: " + path);
         agent.getInterpreter().source(url);
     }
     
     @Test
-    public void testLeftHandSide() throws Exception
+    void testLeftHandSide() throws Exception
     {
         loadFile("testLeftHandSide");
         
@@ -67,9 +68,9 @@ public class ProductionFinderTest
         assertEquals(2, finder.find("(<s> ^contacts <c>)(<c> ^contact)", agent.getProductions().getProductions(null)).size());
         assertTrue(finder.find("(<s> ^name foo)", agent.getProductions().getProductions(null)).isEmpty());
     }
-
+    
     @Test
-    public void testRightHandSide() throws Exception
+    void testRightHandSide() throws Exception
     {
         loadFile("testRightHandSide");
         
@@ -86,6 +87,5 @@ public class ProductionFinderTest
         assertEquals(2, finder.find("(<s> ^contacts <cs>)(<cs> ^contact <c>)", agent.getProductions().getProductions(null)).size());
         assertTrue(finder.find("(<s> ^name foo)", agent.getProductions().getProductions(null)).isEmpty());
     }
-
     
 }

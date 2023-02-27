@@ -42,7 +42,7 @@ public class JdbcTools
         {
             Class.forName(klass);
         }
-        catch (ClassNotFoundException e)
+        catch(ClassNotFoundException e)
         {
             throw new SoarException("Failed to load database driver class: " + e.getMessage(), e);
         }
@@ -51,7 +51,7 @@ public class JdbcTools
         {
             return DriverManager.getConnection(jdbcUrl);
         }
-        catch (SQLException e)
+        catch(SQLException e)
         {
             throw new SoarException("Failed to connect to database '" + jdbcUrl + "': " + e.getMessage(), e);
         }
@@ -76,9 +76,9 @@ public class JdbcTools
     /**
      * Execute SQL statements from an input stream.
      * 
-     * <p>One statement per line is expected. Blank lines and lines that start 
+     * <p>One statement per line is expected. Blank lines and lines that start
      * with {@code #} are ignored.
-     *  
+     * 
      * @param db the database connection
      * @param is the input stream
      * @throws SoarException
@@ -86,7 +86,8 @@ public class JdbcTools
      */
     public static void executeSql(Connection db, InputStream is, String driverFilter) throws SoarException, IOException
     {
-        try(final BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(is)))
+        {
             String line = reader.readLine();
             while(line != null)
             {
@@ -96,7 +97,7 @@ public class JdbcTools
                     line = filterLine(driverFilter, line);
                     if(line != null)
                     {
-                        try(final Statement s = db.createStatement())
+                        try(Statement s = db.createStatement())
                         {
                             s.execute(line);
                         }
@@ -106,17 +107,18 @@ public class JdbcTools
                 line = reader.readLine();
             }
         }
-        catch (SQLException e)
+        catch(SQLException e)
         {
             throw new SoarException("Sql error: " + e.getMessage(), e);
         }
-    }    
+    }
+    
     /**
      * Execute SQL statements from an input stream.
      * 
-     * <p>One statement per line is expected. Blank lines and lines that start 
+     * <p>One statement per line is expected. Blank lines and lines that start
      * with {@code #} are ignored.
-     *  
+     * 
      * @param db the database connection
      * @param is the input stream
      * @throws SoarException
@@ -124,7 +126,8 @@ public class JdbcTools
      */
     public static void executeSqlBatch(Connection db, InputStream is, String driverFilter) throws SoarException, IOException
     {
-        try(final Statement s = db.createStatement(); final BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+        try(Statement s = db.createStatement(); BufferedReader reader = new BufferedReader(new InputStreamReader(is)))
+        {
             String line = reader.readLine();
             while(line != null)
             {
@@ -144,11 +147,11 @@ public class JdbcTools
             s.executeBatch();
             db.setAutoCommit(true);
         }
-        catch (SQLException e)
+        catch(SQLException e)
         {
             throw new SoarException("Sql error: " + e.getMessage(), e);
         }
-
+        
     }
     
     /**
@@ -162,7 +165,7 @@ public class JdbcTools
     {
         s.executeUpdate();
         
-        try(final ResultSet keySet = s.getGeneratedKeys())
+        try(ResultSet keySet = s.getGeneratedKeys())
         {
             if(keySet.next())
             {
@@ -184,7 +187,7 @@ public class JdbcTools
      */
     public static boolean queryHasResults(PreparedStatement s) throws SQLException
     {
-        try(final ResultSet rs = s.executeQuery())
+        try(ResultSet rs = s.executeQuery())
         {
             return rs.next();
         }
@@ -200,7 +203,7 @@ public class JdbcTools
      */
     public static boolean tableExists(Connection db, String table) throws SQLException
     {
-        try(final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"TABLE"}))
+        try(ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] { "TABLE" }))
         {
             while(rs.next())
             {

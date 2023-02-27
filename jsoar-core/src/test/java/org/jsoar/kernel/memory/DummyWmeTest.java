@@ -5,31 +5,32 @@
  */
 package org.jsoar.kernel.memory;
 
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class DummyWmeTest
+class DummyWmeTest
 {
     private SymbolFactory syms;
-
-    @Before
-    public void setUp() throws Exception
+    
+    @BeforeEach
+    void setUp() throws Exception
     {
         syms = new SymbolFactoryImpl();
     }
-
+    
     @Test
-    public void testGetIdentiferAttrAndValue()
+    void testGetIdentiferAttrAndValue()
     {
         final Identifier id = syms.createIdentifier('T');
         final Symbol attr = syms.createString("attr");
@@ -42,7 +43,7 @@ public class DummyWmeTest
     }
     
     @Test
-    public void testGetTimetagAlwaysReturnsMinusOne()
+    void testGetTimetagAlwaysReturnsMinusOne()
     {
         final Identifier id = syms.createIdentifier('T');
         final Symbol attr = syms.createString("attr");
@@ -53,7 +54,7 @@ public class DummyWmeTest
     }
     
     @Test
-    public void testGetPreferencesAlwaysReturnsAnEmptyIterator()
+    void testGetPreferencesAlwaysReturnsAnEmptyIterator()
     {
         final Identifier id = syms.createIdentifier('T');
         final Symbol attr = syms.createString("attr");
@@ -64,7 +65,7 @@ public class DummyWmeTest
     }
     
     @Test
-    public void testIsAcceptableAlwaysReturnsFalse()
+    void testIsAcceptableAlwaysReturnsFalse()
     {
         final Identifier id = syms.createIdentifier('T');
         final Symbol attr = syms.createString("attr");
@@ -75,7 +76,7 @@ public class DummyWmeTest
     }
     
     @Test
-    public void testAlternateFormatTo()
+    void testAlternateFormatTo()
     {
         final Identifier id = syms.createIdentifier('T');
         final Symbol attr = syms.createString("attr");
@@ -86,7 +87,7 @@ public class DummyWmeTest
     }
     
     @Test
-    public void testFormatTo()
+    void testFormatTo()
     {
         final Identifier id = syms.createIdentifier('T');
         final Symbol attr = syms.createString("attr");

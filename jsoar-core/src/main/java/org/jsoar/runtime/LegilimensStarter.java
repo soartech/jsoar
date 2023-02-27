@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
  */
 public class LegilimensStarter
 {
-    private static final Logger logger = LoggerFactory.getLogger(LegilimensStarter.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(LegilimensStarter.class);
+    
     public static final String AUTO_START_PROPERTY = "jsoar.legilimens.autoStart";
     
     /**
@@ -33,11 +33,12 @@ public class LegilimensStarter
     public static void startIfAutoStartEnabled()
     {
         final String property = System.getProperty(AUTO_START_PROPERTY, "false");
-        if(Boolean.valueOf(property))
+        if(Boolean.parseBoolean(property))
         {
             start();
         }
     }
+    
     /**
      * If Legilimens is available (it's on the classpath), start it. Otherwise,
      * print a warning and do nothing. If any errors occur, they are logged and
@@ -45,7 +46,7 @@ public class LegilimensStarter
      */
     public static void start()
     {
-        logger.info("Attempting to start Legilimens server, if available");
+        LOG.info("Attempting to start Legilimens server, if available");
         
         final Class<?> serverClass = getServerClass();
         if(serverClass == null)
@@ -63,17 +64,17 @@ public class LegilimensStarter
         {
             startMethod.invoke(null);
         }
-        catch (IllegalArgumentException e)
+        catch(IllegalArgumentException e)
         {
-            logger.warn("Failed to start Legilimens: " + e.getMessage(), e);
+            LOG.warn("Failed to start Legilimens: " + e.getMessage(), e);
         }
-        catch (IllegalAccessException e)
+        catch(IllegalAccessException e)
         {
-            logger.warn("Failed to start Legilimens: " + e.getMessage(), e);
+            LOG.warn("Failed to start Legilimens: " + e.getMessage(), e);
         }
-        catch (InvocationTargetException e)
+        catch(InvocationTargetException e)
         {
-            logger.warn("Failed to start Legilimens: " + e.getMessage(), e);
+            LOG.warn("Failed to start Legilimens: " + e.getMessage(), e);
         }
     }
     
@@ -83,9 +84,9 @@ public class LegilimensStarter
         {
             return Class.forName("org.jsoar.legilimens.LegilimensServer");
         }
-        catch (ClassNotFoundException e)
+        catch(ClassNotFoundException e)
         {
-            logger.warn("Could not locate LegilimensServer class.");
+            LOG.warn("Could not locate LegilimensServer class.");
             return null;
         }
     }
@@ -96,14 +97,14 @@ public class LegilimensStarter
         {
             return serverClass.getMethod("start");
         }
-        catch (SecurityException e)
+        catch(SecurityException e)
         {
-            logger.warn("Could not find start() method on LegilimensServer class: " + e.getMessage());
+            LOG.warn("Could not find start() method on LegilimensServer class", e);
             return null;
         }
-        catch (NoSuchMethodException e)
+        catch(NoSuchMethodException e)
         {
-            logger.warn("Could not find start() method on LegilimensServer class: " + e.getMessage());
+            LOG.warn("Could not find start() method on LegilimensServer class", e);
             return null;
         }
     }

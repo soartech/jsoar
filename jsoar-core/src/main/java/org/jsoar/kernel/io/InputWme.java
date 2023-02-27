@@ -10,18 +10,18 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
- * Interface for an input working memory element. 
+ * Interface for an input working memory element.
  * 
  * <p>InputWmes are created with the {@link InputOutput#addInputWme(org.jsoar.kernel.symbols.Identifier, Symbol, Symbol)}
- * method. Unlike a normal {@link Wme}, an InputWme's value may change through 
- * the {@link #update(Symbol)} method. 
+ * method. Unlike a normal {@link Wme}, an InputWme's value may change through
+ * the {@link #update(Symbol)} method.
  * 
  * <p>Like a normal Wme, the symbols returned by {@link Wme#getIdentifier()} and
  * {@link Wme#getAttribute()} will never change. However, if {@link #update(Symbol)}
  * is called the values returned by {@link Wme#getValue()} and {@link Wme#getTimetag()}
  * may change.
  * 
- * <p>Note that an InputWme is not a normal Wme and you shouldn't expect casts 
+ * <p>Note that an InputWme is not a normal Wme and you shouldn't expect casts
  * from one to the other to work. Use adapters to correctly convert from a raw
  * Wme to an InputWme:
  * 
@@ -30,7 +30,7 @@ import org.jsoar.kernel.symbols.Symbol;
  *    if(iw != null)
  *    {
  *       // It's an input Wme!
- *    }
+ * }
  * }</pre>
  * 
  * @see InputWmes

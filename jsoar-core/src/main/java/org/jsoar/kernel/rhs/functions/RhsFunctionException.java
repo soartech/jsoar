@@ -11,7 +11,7 @@ package org.jsoar.kernel.rhs.functions;
 public class RhsFunctionException extends Exception
 {
     private static final long serialVersionUID = 1L;
-
+    
     /**
      * @param message
      */
@@ -19,7 +19,7 @@ public class RhsFunctionException extends Exception
     {
         super(message);
     }
-
+    
     /**
      * @param message
      * @param cause
@@ -28,5 +28,5 @@ public class RhsFunctionException extends Exception
     {
         super(message, cause);
     }
-
+    
 }

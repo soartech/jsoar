@@ -14,7 +14,7 @@ import org.jsoar.kernel.symbols.Symbol;
 /**
  * Implementation of (min) RHS function. This is a JSoar-specific function.
  * 
- * <p>This function takes one or more numeric arguments and returns the minimum 
+ * <p>This function takes one or more numeric arguments and returns the minimum
  * value. In the case of mixed int/double arguments, the type of the minimum
  * argument is preserved.
  * 
@@ -33,8 +33,10 @@ public class Min extends AbstractRhsFunctionHandler
     {
         super("min", 1, Integer.MAX_VALUE);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -84,5 +86,5 @@ public class Min extends AbstractRhsFunctionHandler
         }
         return useDouble ? context.getSymbols().createDouble(minDouble) : context.getSymbols().createInteger(minInt);
     }
-
+    
 }

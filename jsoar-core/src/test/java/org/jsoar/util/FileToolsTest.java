@@ -5,21 +5,21 @@
  */
 package org.jsoar.util;
 
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.net.URL;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
 public class FileToolsTest
 {
-
+    
     @Test
-    public void testAsUrl() throws Exception
+    void testAsUrl() throws Exception
     {
         URL url = FileTools.asUrl("http://www.google.com");
         assertEquals("http://www.google.com", url.toExternalForm());
@@ -27,7 +27,7 @@ public class FileToolsTest
     }
     
     @Test
-    public void testReplaceIllegalChars()
+    void testReplaceIllegalChars()
     {
         assertEquals("eye _ ball", FileTools.replaceIllegalCharacters("eye ? ball", "_"));
         assertEquals("__", FileTools.replaceIllegalCharacters("*?", "_"));
@@ -42,31 +42,31 @@ public class FileToolsTest
     }
     
     @Test
-    public void testCanGetSimpleExtension()
+    void testCanGetSimpleExtension()
     {
         assertEquals("txt", FileTools.getExtension("foo.txt"));
     }
     
     @Test
-    public void testReturnsEmptyStringWhenFileNameEndsWithADot()
+    void testReturnsEmptyStringWhenFileNameEndsWithADot()
     {
         assertEquals("", FileTools.getExtension("foo."));
     }
     
     @Test
-    public void testCanGetExtensionForFullPath()
+    void testCanGetExtensionForFullPath()
     {
         assertEquals("png", FileTools.getExtension("/a/path.with.dots/foo.png"));
     }
     
     @Test
-    public void testReturnsNullWhenThereIsNoExtension()
+    void testReturnsNullWhenThereIsNoExtension()
     {
         assertNull(FileTools.getExtension("foo"));
     }
     
     @Test
-    public void testCanTellThatExtensionIsMissingWhenAPathContainsDots()
+    void testCanTellThatExtensionIsMissingWhenAPathContainsDots()
     {
         assertNull(FileTools.getExtension("/a/path.with.dots/foo"));
     }

@@ -5,63 +5,59 @@
  */
 package org.jsoar.util;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JdbcToolsTest
 {
-
-    @Before
-    public void setUp() throws Exception
+    
+    @BeforeEach
+    void setUp() throws Exception
     {
     }
-
-    @After
-    public void tearDown() throws Exception
+    
+    @AfterEach
+    void tearDown() throws Exception
     {
     }
-
-    @Test 
-    public void testCanDetectIfATableExists() throws Exception
+    
+    @Test
+    void testCanDetectIfATableExists() throws Exception
     {
-        final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
-        try
+        try(Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:"))
         {
             assertFalse(JdbcTools.tableExists(conn, "people"));
             Statement stat = conn.createStatement();
             stat.executeUpdate("create table people (name, occupation);");
             assertTrue(JdbcTools.tableExists(conn, "people"));
         }
-        finally
-        {
-            conn.close();
-        }
-        
     }
+    
     @Test
-    public void testCanCreateAndConnectToInMemorySqlLiteDatabase() throws Exception
+    void testCanCreateAndConnectToInMemorySqlLiteDatabase() throws Exception
     {
-        final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
-        try
+        try(Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:"))
         {
             Statement stat = conn.createStatement();
             stat.executeUpdate("drop table if exists people;");
             stat.executeUpdate("create table people (name, occupation);");
             
             PreparedStatement prep = conn.prepareStatement("insert into people values (?, ?);");
-
-            final String[][] entries = new String[][] {
-                new String[] {"Gandhi", "politics" },
-                new String[] {"Turing", "computers" },
-                new String[] { "Wittgenstein", "smartypants" }
+            
+            final String[][] entries = {
+                    new String[] { "Gandhi", "politics" },
+                    new String[] { "Turing", "computers" },
+                    new String[] { "Wittgenstein", "smartypants" }
             };
             
             for(String[] entry : entries)
@@ -70,32 +66,28 @@ public class JdbcToolsTest
                 prep.setString(2, entry[1]);
                 prep.addBatch();
             }
-
+            
             conn.setAutoCommit(false);
             prep.executeBatch();
             conn.setAutoCommit(true);
-
-            final ResultSet rs = stat.executeQuery("select * from people;");
-            int index = 0;
-            while (rs.next()) 
+            
+            try(ResultSet rs = stat.executeQuery("select * from people;"))
             {
-                assertEquals(entries[index][0], rs.getString("name"));
-                assertEquals(entries[index][1], rs.getString("occupation"));
-                index++;
+                int index = 0;
+                while(rs.next())
+                {
+                    assertEquals(entries[index][0], rs.getString("name"));
+                    assertEquals(entries[index][1], rs.getString("occupation"));
+                    index++;
+                }
             }
-            rs.close();
-        }
-        finally
-        {
-            conn.close();
         }
     }
     
     @Test
-    public void testCanGetLastInsertedRowId() throws Exception
+    void testCanGetLastInsertedRowId() throws Exception
     {
-        final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
-        try
+        try(Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:"))
         {
             Statement stat = conn.createStatement();
             stat.executeUpdate("drop table if exists people;");
@@ -114,11 +106,6 @@ public class JdbcToolsTest
             prep.setString(2, "bar");
             assertEquals(3, JdbcTools.insertAndGetRowId(prep));
         }
-        finally
-        {
-            conn.close();
-        }
-            
     }
-
+    
 }

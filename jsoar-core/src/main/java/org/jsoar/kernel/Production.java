@@ -48,8 +48,8 @@ public class Production
     
     /**
      * Enumerations for possible declared production support types
-     *  
-     * <p>production.h:66:_SUPPORT 
+     * 
+     * <p>production.h:66:_SUPPORT
      * 
      * @see Production#getDeclaredSupport()
      */
@@ -58,21 +58,21 @@ public class Production
         /**
          * The production has no declared support, i.e. it's support will be
          * determined by Soar.
-         *  
-         * <p>production.h:66:UNDECLARED_SUPPORT 
+         * 
+         * <p>production.h:66:UNDECLARED_SUPPORT
          */
         UNDECLARED,
         
         /**
          * The production has been declared with {@code :o-support}.
-         *  
-         * <p>production.h:66:DECLARED_O_SUPPORT 
+         * 
+         * <p>production.h:66:DECLARED_O_SUPPORT
          */
         DECLARED_O_SUPPORT,
         
         /**
          * The production has been declared with {@code :i-support}.
-         *  
+         * 
          * <p>production.h:66:DECLARED_I_SUPPORT
          */
         DECLARED_I_SUPPORT
@@ -92,18 +92,54 @@ public class Production
         private Support support = Support.UNDECLARED;
         private boolean interrupt = false;
         
-        public Builder type(ProductionType type) { this.type = type; return this; }
-        public Builder location(SourceLocation v) { this.location = v; return this; }
-        public Builder name(String v) { this.name = v; return this; }
-        public Builder documentation(String v) { this.documentation = v; return this; }
-        public Builder conditions(Condition top, Condition bottom) { 
+        public Builder type(ProductionType type)
+        {
+            this.type = type;
+            return this;
+        }
+        
+        public Builder location(SourceLocation v)
+        {
+            this.location = v;
+            return this;
+        }
+        
+        public Builder name(String v)
+        {
+            this.name = v;
+            return this;
+        }
+        
+        public Builder documentation(String v)
+        {
+            this.documentation = v;
+            return this;
+        }
+        
+        public Builder conditions(Condition top, Condition bottom)
+        {
             this.topCondition = top;
             this.bottomCondition = bottom;
-            return this; 
+            return this;
         }
-        public Builder actions(Action v) { this.actions = v; return this; }
-        public Builder support(Support v) { this.support = v; return this; }
-        public Builder interrupt(boolean v) { this.interrupt = v; return this; }
+        
+        public Builder actions(Action v)
+        {
+            this.actions = v;
+            return this;
+        }
+        
+        public Builder support(Support v)
+        {
+            this.support = v;
+            return this;
+        }
+        
+        public Builder interrupt(boolean v)
+        {
+            this.interrupt = v;
+            return this;
+        }
         
         public Production build()
         {
@@ -111,19 +147,22 @@ public class Production
         }
     }
     
-    public static Builder newBuilder() { return new Builder(); }
+    public static Builder newBuilder()
+    {
+        return new Builder();
+    }
     
     private final ProductionType type;
     private final SourceLocation location;
     private final String name;
-    private String documentation;	//	This can be set by some of the RL stuff
+    private String documentation;    // This can be set by some of the RL stuff
     private final Support declared_support;
     private final boolean interrupt;
     
     private Condition condition_list;
     private Condition bottomOfConditionList;
     private Action action_list;
-
+    
     /**
      * production.h:interrupt
      */
@@ -146,10 +185,10 @@ public class Production
     
     private boolean reordered = false;
     
-    /** 
+    /**
      * If non-null, is a Soar-RL rule.
      * 
-     * <p>production.h:rl_rule 
+     * <p>production.h:rl_rule
      */
     public RLRuleInfo rlRuleInfo = null;
     
@@ -167,14 +206,14 @@ public class Production
      * @see Builder#build()
      */
     private Production(ProductionType type, SourceLocation location, String name, String doc,
-                      Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in, Support support,
-                      boolean interrupt)
+            Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in, Support support,
+            boolean interrupt)
     {
         Arguments.checkNotNull(type, "type");
         Arguments.checkNotNull(location, "location");
         Arguments.checkNotNull(name, "name");
-//        Arguments.checkNotNull(lhs_top_in, "lhs_top_in");
-//        Arguments.checkNotNull(lhs_bottom_in, "lhs_bottom_in");
+        // Arguments.checkNotNull(lhs_top_in, "lhs_top_in");
+        // Arguments.checkNotNull(lhs_bottom_in, "lhs_bottom_in");
         
         this.type = type;
         this.location = location;
@@ -204,7 +243,7 @@ public class Production
     {
         return location;
     }
-
+    
     /**
      * @return the name of this production
      */
@@ -212,7 +251,7 @@ public class Production
     {
         return name;
     }
-
+    
     /**
      * @return the documentation string of this production
      */
@@ -220,7 +259,7 @@ public class Production
     {
         return documentation != null ? documentation : "";
     }
-
+    
     /**
      * Set the documentation string of this production
      */
@@ -250,7 +289,7 @@ public class Production
     }
     
     /**
-     * Returns the first action in the production. Use {@link Action#next} to 
+     * Returns the first action in the production. Use {@link Action#next} to
      * iterate.
      * 
      * @return the first action in the production
@@ -285,7 +324,7 @@ public class Production
     {
         return this.firingCount.incrementAndGet();
     }
-        
+    
     /**
      * Returns true if this production will interrupt the agent when it matches.
      * This could be either because of the <code>:interrupt</code> flag explicitly
@@ -327,7 +366,7 @@ public class Production
     {
         traceFirings.set(value);
     }
-
+    
     /**
      * Print partial match information for this production to the given printer
      * Does not show betanode ids
@@ -375,7 +414,7 @@ public class Production
      * Returns a count of the number of tokens currently in use for this
      * production. The count does not include:
      * <ul>
-     * <li> tokens in the p_node (i.e., tokens representing complete matches) 
+     * <li> tokens in the p_node (i.e., tokens representing complete matches)
      * <li>local join result tokens on (real) tokens in negative/NCC nodes
      * </ul>
      * 
@@ -391,7 +430,7 @@ public class Production
     /**
      * Performs reordering of the LHS and RHS of the production using the given
      * reorderer objects. This will modify the conditions and actions of the
-     * production. 
+     * production.
      * 
      * <p>Function introduced while trying to tease apart production construction
      * 
@@ -401,36 +440,36 @@ public class Production
      * @param cr A condition reorderer
      * @param ar An action reorderer
      * @param reorder_nccs True if NCCs should be reordered.
-     * @throws ReordererException 
+     * @throws ReordererException
      * @throws IllegalStateException if the production has already been reordered
      */
     public void reorder(VariableGenerator varGen, ConditionReorderer cr, ActionReorderer ar, boolean reorder_nccs) throws ReordererException
     {
-        if (reordered)
+        if(reordered)
         {
             throw new IllegalStateException("Production '" + name + "' already reordered");
         }
-        if (type != ProductionType.JUSTIFICATION)
+        if(type != ProductionType.JUSTIFICATION)
         {
             final ByRef<Condition> lhs_top = ByRef.create(condition_list);
             final ByRef<Condition> lhs_bottom = ByRef.create(bottomOfConditionList);
             final ByRef<Action> rhs_top = ByRef.create(action_list);
             // ??? thisAgent->name_of_production_being_reordered =
             // name->sc.name;
-
+            
             varGen.reset(lhs_top.value, rhs_top.value);
             Marker tc = DefaultMarker.create();
             Condition.addBoundVariables(lhs_top.value, tc, null);
-
+            
             ar.reorder_action_list(rhs_top, tc);
             cr.reorder_lhs(lhs_top, lhs_bottom, reorder_nccs);
-
+            
             // TODO: Is this necessary since this is the default value?
-            for (Action a = rhs_top.value; a != null; a = a.next)
+            for(Action a = rhs_top.value; a != null; a = a.next)
             {
                 a.support = ActionSupport.UNKNOWN_SUPPORT;
             }
-
+            
             this.condition_list = lhs_top.value;
             this.bottomOfConditionList = lhs_bottom.value;
             this.action_list = rhs_top.value;
@@ -439,14 +478,14 @@ public class Production
         {
             /* --- for justifications --- */
             /* force run-time o-support (it'll only be done once) */
-
+            
             // TODO: Is this necessary since this is the default value?
-            for (Action a = action_list; a != null; a = a.next)
+            for(Action a = action_list; a != null; a = a.next)
             {
                 a.support = ActionSupport.UNKNOWN_SUPPORT;
             }
         }
-
+        
         reordered = true;
     }
     
@@ -464,7 +503,7 @@ public class Production
      * Set the RHS unbound variables of the production. This method takes
      * ownership of the passed in list rather than copying it!
      * 
-     * @param unboundVars List of unbound vars 
+     * @param unboundVars List of unbound vars
      */
     public void setRhsUnboundVariables(List<Variable> unboundVars)
     {
@@ -498,7 +537,9 @@ public class Production
         return p_node;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -508,7 +549,7 @@ public class Production
     }
     
     /**
-     * This prints a production.  The "internal" parameter, if TRUE,
+     * This prints a production. The "internal" parameter, if TRUE,
      * indicates that the LHS and RHS should be printed in internal format.
      * 
      * <p>print.cpp:762:print_production
@@ -526,30 +567,44 @@ public class Production
         
         // print "sp" and production name
         printer.print("sp {%s\n", this.name);
-
+        
         // print optional documentation string
-        if (documentation != null && documentation.length() > 0)
+        if(documentation != null && documentation.length() > 0)
         {
             printer.print("    %s\n", StringTools.string_to_escaped_string(documentation, '"'));
         }
-
+        
         // print any flags
-        switch (type)
+        switch(type)
         {
-        case DEFAULT:       printer.print("    :default\n"); break;
-        case USER:          break;
-        case CHUNK:         printer.print("    :chunk\n"); break;
-        case JUSTIFICATION: printer.print("    :justification ;# not reloadable\n"); break;
-        case TEMPLATE:      printer.print("    :template\n"); break;
+        case DEFAULT:
+            printer.print("    :default\n");
+            break;
+        case USER:
+            break;
+        case CHUNK:
+            printer.print("    :chunk\n");
+            break;
+        case JUSTIFICATION:
+            printer.print("    :justification ;# not reloadable\n");
+            break;
+        case TEMPLATE:
+            printer.print("    :template\n");
+            break;
         }
         
         switch(declared_support)
         {
-        case DECLARED_O_SUPPORT: printer.print("    :o-support\n"); break;
-        case DECLARED_I_SUPPORT: printer.print("    :i-support\n"); break;
-        default: /* do nothing */ break;
+        case DECLARED_O_SUPPORT:
+            printer.print("    :o-support\n");
+            break;
+        case DECLARED_I_SUPPORT:
+            printer.print("    :i-support\n");
+            break;
+        default:
+            /* do nothing */ break;
         }
-
+        
         if(interrupt)
         {
             printer.print("    :interrupt\n");
@@ -558,13 +613,13 @@ public class Production
         // print the LHS and RHS
         ConditionsAndNots cns = rete.p_node_to_conditions_and_nots(p_node, null, null, true);
         printer.print("   ");
-
+        
         Conditions.print_condition_list(printer, cns.top, 3, internal);
-
+        
         printer.print("\n    -->\n  ");
         printer.print("  ");
         Action.print_action_list(printer, cns.actions, 4, internal);
         printer.print("\n}\n").flush();
-    } 
+    }
     
 }

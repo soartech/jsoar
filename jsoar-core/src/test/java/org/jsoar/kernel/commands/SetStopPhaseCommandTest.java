@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.commands;
 
-
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,67 +18,67 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.jsoar.util.properties.PropertyManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SetStopPhaseCommandTest
+class SetStopPhaseCommandTest
 {
     private PropertyManager props;
     private SoarSettingsCommand command;
     
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         Agent agent = new Agent();
         props = agent.getProperties();
         command = new SoarSettingsCommand(agent);
     }
     
-    @Test(expected=SoarException.class)
-    public void testThrowsExceptionOnUnknownOption() throws Exception
+    @Test
+    void testThrowsExceptionOnUnknownOption()
     {
-        verify(null, "unknown");
+        assertThrows(SoarException.class, () -> verify(null, "unknown"));
     }
     
     // input -> propose -> decision -> apply -> output
     
     @Test
-    public void testSetToAfterInput() throws Exception
+    void testSetToAfterInput() throws Exception
     {
         verify(Phase.INPUT, "input");
     }
     
     @Test
-    public void testSetToAfterPropose() throws Exception
+    void testSetToAfterPropose() throws Exception
     {
         verify(Phase.PROPOSE, "proposal");
     }
     
     @Test
-    public void testSetToDecision() throws Exception
+    void testSetToDecision() throws Exception
     {
         verify(Phase.DECISION, "decide");
     }
     
     @Test
-    public void testSetToApply() throws Exception
+    void testSetToApply() throws Exception
     {
         verify(Phase.APPLY, "apply");
     }
     
     @Test
-    public void testSetToOutput() throws Exception
+    void testSetToOutput() throws Exception
     {
         verify(Phase.OUTPUT, "output");
     }
     
-    private void verify(Phase expectedPhase, String ... args) throws SoarException
+    private void verify(Phase expectedPhase, String... args) throws SoarException
     {
-        final List<String> argsList = new ArrayList<String>(Arrays.asList(args));
+        final List<String> argsList = new ArrayList<>(Arrays.asList(args));
         argsList.add(0, "soar");
         argsList.add(1, "stop-phase");
         command.execute(DefaultSoarCommandContext.empty(), argsList.toArray(new String[] {}));
         assertSame(expectedPhase, props.get(SoarProperties.STOP_PHASE));
     }
-
+    
 }

@@ -5,21 +5,21 @@
  */
 package org.jsoar.kernel.memory;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class PreferenceTypeTest
+class PreferenceTypeTest
 {
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.memory.PreferenceType#getDisplayName()}.
      */
     @Test
-    public void testGetDisplayName()
+    void testGetDisplayName()
     {
         assertEquals("acceptable", PreferenceType.ACCEPTABLE.getDisplayName());
         assertEquals("require", PreferenceType.REQUIRE.getDisplayName());
@@ -31,8 +31,8 @@ public class PreferenceTypeTest
         assertEquals("binary indifferent", PreferenceType.BINARY_INDIFFERENT.getDisplayName());
         assertEquals("better", PreferenceType.BETTER.getDisplayName());
         assertEquals("worse", PreferenceType.WORSE.getDisplayName());
-        assertEquals("numeric indifferent",  PreferenceType.NUMERIC_INDIFFERENT.getDisplayName());
+        assertEquals("numeric indifferent", PreferenceType.NUMERIC_INDIFFERENT.getDisplayName());
         
     }
-
+    
 }

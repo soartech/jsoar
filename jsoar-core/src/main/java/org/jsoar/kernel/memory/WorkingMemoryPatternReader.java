@@ -10,27 +10,33 @@ import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.tracing.Printer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
 
 public class WorkingMemoryPatternReader
 {
-
-    public static Predicate<Wme> getPredicate(Agent context, String pattern) throws IllegalArgumentException {
-		final Printer printer = context.getPrinter();
-		final StringReader reader = new StringReader(pattern);
-		final SymbolFactory syms = context.getSymbols();
-		
-		Lexer lex = null;
-		try {
-			lex = new Lexer(printer, reader);
-			lex.setAllowIds(true);
-			lex.getNextLexeme();
+    private static final Logger LOG = LoggerFactory.getLogger(WorkingMemoryPatternReader.class);
+    
+    public static Predicate<Wme> getPredicate(Agent context, String pattern) throws IllegalArgumentException
+    {
+        final Printer printer = context.getPrinter();
+        final StringReader reader = new StringReader(pattern);
+        final SymbolFactory syms = context.getSymbols();
+        
+        Lexer lex = null;
+        try
+        {
+            lex = new Lexer(printer, reader);
+            lex.setAllowIds(true);
+            lex.getNextLexeme();
         }
-		catch(IOException e) {
-		    e.printStackTrace(); // probably should throw a new exception (e.g., PatternReaderException)
-		}
-			
+        catch(IOException e)
+        {
+            LOG.error("Lexer error", e); // probably should throw a new exception (e.g., PatternReaderException)
+        }
+        
         Lexeme idlexeme = lex.getCurrentLexeme();
         Identifier id = null; // assume null (any value), and override as necessary
         if(idlexeme.type == LexemeType.IDENTIFIER)
@@ -45,35 +51,44 @@ public class WorkingMemoryPatternReader
         {
             throw new IllegalArgumentException("First entry must be identifier or '*', got '" + idlexeme + "'");
         }
-        try {
+        try
+        {
             lex.getNextLexeme();
-        } catch(IOException e) {
-            e.printStackTrace(); // probably should throw a new exception (e.g., PatternReaderException)
+        }
+        catch(IOException e)
+        {
+            LOG.error("Lexer error", e); // probably should throw a new exception (e.g., PatternReaderException)
         }
         Lexeme attrlexeme = lex.getCurrentLexeme();
         if(attrlexeme.type == LexemeType.UP_ARROW) // skip up arrow on attribute if it's there.
         {
-            try {
+            try
+            {
                 lex.getNextLexeme();
                 attrlexeme = lex.getCurrentLexeme();
-            } catch(IOException e) {
-                e.printStackTrace(); // probably should throw a new exception (e.g., PatternReaderException)
+            }
+            catch(IOException e)
+            {
+                LOG.error("Lexer error", e); // probably should throw a new exception (e.g., PatternReaderException)
             }
         }
         Object attr = getPatternValue(syms, attrlexeme);
         
-        try {
+        try
+        {
             lex.getNextLexeme();
-        } catch(IOException e) {
-            e.printStackTrace(); // probably should throw a new exception (e.g., PatternReaderException)
+        }
+        catch(IOException e)
+        {
+            LOG.error("Lexer error", e); // probably should throw a new exception (e.g., PatternReaderException)
         }
         Lexeme valuelexeme = lex.getCurrentLexeme();
         Object value = getPatternValue(syms, valuelexeme);
-		
+        
         // TODO: acceptable test
         
         return Wmes.newMatcher(syms, id, attr, value, -1);
-	}
+    }
     
     private static Object getPatternValue(SymbolFactory syms, Lexeme l) throws IllegalArgumentException
     {

@@ -1,8 +1,8 @@
 package org.jsoar.kernel.io.commands;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -13,11 +13,11 @@ import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class OutputCommandManagerTest
+class OutputCommandManagerTest
 {
     private Agent agent;
     private OutputCommandManager outputManager;
@@ -25,8 +25,8 @@ public class OutputCommandManagerTest
     /**
      * @throws java.lang.Exception
      */
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         this.agent = new Agent(false);
         
@@ -36,18 +36,18 @@ public class OutputCommandManagerTest
         this.agent.initialize();
         this.agent.getProperties().set(SoarProperties.WAITSNC, true);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown() throws Exception
     {
         this.outputManager.dispose();
     }
-
+    
     @Test
-    public void testRegisterHandler() throws Exception
+    void testRegisterHandler() throws Exception
     {
         final AtomicBoolean added = new AtomicBoolean();
         final AtomicBoolean removed = new AtomicBoolean();
@@ -92,7 +92,7 @@ public class OutputCommandManagerTest
                 "");
         
         agent.runFor(1, RunType.DECISIONS);
-
+        
         assertTrue(removed.get());
     }
 }

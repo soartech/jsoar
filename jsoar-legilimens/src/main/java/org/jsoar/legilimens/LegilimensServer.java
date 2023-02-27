@@ -10,8 +10,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.legilimens.trace.AgentTraceBuffer;
@@ -20,6 +18,8 @@ import org.jsoar.runtime.ThreadedAgent;
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.restlet.routing.VirtualHost;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple, embedded web application that provides remote debugging for all
@@ -32,17 +32,17 @@ import org.restlet.routing.VirtualHost;
  */
 public class LegilimensServer
 {
-    private static final Logger logger = LoggerFactory.getLogger(LegilimensServer.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(LegilimensServer.class);
+    
     private static final String ROOT_PROPERTY = "jsoar.legilimens.root";
     private static final String DEFAULT_ROOT = "/jsoar";
     private static final String PORT_PROPERTY = "jsoar.legilimens.port";
     private static final int DEFAULT_PORT = 12122;
-
+    
     // See Effective Java, page 283
     private static class InstanceHolder
     {
-        static final LegilimensServer instance = new LegilimensServer();
+        static final LegilimensServer INSTANCE = new LegilimensServer();
     }
     
     private final Component component;
@@ -54,7 +54,7 @@ public class LegilimensServer
      */
     public static LegilimensServer start()
     {
-        return InstanceHolder.instance;
+        return InstanceHolder.INSTANCE;
     }
     
     private LegilimensServer()
@@ -72,12 +72,12 @@ public class LegilimensServer
         {
             component.start();
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             throw new RuntimeException("Failed to start server: " + e.getMessage(), e);
         }
         
-        logger.info("Legilimens web app running at http://localhost:" + port + root + "/");
+        LOG.info("Legilimens web app running at http://localhost:{}{}/", port, root);
     }
     
     private String getRoot()
@@ -92,10 +92,10 @@ public class LegilimensServer
     
     /**
      * @param args
-     * @throws IOException 
-     * @throws TimeoutException 
-     * @throws ExecutionException 
-     * @throws InterruptedException 
+     * @throws IOException
+     * @throws TimeoutException
+     * @throws ExecutionException
+     * @throws InterruptedException
      */
     public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException, IOException
     {
@@ -107,7 +107,7 @@ public class LegilimensServer
         createAgent("waterjugs", "http://darevay.com/jsoar/waterjugs.soar");
         createAgent("Towers of Hanoi", "http://darevay.com/jsoar/towers.soar");
     }
-
+    
     private static ThreadedAgent createAgent(String name, final String rules) throws InterruptedException, ExecutionException, TimeoutException, IOException
     {
         final ThreadedAgent agent = ThreadedAgent.create();

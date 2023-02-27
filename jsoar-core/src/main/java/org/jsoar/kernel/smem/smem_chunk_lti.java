@@ -24,11 +24,11 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 class smem_chunk_lti
 {
     IdentifierImpl soar_id;
-    /*smem_lti_id*/ long lti_id;
-
+    /* smem_lti_id */ long lti_id;
+    
     char lti_letter;
-    /*uint64_t*/ long lti_number;
-
+    /* uint64_t */ long lti_number;
+    
     /**
      * Map from attributes to slot values. The list is comprised of
      * {@link SymbolImpl} for constants and {@link smem_chunk_lti} for
@@ -44,12 +44,12 @@ class smem_chunk_lti
      * 
      * @return a new slot map
      */
-    static Map<SymbolImpl, List<Object /*smem_chunk_lti or SymbolImpl*/>> newSlotMap()
+    static Map<SymbolImpl, List<Object /* smem_chunk_lti or SymbolImpl */>> newSlotMap()
     {
         // TODO SMEM is this a good idea?
         // use a smaller default size since there usually aren't that many
-        // attributes on an id 
-        return new LinkedHashMap<SymbolImpl, List<Object>>(8);
+        // attributes on an id
+        return new LinkedHashMap<>(8);
     }
     
     /**
@@ -61,7 +61,7 @@ class smem_chunk_lti
      * @param attr the attribute
      * @return the new list.
      */
-    static List<Object> smem_make_slot( Map<SymbolImpl, List<Object>> slots, SymbolImpl attr )
+    static List<Object> smem_make_slot(Map<SymbolImpl, List<Object>> slots, SymbolImpl attr)
     {
         List<Object> s = slots.get(attr);
         if(s == null)
@@ -73,6 +73,5 @@ class smem_chunk_lti
         }
         return s;
     }
-    
     
 }

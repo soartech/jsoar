@@ -19,17 +19,17 @@ import org.jsoar.performancetesting.yaml.TestSettings;
 public class JSoarTestFactory implements TestFactory
 {
     private Path jsoarCoreJar;
-
+    
     public Path getSoarPath()
     {
         return jsoarCoreJar;
     }
-
+    
     public void setJsoarCoreJar(Path jsoarCoreJar)
     {
         this.jsoarCoreJar = jsoarCoreJar;
     }
-
+    
     /**
      * This creates JSoar Tests. It takes a test's name, file, and the number of
      * decision cycles to run and returns a new test which has been created and
@@ -39,17 +39,17 @@ public class JSoarTestFactory implements TestFactory
      * @param testFile
      * @param settings
      * @return A new and initialized JSoar test.
-     * @throws ClassNotFoundException 
-     * @throws MalformedURLException 
+     * @throws ClassNotFoundException
+     * @throws MalformedURLException
      */
     @Override
     public Test createTest(String testName, Path testFile,
             TestSettings settings) throws MalformedURLException, ClassNotFoundException
     {
         JSoarTest jsoarTest = new JSoarTest(jsoarCoreJar);
-
+        
         jsoarTest.initialize(testName, testFile, settings);
-
+        
         return jsoarTest;
     }
 }

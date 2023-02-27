@@ -11,6 +11,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
  * Helper methods associated with {@link RhsValue} interface
+ * 
  * @author ray
  */
 public class RhsValues
@@ -39,39 +40,39 @@ public class RhsValues
             char first_letter)
     {
         final ReteLocation rl = rv.asReteLocation();
-        if (rl != null)
+        if(rl != null)
         {
             SymbolImpl sym = Rete.var_bound_in_reconstructed_conds(cond, rl.getFieldNum(), rl.getLevelsUp());
             return sym.toRhsValue();
         }
-
+        
         final UnboundVariable uv = rv.asUnboundVariable();
-        if (uv != null)
+        if(uv != null)
         {
             final int index = uv.getIndex();
             SymbolImpl sym = rete.getRhsVariableBinding(index);
-            if (sym == null)
+            if(sym == null)
             {
                 sym = rete.getSymbols().getVariableGenerator().generate_new_variable(Character.toString(uv.getFirstLetter()));
                 rete.setRhsVariableBinding(index, sym);
             }
             return sym.toRhsValue();
         }
-
+        
         final RhsFunctionCall fc = rv.asFunctionCall();
-        if (fc != null)
+        if(fc != null)
         {
-
+            
             final RhsFunctionCall newFc = new RhsFunctionCall(fc.getName(), fc.isStandalone());
-            for (RhsValue c : fc.getArguments())
+            for(RhsValue c : fc.getArguments())
             {
                 newFc.addArgument(copy_rhs_value_and_substitute_varnames(rete, c, cond, first_letter));
             }
-
+            
             return newFc;
         }
-
+        
         return rv.asSymbolValue().getSym().toRhsValue();
     }
-
+    
 }

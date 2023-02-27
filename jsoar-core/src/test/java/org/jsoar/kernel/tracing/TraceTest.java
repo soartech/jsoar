@@ -5,41 +5,40 @@
  */
 package org.jsoar.kernel.tracing;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 
 import org.jsoar.kernel.tracing.Trace.Category;
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class TraceTest
+class TraceTest
 {
     private StringWriter output;
     private Printer printer;
     private Trace trace;
     
-    @Before
-    public void setUp()
+    @BeforeEach
+    void setUp()
     {
         output = new StringWriter();
         printer = new Printer(output);
         trace = new Trace(printer);
     }
-
+    
     @Test
-    public void testEnabledByDefault()
+    void testEnabledByDefault()
     {
         assertTrue(trace.isEnabled());
     }
     
     @Test
-    public void testGlobalEnable()
+    void testGlobalEnable()
     {
         trace.setEnabled(Category.BACKTRACING, true);
         trace.setEnabled(false);
@@ -54,7 +53,7 @@ public class TraceTest
     }
     
     @Test
-    public void testPerCategoryEnable()
+    void testPerCategoryEnable()
     {
         trace.setEnabled(Category.BACKTRACING, true);
         trace.print(Category.BACKTRACING, "hello");

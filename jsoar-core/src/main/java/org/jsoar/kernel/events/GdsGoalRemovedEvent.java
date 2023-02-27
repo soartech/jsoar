@@ -25,8 +25,8 @@ public class GdsGoalRemovedEvent extends AbstractAgentEvent
     /**
      * @param agent
      * @param goal the goal that was removed
-     * @param cause the wme in the goal's GDS that caused the goal to be 
-     *  removed
+     * @param cause the wme in the goal's GDS that caused the goal to be
+     *     removed
      */
     public GdsGoalRemovedEvent(Agent agent, Goal goal, Wme cause)
     {
@@ -35,7 +35,7 @@ public class GdsGoalRemovedEvent extends AbstractAgentEvent
         this.goal = goal;
         this.cause = cause;
     }
-
+    
     /**
      * @return the goal that was removed
      */
@@ -43,7 +43,7 @@ public class GdsGoalRemovedEvent extends AbstractAgentEvent
     {
         return goal;
     }
-
+    
     /**
      * @return the wme in the goal's GDS that caused the goal to be removed
      */
@@ -52,6 +52,4 @@ public class GdsGoalRemovedEvent extends AbstractAgentEvent
         return cause;
     }
     
-    
-
 }

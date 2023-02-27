@@ -5,9 +5,9 @@
  */
 package org.jsoar.kernel.rete;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +16,12 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class SimpleMatcherTest
+class SimpleMatcherTest
 {
     @Test
-    public void testSimpleMatcherRefProdsByObject() throws Exception
+    void testSimpleMatcherRefProdsByObject() throws Exception
     {
         final SimpleMatcher matcher = new SimpleMatcher();
         
@@ -52,12 +52,12 @@ public class SimpleMatcherTest
         // confirm can re-add wme and production re-matches once
         matcher.addWme(w);
         assertEquals(matcher.getNumberMatches(p), 1);
-
+        
         // confirm there is only 1 match via partial matches structure
         pm = matcher.getMatches(p);
         assertEquals(pm.getEntries().size(), 1);
         assertEquals(pm.getEntries().get(0).matches, 1);
-
+        
         // confirm can remove wme and production unmatches again
         matcher.removeWme(w);
         assertEquals(matcher.getNumberMatches(p), 0);
@@ -78,7 +78,7 @@ public class SimpleMatcherTest
     }
     
     @Test
-    public void testSimpleMatcherRefProdsByName() throws Exception
+    void testSimpleMatcherRefProdsByName() throws Exception
     {
         final SimpleMatcher matcher = new SimpleMatcher();
         
@@ -143,7 +143,7 @@ public class SimpleMatcherTest
     }
     
     @Test
-    public void testSimpleMatcherRemovalsByAll() throws Exception
+    void testSimpleMatcherRemovalsByAll() throws Exception
     {
         final SimpleMatcher matcher = new SimpleMatcher();
         
@@ -203,9 +203,9 @@ public class SimpleMatcherTest
         
         assertTrue(exceptionThrown);
     }
-
+    
     @Test
-    public void testSimpleMatcherMultipleInstances() throws Exception
+    void testSimpleMatcherMultipleInstances() throws Exception
     {
         final int NUM_WMES = 10;
         final SimpleMatcher matcher = new SimpleMatcher();
@@ -216,13 +216,13 @@ public class SimpleMatcherTest
         
         // add a bunch of wmes that will cause multiple matches
         final SymbolFactoryImpl syms = new SymbolFactoryImpl();
-        final List<Wme> wmes = new ArrayList<Wme>();
-        for(int i=0; i<NUM_WMES; ++i)
+        final List<Wme> wmes = new ArrayList<>();
+        for(int i = 0; i < NUM_WMES; ++i)
         {
             final Wme w = new WmeImpl(syms.createIdentifier('S'), syms.createString("number"), syms.createInteger(i), true, 0);
             matcher.addWme(w);
             wmes.add(w);
-            assertEquals(matcher.getNumberMatches(p), i+1);
+            assertEquals(matcher.getNumberMatches(p), i + 1);
         }
         
         // confirm there are NUM_WMES matches
@@ -231,10 +231,10 @@ public class SimpleMatcherTest
         assertEquals(pm.getEntries().get(0).matches, NUM_WMES);
         
         // confirm can remove all but 1 wme and production still matches
-        for(int i=1; i<NUM_WMES; ++i)
+        for(int i = 1; i < NUM_WMES; ++i)
         {
             matcher.removeWme(wmes.get(i));
-            assertEquals(matcher.getNumberMatches(p), NUM_WMES-i);
+            assertEquals(matcher.getNumberMatches(p), NUM_WMES - i);
         }
         
         // confirm production unmatches when remove last wme
@@ -246,5 +246,5 @@ public class SimpleMatcherTest
         assertEquals(pm.getEntries().size(), 1);
         assertEquals(pm.getEntries().get(0).matches, 0);
     }
-
+    
 }

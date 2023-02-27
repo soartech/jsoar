@@ -23,7 +23,7 @@ public class Game
 {
     private final int numPegs;
     private final int numDisks;
-    private final Map<String, Peg> pegs = new LinkedHashMap<String, Peg>();
+    private final Map<String, Peg> pegs = new LinkedHashMap<>();
     
     public Game(int pegs, int disks)
     {
@@ -34,7 +34,7 @@ public class Game
     
     public synchronized List<Peg> getPegs()
     {
-        return new ArrayList<Peg>(pegs.values());
+        return new ArrayList<>(pegs.values());
     }
     
     public int getNumDisks()
@@ -57,7 +57,7 @@ public class Game
             handleCommand(output.getInputOutput().getSymbols(), command);
         }
     }
- 
+    
     public synchronized void reset()
     {
         this.pegs.clear();
@@ -82,7 +82,7 @@ public class Game
     private void handleCommand(SymbolFactory syms, Wme command)
     {
         final String name = command.getAttribute().toString();
-     
+        
         if(name.equals("move-disk"))
         {
             final Wme sourceWme = Wmes.matcher(syms).attr("source-peg").find(command);

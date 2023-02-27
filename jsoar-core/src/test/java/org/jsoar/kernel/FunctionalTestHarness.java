@@ -5,10 +5,10 @@
  */
 package org.jsoar.kernel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
 import java.util.List;
@@ -18,8 +18,8 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class FunctionalTestHarness
 {
@@ -27,9 +27,10 @@ public class FunctionalTestHarness
     
     protected boolean halted = false;
     protected boolean failed = false;
-        
+    
     /**
      * Sources rules
+     * 
      * @param testName the test to perform
      * @throws SoarException
      */
@@ -37,7 +38,7 @@ public class FunctionalTestHarness
     {
         String sourceName = getClass().getSimpleName() + "_" + testName + ".soar";
         URL sourceUrl = getClass().getResource(sourceName);
-        assertNotNull("Could not find test file " + sourceName, sourceUrl);
+        assertNotNull(sourceUrl, "Could not find test file " + sourceName);
         agent.getInterpreter().source(sourceUrl);
     }
     
@@ -53,8 +54,8 @@ public class FunctionalTestHarness
             agent.runForever();
         }
         
-        assertTrue(testName + " functional test did not halt", halted);
-        assertFalse(testName + " functional test failed", failed);
+        assertTrue(halted, testName + " functional test did not halt");
+        assertFalse(failed, testName + " functional test failed");
         if(expectedDecisions >= 0)
         {
             assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue()); // deterministic!
@@ -63,16 +64,17 @@ public class FunctionalTestHarness
         agent.getInterpreter().eval("stats");
         
     }
+    
     protected void runTest(String testName, int expectedDecisions) throws Exception
     {
-        runTestSetup(testName);  
+        runTestSetup(testName);
         runTestExecute(testName, expectedDecisions);
     }
     
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         halted = false;
@@ -81,17 +83,16 @@ public class FunctionalTestHarness
         
         installRHS(agent);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         agent.getPrinter().flush();
         agent.dispose();
     }
-    
     
     /**
      * Set up the agent with RHS functions common to these
@@ -101,33 +102,57 @@ public class FunctionalTestHarness
     {
         // set up the agent with common RHS functions
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
-        assertNotNull(oldHalt);     
+        assertNotNull(oldHalt);
         
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted = true;
                 return oldHalt.execute(rhsContext, arguments);
-            }});
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("failed") {
-
+            }
+            
+            @Override
+            public boolean mayBeStandalone()
+            {
+                return true;
+            }
+        });
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("failed")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted = true;
                 failed = true;
                 return oldHalt.execute(rhsContext, arguments);
-            }});
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("succeeded") {
-
+            }
+            
+            @Override
+            public boolean mayBeStandalone()
+            {
+                return true;
+            }
+        });
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("succeeded")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted = true;
                 failed = false;
                 return oldHalt.execute(rhsContext, arguments);
-            }});
+            }
+            
+            @Override
+            public boolean mayBeStandalone()
+            {
+                return true;
+            }
+        });
     }
 }

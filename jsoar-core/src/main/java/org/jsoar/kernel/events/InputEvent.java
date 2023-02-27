@@ -7,7 +7,6 @@ package org.jsoar.kernel.events;
 
 import org.jsoar.kernel.io.InputOutput;
 
-
 /**
  * Event fired during the input phase. This event is the best/safest time to
  * add input WMEs to an agent.

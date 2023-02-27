@@ -12,27 +12,30 @@ import org.jsoar.kernel.smem.math.MathQuery;
 
 /**
  * <p>semantic_memory.h:279:smem_weighted_cue_element
+ * 
  * @author ray
  */
 public class WeightedCueElement implements Comparable<WeightedCueElement>
 {
     public static PriorityQueue<WeightedCueElement> newPriorityQueue()
     {
-        return new PriorityQueue<WeightedCueElement>();
+        return new PriorityQueue<>();
     }
     
-    /*uint64_t*/ long weight;
-
+    /* uint64_t */ long weight;
+    
     WmeImpl cue_element;
-    /*smem_hash_id*/ long attr_hash;
-    /*smem_hash_id*/ long value_hash;
-    /*smem_hash_id*/ long value_lti;
-
+    /* smem_hash_id */ long attr_hash;
+    /* smem_hash_id */ long value_hash;
+    /* smem_hash_id */ long value_lti;
+    
     smem_cue_element_type element_type;
     boolean pos_element;
     public MathQuery mathElement = null;
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override

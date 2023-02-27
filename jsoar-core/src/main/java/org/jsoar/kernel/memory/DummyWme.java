@@ -32,12 +32,12 @@ public class DummyWme extends AbstractAdaptable implements Wme
     final private Identifier id;
     final private Symbol attr;
     final private Symbol value;
-
+    
     public static DummyWme create(SymbolFactory syms, Object id, Object attr, Object value)
     {
-        return new DummyWme((Identifier) Symbols.create(syms, id), 
-                            Symbols.create(syms, attr),
-                            Symbols.create(syms, value));
+        return new DummyWme((Identifier) Symbols.create(syms, id),
+                Symbols.create(syms, attr),
+                Symbols.create(syms, value));
     }
     
     public static Set<Wme> create(SymbolFactory syms, Object... wmes)
@@ -46,11 +46,11 @@ public class DummyWme extends AbstractAdaptable implements Wme
         {
             throw new IllegalArgumentException("wmes must be a multiple of 3");
         }
-                
-        final Set<Wme> result = new LinkedHashSet<Wme>();
+        
+        final Set<Wme> result = new LinkedHashSet<>();
         for(int i = 0; i < wmes.length; i += 3)
         {
-            result.add(DummyWme.create(syms, wmes[i], wmes[i+1], wmes[i+2]));
+            result.add(DummyWme.create(syms, wmes[i], wmes[i + 1], wmes[i + 2]));
         }
         return result;
     }
@@ -61,8 +61,10 @@ public class DummyWme extends AbstractAdaptable implements Wme
         this.attr = attr;
         this.value = value;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getAttribute()
      */
     @Override
@@ -70,8 +72,10 @@ public class DummyWme extends AbstractAdaptable implements Wme
     {
         return attr;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getChildren()
      */
     @Override
@@ -79,8 +83,10 @@ public class DummyWme extends AbstractAdaptable implements Wme
     {
         return null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getIdentifier()
      */
     @Override
@@ -88,17 +94,21 @@ public class DummyWme extends AbstractAdaptable implements Wme
     {
         return id;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getPreferences()
      */
     @Override
     public Iterator<Preference> getPreferences()
     {
-        return Collections.<Preference>emptyIterator();
+        return Collections.<Preference> emptyIterator();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getTimetag()
      */
     @Override
@@ -106,8 +116,10 @@ public class DummyWme extends AbstractAdaptable implements Wme
     {
         return -1;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getValue()
      */
     @Override
@@ -115,8 +127,10 @@ public class DummyWme extends AbstractAdaptable implements Wme
     {
         return value;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#isAcceptable()
      */
     @Override
@@ -124,7 +138,7 @@ public class DummyWme extends AbstractAdaptable implements Wme
     {
         return false;
     }
-
+    
     @Override
     public void formatTo(Formatter fmt, int f, int width, int precision)
     {
@@ -135,7 +149,7 @@ public class DummyWme extends AbstractAdaptable implements Wme
         // TODO: I don't think that this should automatically insert a newline!
         if((f & FormattableFlags.ALTERNATE) == 0)
         {
-            // This is the normal print_wme case. It is specified with the 
+            // This is the normal print_wme case. It is specified with the
             // usual %s format string
             fmt.format("(%d: %s ^%s %s%s)\n", getTimetag(), id, attr, value, isAcceptable() ? " +" : "");
         }

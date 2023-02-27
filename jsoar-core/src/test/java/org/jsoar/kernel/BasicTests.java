@@ -5,22 +5,21 @@
  */
 package org.jsoar.kernel;
 
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class BasicTests extends FunctionalTestHarness
+class BasicTests extends FunctionalTestHarness
 {
     @Test
-    public void testBasicElaborationAndMatch() throws Exception
+    void testBasicElaborationAndMatch() throws Exception
     {
         runTest("testBasicElaborationAndMatch", 0);
     }
     
     @Test
-    public void testInitialState() throws Exception
+    void testInitialState() throws Exception
     {
         runTest("testInitialState", 0);
     }

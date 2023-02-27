@@ -36,7 +36,7 @@ class FileBuffer extends Writer
         final File cd = new File(System.getProperty("user.dir"));
         final Date now = new Date();
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-         
+        
         this.file = new File(cd, "jsoar.legilimens." + cleanName + "." + format.format(now) + ".trace");
         this.writer = new BufferedWriter(new FileWriter(this.file));
     }
@@ -48,7 +48,7 @@ class FileBuffer extends Writer
     
     public int getLength()
     {
-        synchronized(ringBuffer)
+        synchronized (ringBuffer)
         {
             return charsWritten;
         }
@@ -56,11 +56,10 @@ class FileBuffer extends Writer
     
     public TraceRange getRange(int start, int max) throws IOException
     {
-        final BufferedReader reader = new BufferedReader(new FileReader(file));
-        try
+        try(BufferedReader reader = new BufferedReader(new FileReader(file)))
         {
             reader.skip(start);
-
+            
             char[] buffer = new char[max];
             int total = 0;
             while(total < max)
@@ -74,13 +73,11 @@ class FileBuffer extends Writer
             }
             return new TraceRange(start, buffer, total);
         }
-        finally
-        {
-            reader.close();
-        }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#close()
      */
     @Override
@@ -88,8 +85,10 @@ class FileBuffer extends Writer
     {
         this.writer.close();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#flush()
      */
     @Override
@@ -97,14 +96,16 @@ class FileBuffer extends Writer
     {
         this.writer.flush();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#write(char[], int, int)
      */
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException
     {
-        synchronized(ringBuffer)
+        synchronized (ringBuffer)
         {
             charsWritten += len;
             this.ringBuffer.write(cbuf, off, len);

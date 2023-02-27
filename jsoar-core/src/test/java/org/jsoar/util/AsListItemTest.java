@@ -5,28 +5,31 @@
  */
 package org.jsoar.util;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 
 public class AsListItemTest
 {
     @Test
-    public void testInsertAtHead()
+    void testInsertAtHead()
     {
         ListHead<String> head = ListHead.newInstance();
         assertTrue(head.isEmpty());
         
-        ListItem<String> a = new ListItem<String>("a");
+        ListItem<String> a = new ListItem<>("a");
         a.insertAtHead(head);
         assertSame(head.first, a);
         assertNull(a.previous);
         assertNull(a.next);
         
-        ListItem<String> b = new ListItem<String>("b");
+        ListItem<String> b = new ListItem<>("b");
         b.insertAtHead(head);
         assertSame(head.first, b);
         assertNull(b.previous);
@@ -36,7 +39,7 @@ public class AsListItemTest
     }
     
     @Test
-    public void testRemove()
+    void testRemove()
     {
         ListHead<String> head = ListHead.fromCollection(Arrays.asList("a", "b", "c"));
         ListItem<String> a = head.first;

@@ -19,7 +19,7 @@ import org.jsoar.util.adaptables.Adaptables;
 public class EditProductionAction extends AbstractDebuggerAction
 {
     private static final long serialVersionUID = -1460902354871319429L;
-
+    
     /**
      * @param manager the owning action manager
      */
@@ -29,8 +29,10 @@ public class EditProductionAction extends AbstractDebuggerAction
         
         setToolTip("Edit selected production");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
@@ -39,8 +41,10 @@ public class EditProductionAction extends AbstractDebuggerAction
         final List<Production> prods = Adaptables.adaptCollection(getSelectionManager().getSelection(), Production.class);
         setEnabled(prods.size() == 1);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -57,5 +61,5 @@ public class EditProductionAction extends AbstractDebuggerAction
             view.editProduction(prods.get(0).getName());
         }
     }
-
+    
 }

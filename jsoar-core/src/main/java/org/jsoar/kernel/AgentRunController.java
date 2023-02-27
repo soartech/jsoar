@@ -33,7 +33,7 @@ public interface AgentRunController
     Phase getStopPhase();
     
     /**
-     * Run this agent for the given number of steps with the given step type. 
+     * Run this agent for the given number of steps with the given step type.
      * The agent is run in the current thread.
      * 
      * @param n Number of steps. Ignored if runType is {@link RunType#FOREVER}.

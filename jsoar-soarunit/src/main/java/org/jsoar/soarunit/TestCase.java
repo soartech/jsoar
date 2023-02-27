@@ -28,7 +28,7 @@ public class TestCase
     private final String name;
     private final int prefixIndex;
     private String setup = "";
-    private final List<Test> tests = new ArrayList<Test>();
+    private final List<Test> tests = new ArrayList<>();
     
     private static String getNameFromFile(URL url, int prefixIndex)
     {
@@ -42,13 +42,13 @@ public class TestCase
     {
         return fromURL(file.toURI().toURL(), prefixIndex);
     }
-
+    
     public static TestCase fromURL(URL url, int prefixIndex) throws SoarException, IOException
     {
-        final ParserBuffer reader = new ParserBuffer(new PushbackReader(new BufferedReader(new InputStreamReader(url.openStream()))));
-        reader.setFile(url.getPath());
-        try
+        
+        try(ParserBuffer reader = new ParserBuffer(new PushbackReader(new BufferedReader(new InputStreamReader(url.openStream())))))
         {
+            reader.setFile(url.getPath());
             final TestCase testCase = new TestCase(url, getNameFromFile(url, prefixIndex), prefixIndex);
             final DefaultInterpreterParser parser = new DefaultInterpreterParser();
             ParsedCommand parsedCommand = parser.parseCommand(reader);
@@ -69,14 +69,10 @@ public class TestCase
                 {
                     throw new SoarException(url.toString() + ": Unsupported SoarUnit command '" + name + "'");
                 }
-
+                
                 parsedCommand = parser.parseCommand(reader);
             }
             return testCase;
-        }
-        finally
-        {
-            reader.close();
         }
     }
     
@@ -96,7 +92,7 @@ public class TestCase
         this.name = name;
         this.prefixIndex = prefixIndex;
     }
-
+    
     /**
      * @return the setup
      */
@@ -104,7 +100,7 @@ public class TestCase
     {
         return setup;
     }
-
+    
     /**
      * @param setup the setup to set
      */
@@ -112,7 +108,7 @@ public class TestCase
     {
         this.setup = setup;
     }
-
+    
     /**
      * @return the name
      */
@@ -128,12 +124,12 @@ public class TestCase
     {
         return url;
     }
-
+    
     public void addTest(Test test)
     {
         tests.add(test);
     }
- 
+    
     /**
      * @return the tests
      */
@@ -141,7 +137,7 @@ public class TestCase
     {
         return tests;
     }
-
+    
     public Test getTest(String name)
     {
         for(Test test : tests)
@@ -154,15 +150,17 @@ public class TestCase
         return null;
     }
     
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString()
     {
         return name;
     }
-
+    
     public TestCase reload() throws SoarException, IOException
     {
         return fromURL(getUrl(), this.prefixIndex);

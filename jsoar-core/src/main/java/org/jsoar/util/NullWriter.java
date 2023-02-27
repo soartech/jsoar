@@ -21,7 +21,7 @@ public class NullWriter extends Writer
     public NullWriter()
     {
     }
-
+    
     /**
      * @param lock
      */
@@ -29,29 +29,35 @@ public class NullWriter extends Writer
     {
         super(lock);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#close()
      */
     @Override
     public void close() throws IOException
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#flush()
      */
     @Override
     public void flush() throws IOException
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#write(char[], int, int)
      */
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException
     {
     }
-
+    
 }

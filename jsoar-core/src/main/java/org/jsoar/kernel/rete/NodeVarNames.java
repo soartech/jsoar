@@ -37,8 +37,10 @@ class NodeVarNames
             attr_varnames = attrVarnames;
             value_varnames = valueVarnames;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.lang.Object#toString()
          */
         @Override
@@ -49,10 +51,10 @@ class NodeVarNames
     }
     
     final NodeVarNames parent;
-    //union varname_data_union {
+    // union varname_data_union {
     final ThreeFieldVarNames fields;
     final NodeVarNames bottom_of_subconditions;
-    //} data;
+    // } data;
     
     private NodeVarNames(NodeVarNames parent, Object idVars, Object attrVars, Object valueVars)
     {
@@ -90,24 +92,23 @@ class NodeVarNames
         }
         
         final ListHead<Variable> vars_bound = ListHead.newInstance();
-
+        
         /* --- fill in varnames for id test --- */
         final Object idVars = VarNames.add_unbound_varnames_in_test(cond.id_test, null);
-
+        
         /* --- add sparse bindings for id, then get attr field varnames --- */
         Tests.bind_variables_in_test(cond.id_test, 0, 0, false, vars_bound);
         final Object attrVars = VarNames.add_unbound_varnames_in_test(cond.attr_test, null);
-
+        
         /* --- add sparse bindings for attr, then get value field varnames --- */
         Tests.bind_variables_in_test(cond.attr_test, 0, 0, false, vars_bound);
         final Object valueVars = VarNames.add_unbound_varnames_in_test(cond.value_test, null);
-
+        
         /* --- Pop the variable bindings for these conditions --- */
         Variable.pop_bindings_and_deallocate_list_of_variables(vars_bound);
-
+        
         return newInstance(parent_nvn, idVars, attrVars, valueVars);
-    }  
-
+    }
     
     /**
      * rete.cpp:2642:get_nvn_for_condition_list
@@ -122,42 +123,44 @@ class NodeVarNames
         
         NodeVarNames New = null;
         ListHead<Variable> vars = ListHead.newInstance();
-
-        for (Condition cond = cond_list; cond != null; cond = cond.next)
+        
+        for(Condition cond = cond_list; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();
-            if (pc != null)
+            if(pc != null)
             {
                 New = make_nvn_for_posneg_cond(pc, parent_nvn);
-
+                
                 // Add sparse variable bindings for this condition
                 Tests.bind_variables_in_test(pc.id_test, 0, 0, false, vars);
                 Tests.bind_variables_in_test(pc.attr_test, 0, 0, false, vars);
                 Tests.bind_variables_in_test(pc.value_test, 0, 0, false, vars);
-
+                
             }
             NegativeCondition nc = cond.asNegativeCondition();
-            if (nc != null)
+            if(nc != null)
             {
                 New = make_nvn_for_posneg_cond(nc, parent_nvn);
-
+                
             }
             ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
-            if (ncc != null)
+            if(ncc != null)
             {
                 New = new NodeVarNames(parent_nvn, get_nvn_for_condition_list(ncc.top, parent_nvn));
             }
-
+            
             parent_nvn = New;
         }
-
+        
         // Pop the variable bindings for these conditions
         Variable.pop_bindings_and_deallocate_list_of_variables(vars);
-
+        
         return parent_nvn;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

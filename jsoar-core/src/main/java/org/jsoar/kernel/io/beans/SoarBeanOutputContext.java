@@ -24,7 +24,7 @@ public interface SoarBeanOutputContext
     
     /**
      * @return the root WME of the output command. The id of the WME will
-     *  always be the output-link.
+     * always be the output-link.
      */
     Wme getCommand();
     
@@ -32,8 +32,8 @@ public interface SoarBeanOutputContext
      * Set the {@code ^status} WME on the output command to the given value.
      * The value is interpreted according to the rules of {@link Symbols#create(org.jsoar.kernel.symbols.SymbolFactory, Object)}.
      * 
-     * @param status the status value, interpreted according to the rules of 
-     *   {@link Symbols#create(org.jsoar.kernel.symbols.SymbolFactory, Object)}.
+     * @param status the status value, interpreted according to the rules of
+     *     {@link Symbols#create(org.jsoar.kernel.symbols.SymbolFactory, Object)}.
      */
     void setStatus(Object status);
     

@@ -23,7 +23,9 @@ public class ProductionResource extends BaseAgentResource
 {
     private String name;
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.resources.BaseAgentResource#doInit()
      */
     @Override
@@ -34,8 +36,10 @@ public class ProductionResource extends BaseAgentResource
         name = getPathAttribute("productionName");
         setExisting(agent.getProductions().getProduction(name) != null);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.resources.BaseAgentResource#setTemplateAttributes(java.util.Map)
      */
     @Override
@@ -87,7 +91,7 @@ public class ProductionResource extends BaseAgentResource
             printer.flush();
             this.code = writer.toString();
         }
-
+        
         /**
          * @return the production
          */
@@ -95,7 +99,7 @@ public class ProductionResource extends BaseAgentResource
         {
             return production;
         }
-
+        
         /**
          * @return the name
          */
@@ -103,7 +107,7 @@ public class ProductionResource extends BaseAgentResource
         {
             return name;
         }
-
+        
         /**
          * @return the code
          */
@@ -111,7 +115,6 @@ public class ProductionResource extends BaseAgentResource
         {
             return code;
         }
-        
         
     }
 }

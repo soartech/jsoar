@@ -30,7 +30,7 @@ public class ReteSerializer
     {
         new ReteNetWriter(context).write(os);
     }
-
+    
     /**
      * Construct a new agent based on a serialized agent. The new agent will be pre-loaded with productions
      * from the serialized agent, but will not be initialized.
@@ -46,7 +46,7 @@ public class ReteSerializer
         replaceRete(agent, is);
         return agent;
     }
-
+    
     /**
      * Excise all productions from the target agent and load productions from the serialized agent.
      * 
@@ -65,7 +65,7 @@ public class ReteSerializer
         {
             productions.exciseProduction(p, false);
         }
-
+        
         new ReteNetReader(context).read(is);
         
         context.initialize();

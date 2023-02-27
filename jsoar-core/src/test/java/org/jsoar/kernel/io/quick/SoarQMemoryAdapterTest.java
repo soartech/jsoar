@@ -5,9 +5,8 @@
  */
 package org.jsoar.kernel.io.quick;
 
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,27 +20,32 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.commands.SoarCommandInterpreter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Iterators;
 
 /**
  * @author ray
  */
-public class SoarQMemoryAdapterTest extends JSoarTest
+class SoarQMemoryAdapterTest extends JSoarTest
 {
     private Agent agent;
     private SoarCommandInterpreter ifc;
     
     private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
-        List<List<Symbol>> calls = new ArrayList<List<Symbol>>();
+        List<List<Symbol>> calls = new ArrayList<>();
         
-        public MatchFunction() { super("match"); }
+        public MatchFunction()
+        {
+            super("match");
+        }
         
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
          */
         @Override
@@ -56,13 +60,15 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     
     private void sourceTestFile(String name) throws SoarException
     {
-        ifc.source(getClass().getResource("/" + getClass().getName().replace('.', '/')  + "_" + name));
+        ifc.source(getClass().getResource("/" + getClass().getName().replace('.', '/') + "_" + name));
     }
+    
     /**
      * @throws java.lang.Exception
      */
-    @Before
-    public void setUp() throws Exception
+    @Override
+    @BeforeEach
+    protected void setUp() throws Exception
     {
         super.setUp();
         
@@ -71,17 +77,18 @@ public class SoarQMemoryAdapterTest extends JSoarTest
         agent.getRhsFunctions().registerHandler(match = new MatchFunction());
         agent.initialize();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown() throws Exception
     {
         agent.dispose();
     }
     
-    @Test public void testBasicInput() throws Exception
+    @Test
+    void testBasicInput() throws Exception
     {
         sourceTestFile("testBasicInput.soar");
         QMemory qmem = DefaultQMemory.create();
@@ -112,12 +119,13 @@ public class SoarQMemoryAdapterTest extends JSoarTest
         adapter.detach();
     }
     
-    @Test public void testBasicOutput() throws Exception
+    @Test
+    void testBasicOutput() throws Exception
     {
         sourceTestFile("testBasicOutput.soar");
         
         agent.runFor(2, RunType.DECISIONS);
-
+        
         QMemory qmem = DefaultQMemory.create(agent.getInputOutput().getOutputLink());
         
         assertEquals(99, qmem.getInteger("cycle"));
@@ -129,12 +137,13 @@ public class SoarQMemoryAdapterTest extends JSoarTest
         assertEquals("This is a test", qmem.getString("location.description"));
     }
     
-    @Test public void testCircularReference() throws Exception
+    @Test
+    void testCircularReference() throws Exception
     {
         sourceTestFile("testCircularReference.soar");
         
         agent.runFor(2, RunType.DECISIONS);
-
+        
         QMemory qmem = DefaultQMemory.create(agent.getInputOutput().getOutputLink());
         assertTrue(qmem.hasPath("root"));
         String path = "root.a.path.back.to.root";
@@ -146,7 +155,8 @@ public class SoarQMemoryAdapterTest extends JSoarTest
         assertEquals(DefaultQMemory.MAX_DEPTH + 1, qmem.getPaths().size());
     }
     
-    @Test public void testDetach() throws Exception
+    @Test
+    void testDetach() throws Exception
     {
         ifc.eval("soar wait-snc --on");
         
@@ -174,10 +184,10 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     }
     
     @Test
-    public void testGetNameFromPath()
+    void testGetNameFromPath()
     {
         assertEquals("foo", SoarQMemoryAdapter.getNameFromPath("foo[1]"));
         assertEquals("foo", SoarQMemoryAdapter.getNameFromPath("foo[hello there]"));
     }
-
+    
 }

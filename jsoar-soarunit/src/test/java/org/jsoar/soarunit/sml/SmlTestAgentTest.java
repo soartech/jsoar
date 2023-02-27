@@ -5,59 +5,58 @@
  */
 package org.jsoar.soarunit.sml;
 
-
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeNoException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.jsoar.soarunit.FiringCounts;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class SmlTestAgentTest
+class SmlTestAgentTest
 {
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown() throws Exception
     {
     }
-
+    
     @Test
-    public void testCanExtractFiringCountsFromPrintedOutput()
+    void testCanExtractFiringCountsFromPrintedOutput()
     {
-        try {
+        try
+        {
             final FiringCounts fc = SmlTestAgent.extractFiringCountsFromPrintedOutput(
-                    "   455:  water-jug*elaborate*empty\r\n" + 
-                    "   392:  water-jug*monitor*state\r\n" + 
-                    "   279:  water-jug*propose*pour\r\n" + 
-                    "   257:  water-jug*propose*empty\r\n" + 
-                    "   252:  water-jug*propose*fill\r\n" + 
-                    "   169:  water-jug*monitor*operator-application*fill\r\n" + 
-                    "   169:  water-jug*apply*fill\r\n" + 
-                    "   160:  water-jug*monitor*operator-application*empty\r\n" + 
-                    "   160:  water-jug*apply*empty\r\n" + 
-                    "   124:  water-jug*monitor*operator-application*pour\r\n" + 
-                    "    36:  water-jug*apply*pour*not-empty-source\r\n" + 
-                    "    26:  water-jug*apply*pour*empty-source\r\n" + 
-                    "     1:  water-jug*detect*goal*achieved\r\n" + 
-                    "     1:  water-jug*propose*initialize-water-jug\r\n" + 
-                    "     1:  water-jug*apply*initialize-water-jug\r\n" + 
-                    "");
-            
+                    "   455:  water-jug*elaborate*empty\r\n" +
+                            "   392:  water-jug*monitor*state\r\n" +
+                            "   279:  water-jug*propose*pour\r\n" +
+                            "   257:  water-jug*propose*empty\r\n" +
+                            "   252:  water-jug*propose*fill\r\n" +
+                            "   169:  water-jug*monitor*operator-application*fill\r\n" +
+                            "   169:  water-jug*apply*fill\r\n" +
+                            "   160:  water-jug*monitor*operator-application*empty\r\n" +
+                            "   160:  water-jug*apply*empty\r\n" +
+                            "   124:  water-jug*monitor*operator-application*pour\r\n" +
+                            "    36:  water-jug*apply*pour*not-empty-source\r\n" +
+                            "    26:  water-jug*apply*pour*empty-source\r\n" +
+                            "     1:  water-jug*detect*goal*achieved\r\n" +
+                            "     1:  water-jug*propose*initialize-water-jug\r\n" +
+                            "     1:  water-jug*apply*initialize-water-jug\r\n" +
+                            "");
             
             assertNotNull(fc);
             assertEquals(455L, fc.getCount("water-jug*elaborate*empty").longValue());
@@ -74,10 +73,12 @@ public class SmlTestAgentTest
             assertEquals(1L, fc.getCount("water-jug*detect*goal*achieved").longValue());
             assertEquals(1L, fc.getCount("water-jug*propose*initialize-water-jug").longValue());
             assertEquals(1L, fc.getCount("water-jug*apply*initialize-water-jug").longValue());
-        } catch(UnsatisfiedLinkError e) {
-            assumeNoException(e); // for automated testing, e.g. on github, the SML native libraries will not be available.
-                                  // This is better than just disabling, because when the native libs are available (e.g., on someone's machine)
-                                  // then the test will actually run
+        }
+        catch(UnsatisfiedLinkError e)
+        {
+            // for automated testing, e.g. on github, the SML native libraries will not be available, so we'll just swallow the exception
+            // This is better than just disabling, because when the native libs are available (e.g., on someone's machine)
+            // then the test will actually run
         }
     }
 }

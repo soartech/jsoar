@@ -16,8 +16,8 @@ import org.jsoar.kernel.rete.NotStruct;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
-import org.jsoar.kernel.tracing.Traceable;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.kernel.tracing.Traceable;
 
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
@@ -28,20 +28,20 @@ import org.jsoar.kernel.tracing.Trace.WmeTraceType;
  */
 public class Instantiation implements Traceable
 {
-    public Production prod; 
+    public Production prod;
     public Instantiation nextInProdList, prevInProdList; // next/prev, dll of inst's from same prod
     public Token rete_token; // used by rete for retractions (TODO make final?)
     public WmeImpl rete_wme;     // used by rete for retractions (TODO make final?)
     public Condition top_of_instantiated_conditions;
     public Condition bottom_of_instantiated_conditions;
-
+    
     public NotStruct nots = null;
-    public Preference  preferences_generated = null;    // header for dll of prefs
+    public Preference preferences_generated = null;    // header for dll of prefs
     public IdentifierImpl match_goal;                   // symbol, or NIL if none
-    public int /*goal_stack_level*/ match_goal_level;    // level, or ATTRIBUTE_IMPASSE_LEVEL
+    public int /* goal_stack_level */ match_goal_level;    // level, or ATTRIBUTE_IMPASSE_LEVEL
     
     /**
-     * reliable:  false iff instantiation is a justification whose
+     * reliable: false iff instantiation is a justification whose
      * backtrace either:
      * 
      * - tests ^quiescence t, or
@@ -60,7 +60,7 @@ public class Instantiation implements Traceable
      * <p>Initialized to true in recmem.cpp:575:create_instantiation
      */
     public boolean in_ms = true;
-    public int /*tc_number*/ backtrace_number;
+    public int /* tc_number */ backtrace_number;
     /**
      * <p>Initialized to false in recmem.cpp:582:create_instantiation
      */
@@ -80,8 +80,10 @@ public class Instantiation implements Traceable
         this.rete_token = rete_token;
         this.rete_wme = rete_wme;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -90,7 +92,7 @@ public class Instantiation implements Traceable
         // For debugging only
         return prod.getName().toString();
     }
-
+    
     /**
      * print.cpp:1011:print_instantiation_with_wmes
      * 
@@ -100,17 +102,17 @@ public class Instantiation implements Traceable
     public void trace(Formatter formatter, WmeTraceType wtt)
     {
         formatter.format("%s", prod != null ? prod.getName() : "[dummy production]");
-
-        if (wtt == WmeTraceType.NONE)
+        
+        if(wtt == WmeTraceType.NONE)
         {
             return;
         }
-
+        
         // Note: replaced duplicate loop with call to getBacktraceWmes()
         formatter.format("\n");
-        for (Wme wme : getBacktraceWmes())
+        for(Wme wme : getBacktraceWmes())
         {
-            switch (wtt)
+            switch(wtt)
             {
             case TIMETAG:
                 formatter.format(" %d", wme.getTimetag());
@@ -136,11 +138,11 @@ public class Instantiation implements Traceable
      */
     public List<Wme> getBacktraceWmes()
     {
-        final List<Wme> result = new ArrayList<Wme>();
-        for (Condition cond = top_of_instantiated_conditions; cond != null; cond = cond.next)
+        final List<Wme> result = new ArrayList<>();
+        for(Condition cond = top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();
-            if (pc != null)
+            if(pc != null)
             {
                 result.add(pc.bt().wme_);
             }
@@ -179,7 +181,7 @@ public class Instantiation implements Traceable
         }
         pref.inst_next = pref.inst_prev = null;
     }
-
+    
     /**
      * Insert at the head of a list of instantiations
      * 
@@ -229,7 +231,9 @@ public class Instantiation implements Traceable
         return currentHead;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Traceable#trace(org.jsoar.kernel.Trace, java.util.Formatter, int, int, int)
      */
     @Override

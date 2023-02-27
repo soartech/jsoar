@@ -31,8 +31,10 @@ public class GetUrl extends AbstractRhsFunctionHandler
     {
         super("get-url", 1, 1);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -47,43 +49,21 @@ public class GetUrl extends AbstractRhsFunctionHandler
         {
             url = new URL(urlString);
         }
-        catch (MalformedURLException e)
+        catch(MalformedURLException e)
         {
             throw new RhsFunctionException("In '" + getName() + "' RHS function: " + e.getMessage());
         }
         
         // Open an input stream
-        final InputStream is;
-        try
+        try(InputStream is = new BufferedInputStream(url.openStream()); ByteArrayOutputStream out = new ByteArrayOutputStream())
         {
-            is = new BufferedInputStream(url.openStream());
+            ByteStreams.copy(is, out);
+            return context.getSymbols().createString(out.toString("UTF-8"));
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             throw new RhsFunctionException("In '" + getName() + "' RHS function: " + e.getMessage());
         }
         
-        try
-        {
-            // Read the input stream into a buffer
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            ByteStreams.copy(is, out);
-            return context.getSymbols().createString(out.toString("UTF-8"));
-        }
-        catch (IOException e)
-        {
-            throw new RhsFunctionException("In '" + getName() + "' RHS function: " + e.getMessage());
-        }
-        finally
-        {
-            try
-            {
-                is.close();
-            }
-            catch (IOException e)
-            {
-                throw new RhsFunctionException("In '" + getName() + "' RHS function: " + e.getMessage());
-            }
-        }
     }
 }

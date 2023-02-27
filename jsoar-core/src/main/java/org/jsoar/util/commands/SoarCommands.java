@@ -7,14 +7,13 @@ package org.jsoar.util.commands;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.adaptables.Adaptable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility methods for Soar commands and the Soar interpreter
@@ -23,7 +22,7 @@ import org.jsoar.util.adaptables.Adaptable;
  */
 public class SoarCommands
 {
-    private static final Logger logger = LoggerFactory.getLogger(SoarCommands.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SoarCommands.class);
     
     /**
      * A more general form of the source method.
@@ -44,12 +43,12 @@ public class SoarCommands
     {
         if(any instanceof File)
         {
-            logger.debug("Loading as File: {}", any);
+            LOG.debug("Loading as File: {}", any);
             interp.source((File) any);
         }
         else if(any instanceof URL)
         {
-            logger.debug("Loading as URL: {}", any);
+            LOG.debug("Loading as URL: {}", any);
             interp.source((URL) any);
         }
         else
@@ -58,12 +57,12 @@ public class SoarCommands
             final URL url = FileTools.asUrl(s);
             if(url != null)
             {
-                logger.debug("Attempting load as URL: {}", url);
+                LOG.debug("Attempting load as URL: {}", url);
                 interp.source(url);
             }
             else
             {
-                logger.debug("Attempting load as File: {}", s);
+                LOG.debug("Attempting load as File: {}", s);
                 interp.source(new File(s));
             }
         }
@@ -73,12 +72,12 @@ public class SoarCommands
     {
         if(any instanceof File)
         {
-            logger.debug("Loading as File: {}", any);
+            LOG.debug("Loading as File: {}", any);
             interp.loadRete((File) any);
         }
         else if(any instanceof URL)
         {
-            logger.debug("Loading as URL: {}", any);
+            LOG.debug("Loading as URL: {}", any);
             interp.loadRete((URL) any);
         }
         else
@@ -87,13 +86,13 @@ public class SoarCommands
             final URL url = FileTools.asUrl(s);
             if(url != null)
             {
-                logger.debug("Attempting load as URL: {}", url);
+                LOG.debug("Attempting load as URL: {}", url);
                 interp.loadRete(url);
             }
             else
             {
                 File file = new File(s);
-                logger.debug("Attempting to load {} as File: {}, exists?: {}", s, file, file.exists());
+                LOG.debug("Attempting to load {} as File: {}, exists?: {}", s, file, file.exists());
                 interp.loadRete(file);
             }
         }
@@ -109,12 +108,11 @@ public class SoarCommands
     public static void registerCustomCommands(SoarCommandInterpreter interp, Adaptable context)
     {
         final ServiceLoader<SoarCommandProvider> loader = ServiceLoader.load(SoarCommandProvider.class);
-        for(Iterator<SoarCommandProvider> it = loader.iterator(); it.hasNext();)
+        for(SoarCommandProvider provider : loader)
         {
-            final SoarCommandProvider provider = it.next();
-            logger.info("Registering custom commands from " + provider.getClass());
+            LOG.info("Registering custom commands from {}", provider.getClass());
             provider.registerCommands(interp, context);
         }
     }
-
+    
 }

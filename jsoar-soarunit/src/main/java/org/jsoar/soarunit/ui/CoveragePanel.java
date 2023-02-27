@@ -28,11 +28,14 @@ public class CoveragePanel extends JPanel
     private static final long serialVersionUID = 3969855352071214304L;
     
     private FiringCounts counts = new FiringCounts();
-    private final DefaultTableModel model = new DefaultTableModel(new Object[] {"FC", "Rule Name" }, 0) {
-
+    private final DefaultTableModel model = new DefaultTableModel(new Object[] { "FC", "Rule Name" }, 0)
+    {
+        
         private static final long serialVersionUID = -511335328461698520L;
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
          */
         @Override
@@ -44,8 +47,10 @@ public class CoveragePanel extends JPanel
             }
             return super.getColumnClass(columnIndex);
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see javax.swing.table.DefaultTableModel#isCellEditable(int, int)
          */
         @Override
@@ -59,7 +64,7 @@ public class CoveragePanel extends JPanel
     public CoveragePanel()
     {
         super(new BorderLayout());
-     
+        
         final TableColumn fcColumn = table.getColumnModel().getColumn(0);
         fcColumn.setMaxWidth(50);
         fcColumn.setCellRenderer(new Renderer());
@@ -86,15 +91,17 @@ public class CoveragePanel extends JPanel
         this.counts = counts;
         for(Map.Entry<String, Long> e : this.counts.getEntries())
         {
-            model.addRow(new Object[] {  e.getValue(), e.getKey() });
+            model.addRow(new Object[] { e.getValue(), e.getKey() });
         }
     }
     
     private static class Renderer extends DefaultTableCellRenderer
     {
         private static final long serialVersionUID = 2627814040530140111L;
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
          */
         @Override
@@ -102,7 +109,7 @@ public class CoveragePanel extends JPanel
                 Object value, boolean isSelected, boolean hasFocus, int row,
                 int column)
         {
-            final JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, 
+            final JLabel label = (JLabel) super.getTableCellRendererComponent(table, value,
                     isSelected, hasFocus, row, column);
             final Long longValue = (Long) value;
             

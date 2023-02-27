@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.commands;
 
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -15,12 +15,12 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DebuggerCommandTest
+class DebuggerCommandTest
 {
     @Test
-    public void testDebuggerCommandCallsOpenDebuggerOnAgent() throws Exception
+    void testDebuggerCommandCallsOpenDebuggerOnAgent() throws Exception
     {
         final Agent agent = new Agent("testDebuggerCommandCallsOpenDebuggerOnAgent");
         final AtomicBoolean called = new AtomicBoolean(false);
@@ -40,13 +40,13 @@ public class DebuggerCommandTest
                 assertSame(agent, a);
                 called.set(true);
             }
-
+            
             @Override
             public void closeDebugger(Agent agent)
             {
                 throw new UnsupportedOperationException("closeDebugger not supported");
             }
-
+            
             @Override
             public Object getDebugger(Agent agent)
             {

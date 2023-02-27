@@ -14,16 +14,16 @@ import org.jsoar.kernel.Production;
  * 
  * @author ray
  */
-class ProductionNodeData implements BReteNodeData
+public class ProductionNodeData implements BReteNodeData
 {
     enum AssertListType
     {
-        O_LIST, // 0     /* moved here from soarkernel.h.  only used in rete.cpp */
-        I_LIST  // 1     /*   values for prod->OPERAND_which_assert_list */
+        O_LIST, // 0 /* moved here from soarkernel.h. only used in rete.cpp */
+        I_LIST  // 1 /* values for prod->OPERAND_which_assert_list */
     }
     
-    public Production prod;                  /* the production */
-    NodeVarNames parents_nvn;         /* records variable names */
+    public Production prod; /* the production */
+    NodeVarNames parents_nvn; /* records variable names */
     
     // TODO: I think both of these fields belong in a Soar-specific sub-class
     // or something to decouple generic rete from Soar.
@@ -55,6 +55,7 @@ class ProductionNodeData implements BReteNodeData
         this.tentative_assertions = other.tentative_assertions;
         this.tentative_retractions = other.tentative_retractions;
     }
+    
     /**
      * @return Shallow copy of this object
      */

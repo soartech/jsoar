@@ -22,37 +22,37 @@ public class ConfigurationTest implements Comparable<ConfigurationTest>
     {
         return settings;
     }
-
+    
     public void setSettings(TestSettings settings)
     {
         this.settings = settings;
     }
-
+    
     public void setName(String name)
     {
         this.name = name;
     }
-
+    
     public void setFile(Path file)
     {
         this.file = file;
     }
-
+    
     public String getName()
     {
         return name;
     }
-
+    
     public Path getFile()
     {
         return file;
     }
-
+    
     public TestSettings getTestSettings()
     {
         return settings;
     }
-
+    
     @Override
     public int compareTo(ConfigurationTest o)
     {

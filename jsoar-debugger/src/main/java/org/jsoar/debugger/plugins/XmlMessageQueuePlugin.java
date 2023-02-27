@@ -28,8 +28,10 @@ import org.xml.sax.SAXException;
 public class XmlMessageQueuePlugin implements JSoarDebuggerPlugin
 {
     private XmlMessageQueue queue;
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.JSoarDebuggerPlugin#initialize(org.jsoar.debugger.JSoarDebugger, java.lang.String[])
      */
     @Override
@@ -39,12 +41,15 @@ public class XmlMessageQueuePlugin implements JSoarDebuggerPlugin
         
         this.queue = XmlMessageQueue.newBuilder(agent.getInputOutput()).create();
         
-        agent.getInterpreter().addCommand("xmq-add", new SoarCommand() {
+        agent.getInterpreter().addCommand("xmq-add", new SoarCommand()
+        {
             @Override
-            public Object getCommand() {
-                //todo - when implementing picocli, return the runnable
+            public Object getCommand()
+            {
+                // todo - when implementing picocli, return the runnable
                 return null;
             }
+            
             @Override
             public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
             {
@@ -59,21 +64,24 @@ public class XmlMessageQueuePlugin implements JSoarDebuggerPlugin
                     queue.add(doc.getDocumentElement());
                     agent.getPrinter().print("Added message to message queue").flush();
                 }
-                catch (SAXException e)
+                catch(SAXException e)
                 {
                     throw new SoarException(e.getMessage(), e);
                 }
-                catch (IOException e)
+                catch(IOException e)
                 {
                     throw new SoarException(e.getMessage(), e);
                 }
                 return "";
-            }});
+            }
+        });
         
         agent.getPrinter().print("Registered command 'xmq-add'. Usage: xmq-add <xml>").flush();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.JSoarDebuggerPlugin#shutdown()
      */
     @Override
@@ -87,5 +95,5 @@ public class XmlMessageQueuePlugin implements JSoarDebuggerPlugin
         
         // TODO cleanup command
     }
-
+    
 }

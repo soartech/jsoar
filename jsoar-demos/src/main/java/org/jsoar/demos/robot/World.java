@@ -22,33 +22,33 @@ public class World
 {
     public final SoarEventManager events = new SoarEventManager();
     public final Rectangle2D extents = new Rectangle2D.Double(-5.0, -5.0, 10.0, 10.0);
-    private final List<Robot> robots = new ArrayList<Robot>();
-    private final List<Shape> obstacles = new ArrayList<Shape>();
-    private final List<Waypoint> waypoints = new ArrayList<Waypoint>();
+    private final List<Robot> robots = new ArrayList<>();
+    private final List<Shape> obstacles = new ArrayList<>();
+    private final List<Waypoint> waypoints = new ArrayList<>();
     
     public World()
     {
         /*
-        Robot robot = new Robot(this, "a");
-        robot.move(3, 2);
-        robot.yaw = Math.toRadians(180.0);
-        robot.speed = 0.1;
-        robot.turnRate = Math.toRadians(12.0);
+         * Robot robot = new Robot(this, "a");
+         * robot.move(3, 2);
+         * robot.yaw = Math.toRadians(180.0);
+         * robot.speed = 0.1;
+         * robot.turnRate = Math.toRadians(12.0);
+         * 
+         * addRobot(robot);
+         * 
+         * Robot robot2 = new Robot(this, "b");
+         * robot2.move(3, -2);
+         * robot2.yaw = Math.toRadians(90.0);
+         * robot2.speed = 0.1;
+         * robot2.turnRate = Math.toRadians(-15.0);
+         * 
+         * addRobot(robot2);
+         */
+        // addObstacle(new RoundRectangle2D.Double(-3.0, -3.0, 3, 3, .25, .25));
+        // addObstacle(new Ellipse2D.Double(0, 0, 2, 2));
         
-        addRobot(robot);
-        
-        Robot robot2 = new Robot(this, "b");
-        robot2.move(3, -2);
-        robot2.yaw = Math.toRadians(90.0);
-        robot2.speed = 0.1;
-        robot2.turnRate = Math.toRadians(-15.0);
-        
-        addRobot(robot2);
-        */
-        //addObstacle(new RoundRectangle2D.Double(-3.0, -3.0, 3, 3, .25, .25));
-        //addObstacle(new Ellipse2D.Double(0, 0, 2, 2));
-        
-        //addWaypoint(new Waypoint("w", new Point2D.Double(0.5, 0.5)));
+        // addWaypoint(new Waypoint("w", new Point2D.Double(0.5, 0.5)));
     }
     
     public void addRobot(Robot robot)
@@ -83,7 +83,7 @@ public class World
     {
         return obstacles;
     }
-
+    
     public void addWaypoint(Waypoint waypoint)
     {
         this.waypoints.add(waypoint);
@@ -143,7 +143,6 @@ public class World
         }
         return false;
     }
-    
     
     public double getCollisionRange(Robot source, double angle)
     {

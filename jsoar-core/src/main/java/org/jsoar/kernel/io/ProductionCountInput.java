@@ -19,13 +19,13 @@ import org.jsoar.util.events.SoarEventListener;
 /**
  * Adds augmentations to the input-link with the current production counts.
  * The root augmentation is "production-counts" which has a child for each
- *   production type with the count for that type, and a total count.
+ * production type with the count for that type, and a total count.
  * 
  * @author marinier
  */
 public class ProductionCountInput
 {
-	private final Agent agent;
+    private final Agent agent;
     private final InputOutput io;
     private final InputListener listener;
     
@@ -38,7 +38,7 @@ public class ProductionCountInput
     private InputWme templateCountWme;
     
     /**
-     * Construct a new production count input object. This object will automatically 
+     * Construct a new production count input object. This object will automatically
      * register for input events and update the input-link.
      * 
      * @param agent The agent
@@ -54,8 +54,8 @@ public class ProductionCountInput
     }
     
     /**
-     * Dispose this object, removing the production counts from the input link and 
-     * unregistering from the event manager if necessary 
+     * Dispose this object, removing the production counts from the input link and
+     * unregistering from the event manager if necessary
      */
     public void dispose()
     {
@@ -80,18 +80,18 @@ public class ProductionCountInput
      */
     private void update()
     {
-    	Map<ProductionType, Integer> counts = agent.getProductions().getProductionCounts();
-    	int totalCount = agent.getProductions().getProductionCount();
-    	int chunkCount = counts.get(ProductionType.CHUNK);
-    	int defaultCount = counts.get(ProductionType.DEFAULT);
-    	int justificationCount = counts.get(ProductionType.JUSTIFICATION);
-    	int templateCount = counts.get(ProductionType.TEMPLATE);
-    	int userCount = counts.get(ProductionType.USER);
-    	
+        Map<ProductionType, Integer> counts = agent.getProductions().getProductionCounts();
+        int totalCount = agent.getProductions().getProductionCount();
+        int chunkCount = counts.get(ProductionType.CHUNK);
+        int defaultCount = counts.get(ProductionType.DEFAULT);
+        int justificationCount = counts.get(ProductionType.JUSTIFICATION);
+        int templateCount = counts.get(ProductionType.TEMPLATE);
+        int userCount = counts.get(ProductionType.USER);
+        
         if(rootIdWme == null)
         {
-        	rootIdWme = InputWmes.add(io, "production-counts", Symbols.NEW_ID);
-        	chunkCountWme = InputWmes.add(rootIdWme, "chunk", chunkCount);
+            rootIdWme = InputWmes.add(io, "production-counts", Symbols.NEW_ID);
+            chunkCountWme = InputWmes.add(rootIdWme, "chunk", chunkCount);
             defaultCountWme = InputWmes.add(rootIdWme, "default", defaultCount);
             justificationCountWme = InputWmes.add(rootIdWme, "justification", justificationCount);
             templateCountWme = InputWmes.add(rootIdWme, "template", templateCount);
@@ -111,7 +111,9 @@ public class ProductionCountInput
     
     private class InputListener implements SoarEventListener
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.events.SoarEventListener#onEvent(org.jsoar.kernel.events.SoarEvent)
          */
         @Override

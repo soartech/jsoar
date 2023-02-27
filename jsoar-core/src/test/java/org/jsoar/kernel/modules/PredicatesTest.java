@@ -5,22 +5,26 @@
  */
 package org.jsoar.kernel.modules;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.jsoar.kernel.modules.Predicates.betweenDouble;
+import static org.jsoar.kernel.modules.Predicates.betweenInteger;
+import static org.jsoar.kernel.modules.Predicates.greaterThanDouble;
+import static org.jsoar.kernel.modules.Predicates.greaterThanInteger;
+import static org.jsoar.kernel.modules.Predicates.lessThanDouble;
+import static org.jsoar.kernel.modules.Predicates.lessThanInteger;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.base.Predicate;
-import static org.jsoar.kernel.modules.Predicates.*;
-
 
 /**
  * @author ray
  */
-public class PredicatesTest
+class PredicatesTest
 {
     @Test
-    public void testBetweenDoubleInclusivePredicate()
+    void testBetweenDoubleInclusivePredicate()
     {
         final Predicate<Double> btw = betweenDouble(-3.0, 5.0, true);
         assertTrue(btw.apply(-3.0));
@@ -31,7 +35,7 @@ public class PredicatesTest
     }
     
     @Test
-    public void testBetweenDoubleNonInclusivePredicate()
+    void testBetweenDoubleNonInclusivePredicate()
     {
         final Predicate<Double> btw = betweenDouble(-3.0, 5.0, false);
         assertFalse(btw.apply(-3.0));
@@ -44,7 +48,7 @@ public class PredicatesTest
     }
     
     @Test
-    public void testGreaterThanDoubleInclusivePredicate()
+    void testGreaterThanDoubleInclusivePredicate()
     {
         final Predicate<Double> btw = greaterThanDouble(-3.0, true);
         assertTrue(btw.apply(-3.0));
@@ -55,7 +59,7 @@ public class PredicatesTest
     }
     
     @Test
-    public void testGreaterThanDoubleNonInclusivePredicate()
+    void testGreaterThanDoubleNonInclusivePredicate()
     {
         final Predicate<Double> btw = greaterThanDouble(-3.0, false);
         assertFalse(btw.apply(-3.0));
@@ -66,7 +70,7 @@ public class PredicatesTest
     }
     
     @Test
-    public void testLessThanDoubleInclusivePredicate()
+    void testLessThanDoubleInclusivePredicate()
     {
         final Predicate<Double> btw = lessThanDouble(-3.0, true);
         assertTrue(btw.apply(-3.0));
@@ -77,7 +81,7 @@ public class PredicatesTest
     }
     
     @Test
-    public void testLessThanDoubleNonInclusivePredicate()
+    void testLessThanDoubleNonInclusivePredicate()
     {
         final Predicate<Double> btw = lessThanDouble(-3.0, false);
         assertFalse(btw.apply(-3.0));
@@ -88,7 +92,7 @@ public class PredicatesTest
     }
     
     @Test
-    public void testBetweenIntegerInclusivePredicate()
+    void testBetweenIntegerInclusivePredicate()
     {
         final Predicate<Integer> btw = betweenInteger(-3, 5, true);
         assertTrue(btw.apply(-3));
@@ -99,7 +103,7 @@ public class PredicatesTest
     }
     
     @Test
-    public void testBetweenIntegerNonInclusivePredicate()
+    void testBetweenIntegerNonInclusivePredicate()
     {
         final Predicate<Integer> btw = betweenInteger(-3, 5, false);
         assertFalse(btw.apply(-3));
@@ -112,7 +116,7 @@ public class PredicatesTest
     }
     
     @Test
-    public void testGreaterThanIntegerInclusivePredicate()
+    void testGreaterThanIntegerInclusivePredicate()
     {
         final Predicate<Integer> btw = greaterThanInteger(-3, true);
         assertTrue(btw.apply(-3));
@@ -123,7 +127,7 @@ public class PredicatesTest
     }
     
     @Test
-    public void testGreaterThanIntegerNonInclusivePredicate()
+    void testGreaterThanIntegerNonInclusivePredicate()
     {
         final Predicate<Integer> btw = greaterThanInteger(-3, false);
         assertFalse(btw.apply(-3));
@@ -134,7 +138,7 @@ public class PredicatesTest
     }
     
     @Test
-    public void testLessThanIntegerInclusivePredicate()
+    void testLessThanIntegerInclusivePredicate()
     {
         final Predicate<Integer> btw = lessThanInteger(-3, true);
         assertTrue(btw.apply(-3));
@@ -145,7 +149,7 @@ public class PredicatesTest
     }
     
     @Test
-    public void testLessThanIntegerNonInclusivePredicate()
+    void testLessThanIntegerNonInclusivePredicate()
     {
         final Predicate<Integer> btw = lessThanInteger(-3, false);
         assertFalse(btw.apply(-3));

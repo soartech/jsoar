@@ -21,6 +21,8 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.adaptables.Adaptables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -36,11 +38,12 @@ import org.xml.sax.SAXException;
  */
 abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
 {
-
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractXmlFileToWme.class);
+    
     private WmeBuilder<?> builder = null;
-
+    
     private WmeFactory<?> factory = null;
-
+    
     /**
      * Overloaded {@link #AbstractXmlFileToWme(WmeFactory)}.
      * 
@@ -50,7 +53,7 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
     {
         factory = io.asWmeFactory();
     }
-
+    
     /**
      * Create an xmlToWme object which adds WMEs to an arbitrary location. The
      * root WME is returned by {@link #fromXml(Element)}.<br>
@@ -65,7 +68,7 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
     {
         factory = wmeFactory;
     }
-
+    
     @Override
     public void xmlToWme(File file, InputOutput io)
     {
@@ -75,7 +78,7 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
         io.addInputWme(io.getInputLink(),
                 Symbols.create(sf, root.getNodeName()), ret);
     }
-
+    
     @Override
     public Identifier fromXml(Element element)
     {
@@ -85,7 +88,7 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
         getXmlTree(element.getChildNodes(), builder);
         return builder.topId();
     }
-
+    
     /**
      * Add all of the nodes in the list to the builder. If the nodes contain
      * children, make a recursive call to add them. Attributes of XML tags are
@@ -100,26 +103,26 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
      * @param builder - the JSoar builder
      */
     abstract void getXmlTree(NodeList nodeList, WmeBuilder<?> builder);
-
+    
     /**
      * Add the attributes contained in the <code>NamedNodeMap</code> to the
      * builder.
      * 
      * @param nnm
-     *            - a collection of attribute nodes
+     *     - a collection of attribute nodes
      * @param builder
-     *            - the JSoar builder
+     *     - the JSoar builder
      */
     abstract void addAttributes(NamedNodeMap nnm, WmeBuilder<?> builder);
-
+    
     /**
      * Parse an XML file and get its root {@link Element}.
      * 
      * @param f
-     *            - the XML file to parse
+     *     - the XML file to parse
      * @return The root <code>Element</code> of the XML file. Returns
-     *         <code>null</code> if the file cannot be read or an error occurs
-     *         during parsing.
+     * <code>null</code> if the file cannot be read or an error occurs
+     * during parsing.
      */
     protected Element getRootElement(File f)
     {
@@ -132,12 +135,12 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
             Document dom = db.parse(f);
             return dom.getDocumentElement();
         }
-        catch (ParserConfigurationException | SAXException | IOException ex)
+        catch(ParserConfigurationException | SAXException | IOException ex)
         {
             Printer p = Adaptables.adapt(this.factory.getSymbols(), Printer.class);
             if(p == null)
             {
-                ex.printStackTrace();
+                LOG.error("Error getting root element", ex);
             }
             else
             {

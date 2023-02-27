@@ -54,7 +54,7 @@ public class ObjectPopupMenu extends JPopupMenu
             menu.show(e.getComponent(), e.getX(), e.getY());
         }
     }
-
+    
     public ObjectPopupMenu(ActionManager am, Object object)
     {
         for(AbstractDebuggerAction a : am.getActionsForObject(object))

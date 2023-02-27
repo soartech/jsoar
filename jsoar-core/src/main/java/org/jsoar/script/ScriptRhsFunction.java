@@ -30,7 +30,7 @@ import com.google.common.base.Joiner;
  */
 public class ScriptRhsFunction extends AbstractRhsFunctionHandler
 {
-    private static final Joiner joiner = Joiner.on("");
+    private static final Joiner JOINER = Joiner.on("");
     
     private final ScriptEngineState state;
     
@@ -46,22 +46,24 @@ public class ScriptRhsFunction extends AbstractRhsFunctionHandler
         
         this.state = state;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
     public Symbol execute(RhsFunctionContext context, List<Symbol> arguments)
             throws RhsFunctionException
     {
-        final String code = joiner.join(arguments);
+        final String code = JOINER.join(arguments);
         try
         {
             final Object result = state.eval(code);
-
+            
             return Symbols.create(context.getSymbols(), result);
         }
-        catch (SoarException e)
+        catch(SoarException e)
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }

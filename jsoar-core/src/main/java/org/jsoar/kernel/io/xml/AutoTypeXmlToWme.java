@@ -65,75 +65,75 @@ import org.w3c.dom.NodeList;
  */
 public class AutoTypeXmlToWme extends AbstractXmlFileToWme
 {
-
+    
     public AutoTypeXmlToWme(InputOutput io)
     {
         super(io);
     }
-
+    
     public AutoTypeXmlToWme(WmeFactory<?> io)
     {
         super(io);
     }
-
+    
     /**
      * Construct an XML to WME converter for RHS functions, i.e. it uses an
      * instance of {@link RhsFunctionContext} to generate symbols and WMEs.
      * 
      * @param rhsContext
-     *            the RHS function context to use
+     *     the RHS function context to use
      * @return new converter
      */
     public static AutoTypeXmlToWme forRhsFunction(RhsFunctionContext rhsContext)
     {
         return new AutoTypeXmlToWme(rhsContext);
     }
-
+    
     @Override
     protected void getXmlTree(NodeList nodeList, WmeBuilder<?> builder)
     {
-
-        for (int i = 0; i < nodeList.getLength(); i++)
+        
+        for(int i = 0; i < nodeList.getLength(); i++)
         {
             Node current = nodeList.item(i);
             // ignore nodes that are not element nodes (text and attribute nodes
             // are handled as a special case)
-            if (current.getNodeType() == Node.ELEMENT_NODE)
+            if(current.getNodeType() == Node.ELEMENT_NODE)
             {
                 boolean pushed = false;
-
+                
                 // add attribute nodes, if any
-                if (current.hasAttributes())
+                if(current.hasAttributes())
                 {
                     pushed = true;
                     builder = builder.push(current.getNodeName());
                     addAttributes(current.getAttributes(), builder);
                 }
-                if (current.getChildNodes().getLength() == 1
+                if(current.getChildNodes().getLength() == 1
                         && current.getFirstChild().getNodeValue() != null)
                 {
                     // leaf node containing text
-                    if (pushed)
+                    if(pushed)
                     {
                         builder = builder.pop();
                     }
                     addWme(builder, current.getNodeName(), current
                             .getFirstChild().getNodeValue().trim());
                 }
-                else if (!current.hasChildNodes() && !current.hasAttributes())
+                else if(!current.hasChildNodes() && !current.hasAttributes())
                 {
                     // empty leaf node
-                    if (pushed)
+                    if(pushed)
                     {
                         builder = builder.pop();
                     }
                     addWme(builder, current.getNodeName(), "");
                 }
-                else if (current.hasChildNodes()
+                else if(current.hasChildNodes()
                         && current.getNodeName() != null)
                 {
                     // recursive call if not a leaf node
-                    if (!pushed)
+                    if(!pushed)
                     {
                         builder = builder.push(current.getNodeName());
                     }
@@ -143,7 +143,7 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme
                 else
                 {
                     // pop if none of the above are true
-                    if (pushed)
+                    if(pushed)
                     {
                         builder = builder.pop();
                     }
@@ -152,21 +152,21 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme
         }
         return;
     }
-
+    
     @Override
     protected void addAttributes(NamedNodeMap nnm, WmeBuilder<?> builder)
     {
-        for (int i = 0; i < nnm.getLength(); i++)
+        for(int i = 0; i < nnm.getLength(); i++)
         {
             Node n = nnm.item(i);
             String val = n.getNodeValue().trim();
-            if (val.length() > 0)
+            if(val.length() > 0)
             {
                 addWme(builder, n.getNodeName(), n.getNodeValue());
             }
         }
     }
-
+    
     /**
      * Add a WME to the builder. The type of the WME value is automatically
      * determined. If <code>Integer.parse</code> is successful the type is
@@ -186,22 +186,22 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme
             builder = builder.add(attribute, intVal);
             return;
         }
-        catch (NumberFormatException e)
+        catch(NumberFormatException e)
         {
             // not an Integer if exception is thrown
         }
-
+        
         try
         {
             final Double doubleVal = Double.parseDouble(value);
             builder = builder.add(attribute, doubleVal);
             return;
         }
-        catch (NumberFormatException e)
+        catch(NumberFormatException e)
         {
             // not a Double if exception is thrown
         }
-
+        
         builder = builder.add(attribute, value);
         return;
     }

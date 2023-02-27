@@ -16,7 +16,6 @@ public class FunctionAction extends Action
 {
     public RhsFunctionCall call;
     
-    
     /**
      * @param call
      */
@@ -24,7 +23,7 @@ public class FunctionAction extends Action
     {
         this.call = call;
     }
-
+    
     /**
      * @return the call
      */
@@ -32,8 +31,10 @@ public class FunctionAction extends Action
     {
         return call;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Action#asFunctionAction()
      */
     @Override
@@ -41,8 +42,10 @@ public class FunctionAction extends Action
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Action#addAllVariables(int, java.util.List)
      */
     @Override
@@ -50,6 +53,5 @@ public class FunctionAction extends Action
     {
         call.addAllVariables(tc_number, var_list);
     }
-    
     
 }

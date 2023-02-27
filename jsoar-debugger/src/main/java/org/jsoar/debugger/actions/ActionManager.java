@@ -10,32 +10,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.util.adaptables.Adaptables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ray
  */
 public class ActionManager
 {
-    private static final Logger logger = LoggerFactory.getLogger(ActionManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ActionManager.class);
     
     private JSoarDebugger app;
-    private List<AbstractDebuggerAction> actions = new ArrayList<AbstractDebuggerAction>();
-    private Map<String, AbstractDebuggerAction> actionCache = new HashMap<String, AbstractDebuggerAction>();
+    private List<AbstractDebuggerAction> actions = new ArrayList<>();
+    private Map<String, AbstractDebuggerAction> actionCache = new HashMap<>();
     
     private static class ObjectActionPair
     {
         AbstractDebuggerAction action;
         Class<?> klass;
         public boolean adapt;
-    };
+    }
     
-    private List<ObjectActionPair> objectActions = new ArrayList<ObjectActionPair>();
+    private List<ObjectActionPair> objectActions = new ArrayList<>();
     
     /**
      * @param app The owning application
@@ -45,12 +45,14 @@ public class ActionManager
         this.app = app;
         
         SelectionManager selectionManager = this.app.getSelectionManager();
-        selectionManager.addListener(new SelectionListener() {
-
+        selectionManager.addListener(new SelectionListener()
+        {
+            
             public void selectionChanged(SelectionManager manager)
             {
                 updateActions();
-            }});
+            }
+        });
     }
     
     /**
@@ -68,7 +70,7 @@ public class ActionManager
     {
         return app.getSelectionManager();
     }
-
+    
     public AbstractDebuggerAction getAction(String id)
     {
         AbstractDebuggerAction r = actionCache.get(id);
@@ -120,7 +122,7 @@ public class ActionManager
             action.update();
         }
     }
-
+    
     public void executeAction(String id)
     {
         AbstractDebuggerAction action = getAction(id);
@@ -130,7 +132,7 @@ public class ActionManager
         }
         else
         {
-            logger.error("No action found with id '" + id + "'");
+            LOG.error("No action found with id '{}'", id);
         }
     }
     
@@ -140,7 +142,7 @@ public class ActionManager
      * @param action The action
      * @param klass The class of object this action is associated with.
      * @param adapt If true, the class is located through adapters in addition to the usual
-     *      instanceof test.
+     *     instanceof test.
      */
     public void addObjectAction(AbstractDebuggerAction action, Class<?> klass, boolean adapt)
     {
@@ -155,7 +157,7 @@ public class ActionManager
     }
     
     /**
-     * Return a list of actions applicable to the given object. These are 
+     * Return a list of actions applicable to the given object. These are
      * actions previously installed with a call to {@link #addObjectAction(AbstractDebuggerAction, Class, boolean)}.
      * 
      * @param o The object
@@ -163,7 +165,7 @@ public class ActionManager
      */
     public List<AbstractDebuggerAction> getActionsForObject(Object o)
     {
-        List<AbstractDebuggerAction> result = new ArrayList<AbstractDebuggerAction>();
+        List<AbstractDebuggerAction> result = new ArrayList<>();
         for(ObjectActionPair pair : objectActions)
         {
             if(pair.adapt)

@@ -13,8 +13,10 @@ import java.util.List;
 public interface SelectionProvider
 {
     void activate(SelectionManager manager);
+    
     void deactivate();
     
     Object getSelectedObject();
+    
     List<Object> getSelection();
 }

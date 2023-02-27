@@ -5,34 +5,38 @@
  */
 package org.jsoar.runtime;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class WaitRhsFunctionTest
 {
     private ThreadedAgent agent;
     
-    @Before
-    public void setUp()
+    @BeforeEach
+    void setUp()
     {
         this.agent = ThreadedAgent.create();
     }
     
-    @After
-    public void tearDown()
+    @AfterEach
+    void tearDown()
     {
         this.agent.detach();
     }
-
-    @Test(timeout=10000)
+    
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testDoesNotWaitIfAsynchInputIsReadyAndInputPhaseHasntRunYet() throws Exception
     {
         // Skip first input phase
@@ -48,7 +52,7 @@ public class WaitRhsFunctionTest
         
         // Now run some more. The agent shouldn't wait because input ready came before input phase
         
-        agent.executeAndWait(() -> 
+        agent.executeAndWait(() ->
         {
             agent.runFor(2, RunType.DECISIONS);
             return null;
@@ -57,7 +61,8 @@ public class WaitRhsFunctionTest
         // Test will timeout on failure
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaitingPropertyIsSetAndWaitExitsWhenAsynchInputIsReady() throws Exception
     {
         this.agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
@@ -86,7 +91,8 @@ public class WaitRhsFunctionTest
         }
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaitIsInterruptedIfAgentIsStopped() throws Exception
     {
         this.agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
@@ -111,7 +117,8 @@ public class WaitRhsFunctionTest
         }
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testNoWaitIfAgentHalts() throws Exception
     {
         // The (halt) should trump the (wait)
@@ -120,32 +127,32 @@ public class WaitRhsFunctionTest
         assertFalse(this.agent.getProperties().get(SoarProperties.WAIT_INFO).waiting);
         
         final AtomicBoolean signalled = new AtomicBoolean(false);
-        final Object signal = new String("testNoWaitIfAgentHalts");
+        final Object signal = "testNoWaitIfAgentHalts";
         
         agent.execute(() ->
         {
             agent.runForever();
             return null;
         },
-        result -> 
-        {
-            synchronized(signal)
-            {
-                signal.notifyAll();
-                signalled.set(true);
-            }
-        });
+                result ->
+                {
+                    synchronized (signal)
+                    {
+                        signal.notifyAll();
+                        signalled.set(true);
+                    }
+                });
         
         if(!signalled.get())
         {
-            synchronized(signal)
+            synchronized (signal)
             {
                 signal.wait();
             }
         }
     }
     
-    @Test //(timeout=10000)
+    @Test // (timeout=10000)
     public void testShortestWaitInDecisionCycleIsUsed() throws Exception
     {
         this.agent.getProductions().loadProduction("forever (state <s> ^superstate nil) --> (wait)");
@@ -176,5 +183,5 @@ public class WaitRhsFunctionTest
             Thread.sleep(50);
         }
     }
-
+    
 }

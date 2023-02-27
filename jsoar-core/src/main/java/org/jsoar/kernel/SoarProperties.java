@@ -15,7 +15,7 @@ import org.jsoar.util.properties.PropertyKey;
 /**
  * Declaration of per-agent Soar configuration properties.
  * 
- * <p>Note that the "properties" command can be used to print the current 
+ * <p>Note that the "properties" command can be used to print the current
  * values of all properties in the agent.</p>
  * 
  * @author ray
@@ -36,6 +36,7 @@ public class SoarProperties
      * The current "waitsnc" setting.
      * 
      * <p>agent.h:740:waitsnc
+     * 
      * @see Decider
      * @see org.jsoar.kernel.commands.SoarSettingsCommand.WaitSNC
      */
@@ -43,6 +44,7 @@ public class SoarProperties
     
     /**
      * <p>gsysparams.h::MAX_NIL_OUTPUT_CYCLES_SYSPARAM
+     * 
      * @see DecisionCycle
      */
     public static final PropertyKey<Integer> MAX_NIL_OUTPUT_CYCLES = PropertyKey.builder("max-nil-output-cycles", Integer.class).defaultValue(15).build();
@@ -57,10 +59,10 @@ public class SoarProperties
     /**
      * <p>gsysparam.h:164:MAX_GOAL_DEPTH
      * <p>Defaults to 100 in init_soar()
+     * 
      * @see Decider
      */
     public static final PropertyKey<Integer> MAX_GOAL_DEPTH = PropertyKey.builder("max-goal-depth", Integer.class).defaultValue(100).build();
-
     
     /**
      * <p>gsysparam.h:179:CHUNK_THROUGH_LOCAL_NEGATIONS_SYSPARAM
@@ -70,7 +72,7 @@ public class SoarProperties
     
     /**
      * <p>gsysparam.h:143:USE_LONG_CHUNK_NAMES
-     * <p>Defaults to true in init_soar() 
+     * <p>Defaults to true in init_soar()
      */
     public static final PropertyKey<Boolean> USE_LONG_CHUNK_NAMES = PropertyKey.builder("use-long-chunk-names", Boolean.class).defaultValue(true).build();
     
@@ -135,35 +137,35 @@ public class SoarProperties
      * @see DecisionCycle
      */
     public static final PropertyKey<Long> E_CYCLE_COUNT = counter("e_cycle_count");
-
+    
     /**
      * <p>agent.h::decision_phases_count
      * 
      * @see DecisionCycle
      */
     public static final PropertyKey<Long> DECISION_PHASES_COUNT = counter("decision_phases_count");
-
+    
     /**
      * <p>agent.h::inner_e_cycle_count
      * 
      * @see DecisionCycle
      */
     public static final PropertyKey<Long> INNER_E_CYCLE_COUNT = counter("inner_e_cycle_count");
-
+    
     /**
      * <p>agent.h::pe_cycle_count
      * 
      * @see DecisionCycle
      */
     public static final PropertyKey<Long> PE_CYCLE_COUNT = counter("pe_cycle_count");
-
+    
     /**
      * <p>agent.h::gent.h:367:production_firing_count
      * 
      * @see RecognitionMemory
      */
     public static final PropertyKey<Long> PRODUCTION_FIRING_COUNT = counter("production_firing_count");
-
+    
     /**
      * <p>agent.h::wme_addition_count
      * 
@@ -177,7 +179,7 @@ public class SoarProperties
      * @see WorkingMemory
      */
     public static final PropertyKey<Long> WME_REMOVAL_COUNT = counter("wme_removal_count");
-
+    
     /**
      * <p>agent.h::max_wm_size
      * 
@@ -200,8 +202,8 @@ public class SoarProperties
     public static final PropertyKey<Long> NUM_WM_SIZES_ACCUMULATED = counter("num_wm_sizes_accumulated");
     
     /**
-     * True if the agent is currently running. This property is not set on a raw 
-     * {@link Agent}. It is only set by higher-level run controllers such as 
+     * True if the agent is currently running. This property is not set on a raw
+     * {@link Agent}. It is only set by higher-level run controllers such as
      * {@link ThreadedAgent}.
      * 
      * @see ThreadedAgent

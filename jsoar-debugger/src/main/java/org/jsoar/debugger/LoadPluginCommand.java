@@ -28,10 +28,10 @@ public class LoadPluginCommand extends PicocliSoarCommand
     {
         super(null, new LoadPlugin(debugger));
     }
-
-    @Command(name="load-plugin", description="Loads a debugger plugin",
-            subcommands={HelpCommand.class})
-    static public class LoadPlugin implements Runnable {
+    
+    @Command(name = "load-plugin", description = "Loads a debugger plugin", subcommands = { HelpCommand.class })
+    static public class LoadPlugin implements Runnable
+    {
         
         private final JSoarDebugger debugger;
         
@@ -44,11 +44,14 @@ public class LoadPluginCommand extends PicocliSoarCommand
         @Parameters(index = "1..*", description = "Zero or more arguments expected by the plugin.")
         private String[] args = {};
         
-        public LoadPlugin(JSoarDebugger debugger) {
+        public LoadPlugin(JSoarDebugger debugger)
+        {
             this.debugger = debugger;
         }
         
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
          */
         @Override
@@ -58,10 +61,13 @@ public class LoadPluginCommand extends PicocliSoarCommand
             {
                 Class<?> klass = Class.forName(className);
                 JSoarDebuggerPlugin plugin;
-                try {
+                try
+                {
                     plugin = (JSoarDebuggerPlugin) klass.getConstructor().newInstance();
-                } catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-                        | SecurityException e) {
+                }
+                catch(IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+                        | SecurityException e)
+                {
                     throw new ParameterException(spec.commandLine(), "Failed to instantiate plugin", e);
                 }
                 
@@ -74,15 +80,15 @@ public class LoadPluginCommand extends PicocliSoarCommand
                 plugin.initialize(debugger, initArgs);
                 debugger.addPlugin(plugin);
             }
-            catch (ClassNotFoundException e)
+            catch(ClassNotFoundException e)
             {
                 throw new ParameterException(spec.commandLine(), "Failed to find plugin class. Maybe it's not on the class path? : " + e.getMessage(), e);
             }
-            catch (InstantiationException | IllegalAccessException | ClassCastException e)
+            catch(InstantiationException | IllegalAccessException | ClassCastException e)
             {
                 throw new ParameterException(spec.commandLine(), e.getMessage(), e);
             }
         }
-    
+        
     }
 }

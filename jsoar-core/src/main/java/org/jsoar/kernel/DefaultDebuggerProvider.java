@@ -11,10 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the default implementation of the {@link DebuggerProvider} 
- * interface. 
+ * This is the default implementation of the {@link DebuggerProvider}
+ * interface.
  * 
- * <p>Since a debugger is not provided in the core JSoar package 
+ * <p>Since a debugger is not provided in the core JSoar package
  * (jsoar-core.jar) this class attempts to load a debugger reflectively
  * based on a system property. When {@link #openDebugger(Agent)} is called
  * the value of the {@code jsoar.debugger.provider} system property is
@@ -32,14 +32,16 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultDebuggerProvider extends AbstractDebuggerProvider
 {
-    private static final Logger logger = LoggerFactory.getLogger(DefaultDebuggerProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultDebuggerProvider.class);
     
     public static final String PROPERTY = "jsoar.debugger.provider";
     public static final String DEFAULT_CLASS = "org.jsoar.debugger.DefaultDebuggerProvider";
     
     private DebuggerProvider debuggerProvider;
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.DebuggerProvider#openDebugger()
      */
     @Override
@@ -49,7 +51,9 @@ public class DefaultDebuggerProvider extends AbstractDebuggerProvider
         this.debuggerProvider.openDebugger(agent);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.DebuggerProvider#openDebuggerAndWait(org.jsoar.kernel.Agent)
      */
     @Override
@@ -59,7 +63,7 @@ public class DefaultDebuggerProvider extends AbstractDebuggerProvider
         this.debuggerProvider = loadProvider();
         this.debuggerProvider.openDebuggerAndWait(agent);
     }
-
+    
     private synchronized DebuggerProvider loadProvider() throws SoarException
     {
         final String className = System.getProperty(PROPERTY, DEFAULT_CLASS);
@@ -75,29 +79,29 @@ public class DefaultDebuggerProvider extends AbstractDebuggerProvider
             }
             else
             {
-                logger.error("Expected instance of " + DebuggerProvider.class + ", got " + klass);
+                LOG.error("Expected instance of {}, got {}", DebuggerProvider.class, klass);
                 throw new SoarException("Expected instance of " + DebuggerProvider.class + ", got " + klass);
             }
         }
-        catch (ClassNotFoundException e)
+        catch(ClassNotFoundException e)
         {
-            logger.error("Could not find default debugger provider class '" + DEFAULT_CLASS + "'");
-            throw new SoarException("Could not find default debugger provider class '" + DEFAULT_CLASS + "'");
+            LOG.error("Could not find default debugger provider class '{}'", DEFAULT_CLASS, e);
+            throw new SoarException("Could not find default debugger provider class '" + DEFAULT_CLASS + "'", e);
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
+        catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
         {
-            logger.error("Error instantiating debugger provider class '" + DEFAULT_CLASS + "': " + e.getMessage(), e);
-            throw new SoarException("Error instantiating debugger provider class '" + DEFAULT_CLASS + "': " + e.getMessage(), e);
+            LOG.error("Error instantiating debugger provider class '{}'", DEFAULT_CLASS, e);
+            throw new SoarException("Error instantiating debugger provider class '" + DEFAULT_CLASS + "'", e);
         }
         
     }
-
+    
     @Override
     public void closeDebugger(Agent agent)
     {
         this.debuggerProvider.closeDebugger(agent);
     }
-
+    
     @Override
     public Object getDebugger(Agent agent)
     {

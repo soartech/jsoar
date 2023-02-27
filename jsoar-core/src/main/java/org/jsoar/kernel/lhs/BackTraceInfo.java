@@ -24,13 +24,15 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class BackTraceInfo implements Iterable<Preference>
 {
-    public WmeImpl wme_;               /* the actual wme that was matched */
-    public int level;   /* level (at firing time) of the id of the wme */
-    public Preference trace;        /* preference for BT, or NIL */
-
-    private LinkedList<Preference> cdps;  /* list of substate evaluation prefs to backtrace through,
-                                             i.e. the context dependent preference set. */
-
+    public WmeImpl wme_; /* the actual wme that was matched */
+    public int level; /* level (at firing time) of the id of the wme */
+    public Preference trace; /* preference for BT, or NIL */
+    
+    private LinkedList<Preference> cdps; /*
+                                          * list of substate evaluation prefs to backtrace through,
+                                          * i.e. the context dependent preference set.
+                                          */
+    
     public BackTraceInfo()
     {
     }
@@ -50,7 +52,7 @@ public class BackTraceInfo implements Iterable<Preference>
     {
         return new BackTraceInfo(this);
     }
-
+    
     public void addContextDependentPreference(Preference pref)
     {
         if(cdps == null)
@@ -68,19 +70,19 @@ public class BackTraceInfo implements Iterable<Preference>
     
     public void clearContextDependentPreferenceSet(final Adaptable context)
     {
-        if (!hasContextDependentPreferences())
+        if(!hasContextDependentPreferences())
         {
             return;
         }
-
+        
         final RecognitionMemory recMemory = Adaptables.adapt(context, RecognitionMemory.class);
-
+        
         Iterator<Preference> it = cdps.iterator();
         while(it.hasNext())
         {
             Preference p = it.next();
-            if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
-            {    
+            if(SoarConstants.DO_TOP_LEVEL_REF_CTS)
+            {
                 if(level > SoarConstants.TOP_GOAL_LEVEL)
                 {
                     p.preference_remove_ref(recMemory);
@@ -93,8 +95,10 @@ public class BackTraceInfo implements Iterable<Preference>
             it.remove();
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Iterable#iterator()
      */
     @Override

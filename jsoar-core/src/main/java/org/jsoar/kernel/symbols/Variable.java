@@ -8,8 +8,8 @@ package org.jsoar.kernel.symbols;
 import java.util.Formatter;
 import java.util.LinkedList;
 
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.markers.Marker;
 
 /**
@@ -31,22 +31,21 @@ public class Variable extends SymbolImpl
     public int gensym_number;
     
     /**
-     * See rete.cpp:2285 for why this is a stack. 
+     * See rete.cpp:2285 for why this is a stack.
      */
-    public final LinkedList<Integer> rete_binding_locations = new LinkedList<Integer>(); 
-    
+    public final LinkedList<Integer> rete_binding_locations = new LinkedList<>();
     
     /**
      * @param hash_id the variable's hash id
      * @param name the variable name
      */
-    /*package*/ Variable(SymbolFactory factory, int hash_id, String name)
+    /* package */ Variable(SymbolFactory factory, int hash_id, String name)
     {
         super(factory, hash_id);
         
         this.name = name;
     }
-
+    
     /**
      * <p>production.cpp:1058:mark_variable_if_unmarked
      * 
@@ -92,7 +91,7 @@ public class Variable extends SymbolImpl
     {
         return !rete_binding_locations.isEmpty();
     }
-
+    
     /**
      * <p>rete.cpp:2323:varloc_to_dummy
      * 
@@ -100,11 +99,11 @@ public class Variable extends SymbolImpl
      * @param field_num
      * @return dummy version of variable location
      */
-    private static int varloc_to_dummy(/*rete_node_level*/ int depth, int field_num)
+    private static int varloc_to_dummy(/* rete_node_level */ int depth, int field_num)
     {
-      return ((depth)<<2) + field_num;
+        return ((depth) << 2) + field_num;
     }
-
+    
     /**
      * rete.cpp:2328:dummy_to_varloc_depth
      * 
@@ -113,9 +112,9 @@ public class Variable extends SymbolImpl
      */
     public static int dummy_to_varloc_depth(int d)
     {
-      return d >> 2;
+        return d >> 2;
     }
-
+    
     /**
      * rete.cpp:2333:dummy_to_varloc_field_num
      * 
@@ -124,21 +123,21 @@ public class Variable extends SymbolImpl
      */
     public static int dummy_to_varloc_field_num(int d)
     {
-      return d & 3;
+        return d & 3;
     }
-
+    
     /**
      * rete.cpp:2342:push_var_binding
      * 
      * @param depth
      * @param field_num
      */
-    public void push_var_binding(/*rete_node_level*/ int depth, int field_num)
+    public void push_var_binding(/* rete_node_level */ int depth, int field_num)
     {
-        int dummy_xy312 = varloc_to_dummy ((depth), (field_num));
+        int dummy_xy312 = varloc_to_dummy((depth), (field_num));
         rete_binding_locations.push(dummy_xy312);
     }
-
+    
     /**
      * rete.cpp:2355:pop_var_binding
      */
@@ -149,7 +148,7 @@ public class Variable extends SymbolImpl
     
     /**
      * This routine takes a list of variables; for each item {@code <v>} on the
-     * list, it pops a binding of {@code <v>}.  It also deallocates the list.
+     * list, it pops a binding of {@code <v>}. It also deallocates the list.
      * This is often used for un-binding a group of variables which got
      * bound in some procedure.
      * 
@@ -159,13 +158,15 @@ public class Variable extends SymbolImpl
      */
     public static void pop_bindings_and_deallocate_list_of_variables(ListHead<Variable> vars)
     {
-        for (ListItem<Variable> v = vars.first; v != null; v = v.next)
+        for(ListItem<Variable> v = vars.first; v != null; v = v.next)
         {
             v.item.pop_var_binding();
         }
-    } 
+    }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Symbol#asVariable()
      */
     @Override
@@ -174,7 +175,9 @@ public class Variable extends SymbolImpl
         return this;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
      */
     @Override
@@ -183,7 +186,9 @@ public class Variable extends SymbolImpl
         throw new IllegalStateException("Cannot import variable symbols");
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -191,8 +196,10 @@ public class Variable extends SymbolImpl
     {
         return other.asVariable() != null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#getFirstLetter()
      */
     @Override
@@ -200,8 +207,10 @@ public class Variable extends SymbolImpl
     {
         return name.charAt(1);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
@@ -209,8 +218,10 @@ public class Variable extends SymbolImpl
     {
         markIfUnmarked(tc, var_list);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#symbol_is_in_tc(int)
      */
     @Override
@@ -218,8 +229,10 @@ public class Variable extends SymbolImpl
     {
         return tc_number == tc;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -227,8 +240,10 @@ public class Variable extends SymbolImpl
     {
         return name;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -236,6 +251,5 @@ public class Variable extends SymbolImpl
     {
         formatter.format(name);
     }
-    
     
 }

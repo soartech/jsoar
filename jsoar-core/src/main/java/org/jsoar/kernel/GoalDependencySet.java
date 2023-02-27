@@ -25,16 +25,16 @@ public interface GoalDependencySet
      * @return the goal for this GDS
      */
     Identifier getGoal();
-
+    
     /**
-     * @return an iterator over the list of WMEs in this GDS. This iterator is 
+     * @return an iterator over the list of WMEs in this GDS. This iterator is
      * "live" so if you intend to use it later, make a copy into a list.
      */
     Iterator<Wme> getWmes();
-
+    
     /**
      * @return true if this GDS is empty
      */
     boolean isEmpty();
-
+    
 }

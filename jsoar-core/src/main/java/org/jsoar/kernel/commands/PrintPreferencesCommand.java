@@ -22,8 +22,8 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
 
@@ -48,6 +48,7 @@ public class PrintPreferencesCommand
     {
         return id;
     }
+    
     /**
      * @param id the id to set
      */
@@ -63,6 +64,7 @@ public class PrintPreferencesCommand
     {
         return attr;
     }
+    
     /**
      * @param attr the attr to set
      */
@@ -70,6 +72,7 @@ public class PrintPreferencesCommand
     {
         this.attr = attr;
     }
+    
     /**
      * @return the object
      */
@@ -77,6 +80,7 @@ public class PrintPreferencesCommand
     {
         return object;
     }
+    
     /**
      * @param object the object to set
      */
@@ -84,6 +88,7 @@ public class PrintPreferencesCommand
     {
         this.object = object;
     }
+    
     /**
      * @return the print_prod
      */
@@ -91,6 +96,7 @@ public class PrintPreferencesCommand
     {
         return print_prod;
     }
+    
     /**
      * @param print_prod the print_prod to set
      */
@@ -98,6 +104,7 @@ public class PrintPreferencesCommand
     {
         this.print_prod = print_prod;
     }
+    
     /**
      * @return the wtt
      */
@@ -113,7 +120,6 @@ public class PrintPreferencesCommand
     {
         this.wtt = wtt;
     }
-    
     
     /**
      * <p>sml_KernelHelpers.cpp:906:soar_ecPrintPreferences
@@ -132,60 +138,81 @@ public class PrintPreferencesCommand
         // (--depth not yet implemented...)
         // 2. non-state ID is given: return prefs for wmes whose <val> is ID
         // 3. default (no args): return prefs of slot (id, attr) <s> ^operator
-
-        if (object)
+        
+        if(object)
         {
             // step thru dll of slots for ID, printing prefs for each one
-            for (Slot s = id.slots; s != null; s = s.next)
+            for(Slot s = id.slots; s != null; s = s.next)
             {
-                if (s.attr == predefinedSyms.operator_symbol)
-                    printer.print("Preferences for %s ^%s:", s.id, s.attr);
-                else
-                    printer.print("Support for %s ^%s:\n", s.id, s.attr);
-                for (PreferenceType pt : PreferenceType.values())
+                if(s.attr == predefinedSyms.operator_symbol)
                 {
-                    if (s.getPreferencesByType(pt) != null)
+                    printer.print("Preferences for %s ^%s:", s.id, s.attr);
+                }
+                else
+                {
+                    printer.print("Support for %s ^%s:\n", s.id, s.attr);
+                }
+                
+                for(PreferenceType pt : PreferenceType.values())
+                {
+                    if(s.getPreferencesByType(pt) != null)
                     {
-                        if (s.isa_context_slot)
+                        if(s.isa_context_slot)
+                        {
                             printer.print("\n%ss:\n", pt.getDisplayName());
-                        for (Preference p = s.getPreferencesByType(pt); p != null; p = p.next)
+                        }
+                        
+                        for(Preference p = s.getPreferencesByType(pt); p != null; p = p.next)
                         {
                             print_preference_and_source(agent, printer, p);
                         }
                     }
                 }
             }
-            if (id.goalInfo != null && id.goalInfo.getImpasseWmes() != null)
+            if(id.goalInfo != null && id.goalInfo.getImpasseWmes() != null)
+            {
                 printer.print("Arch-created wmes for %s :\n", id);
-            for (WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
+            }
+            
+            for(WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
             {
                 printer.print("%s", w);
             }
-            if (id.getInputWmes() != null)
+            
+            if(id.getInputWmes() != null)
+            {
                 printer.print("Input (IO) wmes for %s :\n", id);
-            for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
+            }
+            
+            for(WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             {
                 printer.print("%s", w);
             }
-
+            
             return;
         }
-        else if (!id.isGoal() && attr == null)
+        else if(!id.isGoal() && attr == null)
         {
             // find wme(s?) whose value is <ID> and print prefs if they exist
             // ??? should write print_prefs_for_id(soarAgent, id, print_prod,
             // wtt);
             // return;
-            for (Wme w : agent.getAllWmesInRete())
+            for(Wme w : agent.getAllWmesInRete())
             {
-                if (w.getValue() == id)
+                if(w.getValue() == id)
                 {
-                    if (w.getValue() == predefinedSyms.operator_symbol)
+                    if(w.getValue() == predefinedSyms.operator_symbol)
+                    {
                         printer.print("Preferences for ");
+                    }
                     else
+                    {
                         printer.print("Support for ");
+                    }
+                    
                     printer.print("(%d: %s ^%s %s)\n", w.getTimetag(), w.getIdentifier(), w.getAttribute(), w.getValue());
                     Iterator<Preference> it = w.getPreferences();
+                    
                     if(!it.hasNext())
                     {
                         printer.print("    This is an architecture or input wme and has no prefs.\n");
@@ -201,29 +228,29 @@ public class PrintPreferencesCommand
             }
             return;
         }
-
+        
         // print prefs for specified slot
         Slot s = Slot.find_slot(id, attr);
-        if (s == null)
+        if(s == null)
         {
             printer.print("Could not find prefs for id,attribute pair: %s %s\n", id, attr);
             return;
         }
         printer.print("\nPreferences for %s ^%s:\n", id, attr);
-
-        for (PreferenceType pt : PreferenceType.values())
+        
+        for(PreferenceType pt : PreferenceType.values())
         {
-            if (s.getPreferencesByType(pt) != null)
+            if(s.getPreferencesByType(pt) != null)
             {
                 printer.print("\n%ss:\n", pt.getDisplayName());
-                for (Preference p = s.getPreferencesByType(pt); p != null; p = p.next)
+                for(Preference p = s.getPreferencesByType(pt); p != null; p = p.next)
                 {
                     print_preference_and_source(agent, printer, p);
                 }
             }
         }
         
-        if ( id.isGoal() && attr.toString().equals("operator") )
+        if(id.isGoal() && attr.toString().equals("operator"))
         {
             // voigtjr march 2010
             // print selection probabilities re: issue 18
@@ -232,13 +259,13 @@ public class PrintPreferencesCommand
             final ByRef<Preference> cand = ByRef.create(null);
             final Decider decider = Adaptables.adapt(agent, Decider.class);
             ImpasseType impasse_type = decider.run_preference_semantics(s, cand, true);
-
+            
             // if the impasse isn't NONE_IMPASSE_TYPE, there's an impasse and we don't want to print anything
             // if we have no candidates, we don't want to print anything
-            if ((impasse_type == ImpasseType.NONE) && cand.value != null)
+            if((impasse_type == ImpasseType.NONE) && cand.value != null)
             {
                 printer.print("\nselection probabilities:\n");
-
+                
                 // some of this following code is redundant with code in exploration.cpp
                 // see exploration_choose_according_to_policy
                 // see exploration_compute_value_of_candidate
@@ -246,16 +273,20 @@ public class PrintPreferencesCommand
                 int count = 0;
                 double total_probability = 0;
                 final Exploration exploration = Adaptables.adapt(agent, Exploration.class);
+                
                 // add up positive numeric values, count candidates
-                for (Preference p = cand.value; p != null; p = p.next_candidate) 
+                for(Preference p = cand.value; p != null; p = p.next_candidate)
                 {
                     exploration.exploration_compute_value_of_candidate(p, s, 0);
                     ++count;
-                    if ( p.numeric_value > 0 )
+                    if(p.numeric_value > 0)
+                    {
                         total_probability += p.numeric_value;
+                    }
                 }
                 assert (count != 0);
-                for (Preference p = cand.value; p != null; p = p.next_candidate) 
+                
+                for(Preference p = cand.value; p != null; p = p.next_candidate)
                 {
                     // if total probability is zero, fall back to random
                     double prob = total_probability > 0.0 ? p.numeric_value / total_probability : 1.0 / count;
@@ -287,7 +318,8 @@ public class PrintPreferencesCommand
         final TraceFormats traceFormats = Adaptables.adapt(agnt, TraceFormats.class);
         final PredefinedSymbols predefinedSyms = Adaptables.adapt(agnt, PredefinedSymbols.class);
         printer.print("  ");
-        if (pref.attr == predefinedSyms.operator_symbol)
+        
+        if(pref.attr == predefinedSyms.operator_symbol)
         {
             traceFormats.print_object_trace(printer.getWriter(), pref.value);
         }
@@ -295,19 +327,34 @@ public class PrintPreferencesCommand
         {
             printer.print("(%s ^%s %s) ", pref.id, pref.attr, pref.value);
         }
-        if (pref.attr == predefinedSyms.operator_symbol)
+        
+        if(pref.attr == predefinedSyms.operator_symbol)
         {
             printer.print(" %c", pref.type.getIndicator());
         }
-        if (pref.type.isBinary())
+        
+        if(pref.type.isBinary())
+        {
             traceFormats.print_object_trace(printer.getWriter(), pref.referent);
-        if (pref.o_supported)
+        }
+        
+        if(pref.o_supported)
+        {
             printer.print(" :O ");
+        }
         else
+        {
             printer.print(" :I ");
-        if (selection_probability != null) printer.print ("(%.1f%%)", selection_probability * 100.0);
+        }
+        
+        if(selection_probability != null)
+        {
+            printer.print("(%.1f%%)", selection_probability * 100.0);
+        }
+        
         printer.print("\n");
-        if (print_prod)
+        
+        if(print_prod)
         {
             printer.print("    From ");
             pref.inst.trace(printer.asFormatter(), wtt);

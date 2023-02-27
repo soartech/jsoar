@@ -19,60 +19,60 @@ import org.jsoar.kernel.Agent;
 public class JSoarAgentFactory
 {
     private static Class<?> agent;
-
+    
     private static Path jsoarCorePath;
-
+    
     private static boolean initialized = false;
-
+    
     JSoarAgentFactory(Path jsoarCorePath) throws MalformedURLException, ClassNotFoundException
     {
-        if (initialized)
+        if(initialized)
+        {
             return;
-
+        }
+        
         JSoarAgentFactory.jsoarCorePath = jsoarCorePath;
-
-
+        
         if(!Files.exists(jsoarCorePath))
         {
             System.out.println("Failed to find jsoar-core.jar.  Using assert version of it!  Error: ");
             return;
         }
-
+        
         // Load the new jsoar-core-*.jar into memory and then resolve all it's classes that we
         // use.
         URLClassLoader child;
-
-        URL url = jsoarCorePath.toFile().toURI().toURL();
-
         
-        child = new URLClassLoader(new URL[] {url}, this.getClass()
+        URL url = jsoarCorePath.toFile().toURI().toURL();
+        
+        child = new URLClassLoader(new URL[] { url }, this.getClass()
                 .getClassLoader());
-
+        
         agent = Class.forName("org.jsoar.kernel.Agent", true, child); // Resolves the agent class
         initialized = true;
     }
-
+    
     /**
      * 
      * @return the label for a test. For JSoar this will be 'JSoar' and for
-     *         JSoar this will be 'JSoar X' where X is the label in the
-     *         configuration file.
+     * JSoar this will be 'JSoar X' where X is the label in the
+     * configuration file.
      */
     Path getSoarPath()
     {
         return jsoarCorePath;
     }
-
+    
     Object newAgent(String agentLabel)
     {
-        if (agent != null)
+        if(agent != null)
         {
             try
             {
                 return agent.getDeclaredConstructor(String.class).newInstance(
                         agentLabel);
             }
-            catch (InstantiationException | IllegalAccessException
+            catch(InstantiationException | IllegalAccessException
                     | IllegalArgumentException | InvocationTargetException
                     | NoSuchMethodException | SecurityException e)
             {
@@ -83,6 +83,8 @@ public class JSoarAgentFactory
             }
         }
         else
+        {
             return new Agent(agentLabel);
+        }
     }
 }

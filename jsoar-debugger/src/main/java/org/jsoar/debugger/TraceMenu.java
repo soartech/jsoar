@@ -24,35 +24,37 @@ import org.jsoar.kernel.tracing.Trace.Category;
 public class TraceMenu extends JMenu
 {
     private static final long serialVersionUID = 5643568728496938352L;
-
+    
     private final Trace trace;
     private final Listener listener = new Listener();
-
+    
     public TraceMenu(Trace trace)
     {
         super("Trace Options");
         
         this.trace = trace;
         
-        this.addMenuListener(new MenuListener() {
-
+        this.addMenuListener(new MenuListener()
+        {
+            
             @Override
             public void menuCanceled(MenuEvent arg0)
             {
             }
-
+            
             @Override
             public void menuDeselected(MenuEvent arg0)
             {
             }
-
+            
             @Override
             public void menuSelected(MenuEvent arg0)
             {
                 removeAll();
                 populateMenu();
-            }});
-    
+            }
+        });
+        
     }
     
     public void populateMenu()
@@ -78,38 +80,40 @@ public class TraceMenu extends JMenu
     private final class TraceEverything extends AbstractAction
     {
         private static final long serialVersionUID = 1L;
-
+        
         private TraceEverything(String name)
         {
             super(name);
         }
-
+        
         @Override
         public void actionPerformed(ActionEvent arg0)
         {
             trace.enableAll();
         }
     }
-
+    
     private final class TraceNothingAction extends AbstractAction
     {
         private static final long serialVersionUID = 1L;
-
+        
         private TraceNothingAction(String name)
         {
             super(name);
         }
-
+        
         @Override
         public void actionPerformed(ActionEvent e)
         {
             trace.disableAll();
         }
     }
-
+    
     private class Listener implements ActionListener
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
          */
         @Override

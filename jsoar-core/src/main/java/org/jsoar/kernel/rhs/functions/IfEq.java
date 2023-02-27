@@ -25,8 +25,10 @@ public class IfEq extends AbstractRhsFunctionHandler
     {
         super("ifeq", 4, 4);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
@@ -36,5 +38,5 @@ public class IfEq extends AbstractRhsFunctionHandler
         
         return arguments.get(0) == arguments.get(1) ? arguments.get(2) : arguments.get(3);
     }
-
+    
 }

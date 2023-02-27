@@ -7,9 +7,8 @@ package org.jsoar.util.properties;
 
 import java.util.Comparator;
 
-
 /**
- * A PropertyKey is a unique identifier for a property. It includes 
+ * A PropertyKey is a unique identifier for a property. It includes
  * the name of the property, the type of its value and a default value.
  * A PropertyKey is immutable.
  * 
@@ -26,8 +25,9 @@ public class PropertyKey<T>
     /**
      * A comparator for sorting property keys by name
      */
-    public static Comparator<PropertyKey<?>> NAME_COMPARATOR = new Comparator<PropertyKey<?>>(){
-
+    public static Comparator<PropertyKey<?>> NAME_COMPARATOR = new Comparator<>()
+    {
+        
         @Override
         public int compare(PropertyKey<?> o1, PropertyKey<?> o2)
         {
@@ -48,25 +48,51 @@ public class PropertyKey<T>
             this.name = name;
             this.type = type;
         }
-
-        public T defaultValue() { return defValue; }
-        public Builder<T> defaultValue(T defValue) { this.defValue = defValue; return this; }
-        public boolean boundable() { return boundable; }
-        public Builder<T> boundable(boolean boundable) { this.boundable = boundable; return this; }
-        public boolean readonly() { return readonly; }
-        public Builder<T> readonly(boolean readonly) { this.readonly = readonly; return this; }
+        
+        public T defaultValue()
+        {
+            return defValue;
+        }
+        
+        public Builder<T> defaultValue(T defValue)
+        {
+            this.defValue = defValue;
+            return this;
+        }
+        
+        public boolean boundable()
+        {
+            return boundable;
+        }
+        
+        public Builder<T> boundable(boolean boundable)
+        {
+            this.boundable = boundable;
+            return this;
+        }
+        
+        public boolean readonly()
+        {
+            return readonly;
+        }
+        
+        public Builder<T> readonly(boolean readonly)
+        {
+            this.readonly = readonly;
+            return this;
+        }
+        
         public PropertyKey<T> build()
         {
-            return new PropertyKey<T>(this);
+            return new PropertyKey<>(this);
         }
     }
     
     public static <T> Builder<T> builder(String name, Class<T> type)
     {
-        return new Builder<T>(name, type);
+        return new Builder<>(name, type);
     }
     
-   
     private PropertyKey(Builder<T> builder)
     {
         this.name = builder.name;
@@ -75,7 +101,7 @@ public class PropertyKey<T>
         this.boundable = builder.boundable;
         this.readonly = builder.readonly;
     }
-
+    
     /**
      * @return the name of the property
      */
@@ -83,7 +109,7 @@ public class PropertyKey<T>
     {
         return name;
     }
-
+    
     /**
      * @return the type of the property's value
      */
@@ -91,7 +117,7 @@ public class PropertyKey<T>
     {
         return type;
     }
-
+    
     /**
      * @return the default value of the property
      */
@@ -99,7 +125,7 @@ public class PropertyKey<T>
     {
         return defValue;
     }
-
+    
     /**
      * Returns true if this property will fire events when its value changed.
      * For certain high-frequency events, change events are not practical. In
@@ -123,9 +149,10 @@ public class PropertyKey<T>
     {
         return readonly;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -133,6 +160,5 @@ public class PropertyKey<T>
     {
         return name;
     }
-    
     
 }

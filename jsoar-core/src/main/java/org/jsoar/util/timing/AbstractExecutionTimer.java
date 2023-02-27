@@ -14,8 +14,10 @@ package org.jsoar.util.timing;
 public abstract class AbstractExecutionTimer implements ExecutionTimer
 {
     private String name = super.toString();
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.timing.ExecutionTimer#getName()
      */
     @Override
@@ -23,8 +25,10 @@ public abstract class AbstractExecutionTimer implements ExecutionTimer
     {
         return name;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.timing.ExecutionTimer#getTotalSeconds()
      */
     @Override
@@ -32,8 +36,10 @@ public abstract class AbstractExecutionTimer implements ExecutionTimer
     {
         return getTotalMicroseconds() / 1000000.0;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.timing.ExecutionTimer#setName(java.lang.String)
      */
     @Override
@@ -42,8 +48,10 @@ public abstract class AbstractExecutionTimer implements ExecutionTimer
         this.name = name;
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.timing.ExecutionTimer#update()
      */
     @Override
@@ -53,7 +61,9 @@ public abstract class AbstractExecutionTimer implements ExecutionTimer
         start();
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -62,5 +72,4 @@ public abstract class AbstractExecutionTimer implements ExecutionTimer
         return name;
     }
     
-
 }

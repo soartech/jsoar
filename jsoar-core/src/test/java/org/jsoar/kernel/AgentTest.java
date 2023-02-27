@@ -5,43 +5,44 @@
  */
 package org.jsoar.kernel;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.SymbolFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class AgentTest
+class AgentTest
 {
     private Agent agent;
     
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         agent = new Agent();
     }
-
-    @After
-    public void tearDown() throws Exception
+    
+    @AfterEach
+    void tearDown() throws Exception
     {
         agent.dispose();
     }
-
+    
     @Test
-    public void testDefaultStopPhaseIsApply()
+    void testDefaultStopPhaseIsApply()
     {
         assertEquals(Phase.APPLY, agent.getStopPhase());
     }
     
     @Test
-    public void testSetStopPhaseSetsTheStopPhaseProperty()
+    void testSetStopPhaseSetsTheStopPhaseProperty()
     {
         agent.setStopPhase(Phase.DECISION);
         assertEquals(Phase.DECISION, agent.getStopPhase());
@@ -49,7 +50,7 @@ public class AgentTest
     }
     
     @Test
-    public void testGetGoalStack()
+    void testGetGoalStack()
     {
         agent.runFor(3, RunType.DECISIONS);
         // We start with S1. Running three steps, gives three new states, S2, S3, S4
@@ -57,14 +58,14 @@ public class AgentTest
         assertNotNull(gs);
         assertEquals(4, gs.size());
         final SymbolFactory syms = agent.getSymbols();
-        assertEquals(Arrays.asList(syms.findIdentifier('S', 1), 
-                                   syms.findIdentifier('S', 3), 
-                                   syms.findIdentifier('S', 5), 
-                                   syms.findIdentifier('S', 7)),
-                     Arrays.asList(gs.get(0).getIdentifier(),
-                             gs.get(1).getIdentifier(),
-                             gs.get(2).getIdentifier(),
-                             gs.get(3).getIdentifier()));
+        assertEquals(Arrays.asList(syms.findIdentifier('S', 1),
+                syms.findIdentifier('S', 3),
+                syms.findIdentifier('S', 5),
+                syms.findIdentifier('S', 7)),
+                Arrays.asList(gs.get(0).getIdentifier(),
+                        gs.get(1).getIdentifier(),
+                        gs.get(2).getIdentifier(),
+                        gs.get(3).getIdentifier()));
     }
-
+    
 }

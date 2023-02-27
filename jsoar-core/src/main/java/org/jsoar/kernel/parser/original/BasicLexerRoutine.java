@@ -13,7 +13,6 @@ import java.io.IOException;
 class BasicLexerRoutine implements LexerRoutine
 {
     private LexemeType type;
-
     
     /**
      * @param type
@@ -22,9 +21,10 @@ class BasicLexerRoutine implements LexerRoutine
     {
         this.type = type;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.LexerRoutine#lex(org.jsoar.kernel.Lexer)
      */
     @Override
@@ -33,5 +33,5 @@ class BasicLexerRoutine implements LexerRoutine
         lexer.store_and_advance();
         lexer.setLexemeType(type);
     }
-
+    
 }

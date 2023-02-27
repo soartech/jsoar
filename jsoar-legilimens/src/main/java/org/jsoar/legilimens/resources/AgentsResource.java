@@ -12,7 +12,9 @@ import java.util.Map;
  */
 public class AgentsResource extends BaseResource
 {
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.BaseResource#setTemplateAttributes(java.util.Map)
      */
     @Override

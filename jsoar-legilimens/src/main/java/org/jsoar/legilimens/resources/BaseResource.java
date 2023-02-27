@@ -32,7 +32,9 @@ public class BaseResource extends ServerResource
         return action;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.resources.BaseAgentResource#doInit()
      */
     @Override
@@ -61,7 +63,7 @@ public class BaseResource extends ServerResource
     
     public final TemplateRepresentation template(String name, MediaType type)
     {
-        final Map<String, Object> attrs = new LinkedHashMap<String, Object>();
+        final Map<String, Object> attrs = new LinkedHashMap<>();
         setTemplateAttributes(attrs);
         return new TemplateRepresentation(name, getLegilimens().getFreeMarker(), attrs, type);
     }
@@ -96,8 +98,9 @@ public class BaseResource extends ServerResource
     /**
      * Return the name of the resource. Called by templates!
      * 
-     * @return the name of the resource 
+     * @return the name of the resource
      */
+    @Override
     public String getName()
     {
         return getTemplateName(null);
@@ -107,7 +110,7 @@ public class BaseResource extends ServerResource
      * Retrieve the value of a path attribute with proper decoding.
      * 
      * @param name the name of the attribute
-     * @return the decoded value, or {@code null} if not found 
+     * @return the decoded value, or {@code null} if not found
      */
     public String getPathAttribute(String name)
     {
@@ -120,7 +123,7 @@ public class BaseResource extends ServerResource
         {
             return URLDecoder.decode(value.toString(), "UTF-8");
         }
-        catch (UnsupportedEncodingException e)
+        catch(UnsupportedEncodingException e)
         {
             throw new IllegalArgumentException(e.getMessage());
         }

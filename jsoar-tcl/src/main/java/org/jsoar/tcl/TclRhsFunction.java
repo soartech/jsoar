@@ -16,7 +16,7 @@ import org.jsoar.kernel.symbols.Symbol;
 
 /**
  * RHS function that takes a list of arguments, concatenates them together and
- * executes them as Tcl in the Tcl interpreter. 
+ * executes them as Tcl in the Tcl interpreter.
  * 
  * <p>This RHS function is only available when a {@link SoarTclInterface} has
  * been attached to an agent. The command is evaluated in the global scope of
@@ -30,7 +30,7 @@ public class TclRhsFunction extends AbstractRhsFunctionHandler
     
     /**
      * @param ifc The Tcl interface that includes the Tcl interpreter we'll be
-     *      using
+     *     using
      */
     public TclRhsFunction(SoarTclInterface ifc)
     {
@@ -38,8 +38,10 @@ public class TclRhsFunction extends AbstractRhsFunctionHandler
         
         this.ifc = ifc;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -51,18 +53,20 @@ public class TclRhsFunction extends AbstractRhsFunctionHandler
             final String result = ifc.eval(exp);
             return context.getSymbols().createString(result);
         }
-        catch (SoarException e)
+        catch(SoarException e)
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler#mayBeStandalone()
      */
     @Override
     public boolean mayBeStandalone()
     {
         return true;
-    }    
+    }
 }

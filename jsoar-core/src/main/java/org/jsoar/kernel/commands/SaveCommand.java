@@ -18,6 +18,7 @@ import picocli.CommandLine.ParentCommand;
 
 /**
  * This is the implementation of the "save rete-net" command.
+ * 
  * @author austin.brehob
  */
 public class SaveCommand extends PicocliSoarCommand
@@ -27,9 +28,8 @@ public class SaveCommand extends PicocliSoarCommand
         super(agent, new Save(sourceCommand, agent));
     }
     
-    @Command(name="save", description="Saves a rete-net",
-            subcommands={HelpCommand.class,
-                         ReteNet.class})
+    @Command(name = "save", description = "Saves a rete-net", subcommands = { HelpCommand.class,
+            ReteNet.class })
     static public class Save implements Runnable
     {
         private SourceCommand sourceCommand;
@@ -48,63 +48,44 @@ public class SaveCommand extends PicocliSoarCommand
         }
     }
     
-    
-    @Command(name="rete-net", description="Serializes an agent's productions to a binary file",
-            subcommands={HelpCommand.class})
+    @Command(name = "rete-net", description = "Serializes an agent's productions to a binary file", subcommands = { HelpCommand.class })
     static public class ReteNet implements Runnable
     {
         @ParentCommand
         Save parent; // injected by picocli
-
-        @Option(names={"-s", "--save"}, arity="1", description="File name to save rete-net to")
+        
+        @Option(names = { "-s", "--save" }, arity = "1", description = "File name to save rete-net to")
         String fileName;
         
         @Override
         public void run()
         {
-            OutputStream os = null;
-            if (!new File(fileName).isAbsolute())
+            if(!new File(fileName).isAbsolute())
             {
                 fileName = parent.sourceCommand.getWorkingDirectory() + "/" + fileName;
             }
-            try
+            
+            try(OutputStream os = compressIfNeeded(fileName, new FileOutputStream(fileName)))
             {
-                os = compressIfNeeded(fileName, new FileOutputStream(fileName));
                 ReteSerializer.saveRete(parent.agent, os);
-                os.close();
             }
-            catch (IOException e)
+            catch(IOException e)
             {
                 parent.agent.getPrinter().startNewLine().print("Save file failed.");
                 return;
             }
-            catch (SoarException e)
+            catch(SoarException e)
             {
                 parent.agent.getPrinter().startNewLine().print(e.getMessage());
                 return;
             }
-            finally
-            {
-                if (os != null)
-                {
-                    try
-                    {
-                        os.close();
-                    }
-                    catch (IOException e)
-                    {
-                        parent.agent.getPrinter().startNewLine().print(
-                                "IO error while closing the file.");
-                    }
-                }
-            }
-
+            
             parent.agent.getPrinter().startNewLine().print("Rete saved");
         }
         
         private OutputStream compressIfNeeded(String filename, OutputStream os) throws IOException
         {
-            if (filename.endsWith(".Z")) 
+            if(filename.endsWith(".Z"))
             {
                 return new GZIPOutputStream(os);
             }

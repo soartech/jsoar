@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.memory;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
@@ -15,19 +15,20 @@ import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class ContextVariableInfoTest
+class ContextVariableInfoTest
 {
-
+    
     /**
-     * Test method for {@link org.jsoar.kernel.memory.ContextVariableInfo#get(org.jsoar.kernel.PredefinedSymbols, org.jsoar.kernel.symbols.IdentifierImpl, org.jsoar.kernel.symbols.IdentifierImpl, java.lang.String)}.
+     * Test method for
+     * {@link org.jsoar.kernel.memory.ContextVariableInfo#get(org.jsoar.kernel.PredefinedSymbols, org.jsoar.kernel.symbols.IdentifierImpl, org.jsoar.kernel.symbols.IdentifierImpl, java.lang.String)}.
      */
     @Test
-    public void testGetCurrentOperator() throws Exception
+    void testGetCurrentOperator() throws Exception
     {
         final Agent agent = new Agent();
         
@@ -46,5 +47,5 @@ public class ContextVariableInfoTest
         assertNotNull(o1);
         assertSame(o1, info.getValue());
     }
-
+    
 }

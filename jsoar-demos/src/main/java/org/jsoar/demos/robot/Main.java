@@ -10,7 +10,7 @@ package org.jsoar.demos.robot;
  */
 public class Main
 {
-
+    
     /**
      * @param args
      */
@@ -18,5 +18,5 @@ public class Main
     {
         
     }
-
+    
 }

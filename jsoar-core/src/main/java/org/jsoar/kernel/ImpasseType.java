@@ -15,7 +15,7 @@ public enum ImpasseType
     /**
      * gdatastructs.h:234:NONE_IMPASSE_TYPE
      */
-    NONE,                   /* no impasse */
+    NONE, /* no impasse */
     /**
      * gdatastructs.h:234:CONSTRAINT_FAILURE_IMPASSE_TYPE
      */
@@ -44,5 +44,5 @@ public enum ImpasseType
      * gdatastructs.h:234:OP_NO_CHANGE_IMPASSE_TYPE
      */
     OP_NO_CHANGE,    // -2
-
+    
 }

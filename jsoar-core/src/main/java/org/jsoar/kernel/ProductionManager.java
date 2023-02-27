@@ -16,7 +16,7 @@ import org.jsoar.util.SourceLocation;
 
 /**
  * Public interface for accessing and manipulating productions in a Soar agent
- *  
+ * 
  * @author ray
  */
 public interface ProductionManager
@@ -27,7 +27,7 @@ public interface ProductionManager
     Parser getParser();
     
     /**
-     * Set the default parser used by this production manager when 
+     * Set the default parser used by this production manager when
      * {@link #loadProduction(String)} is called.
      * 
      * @param parser the new parser, never <code>null</code>
@@ -41,7 +41,7 @@ public interface ProductionManager
      * braces!
      * 
      * @param productionBody body of production with no {@code sp} or braces
-     * @param location the source location of the production 
+     * @param location the source location of the production
      * @return the parsed production
      * @throws ReordererException
      * @throws ParserException
@@ -49,7 +49,7 @@ public interface ProductionManager
     public Production loadProduction(String productionBody, SourceLocation location) throws ReordererException, ParserException;
     
     /**
-     * Convenience version of {@link #loadProduction(String, SourceLocation)} equivalent to 
+     * Convenience version of {@link #loadProduction(String, SourceLocation)} equivalent to
      * {@code loadProduction(body, DefaultSourceLocation.UNKNOWN); }
      * 
      * @param productionBody
@@ -60,8 +60,8 @@ public interface ProductionManager
     public Production loadProduction(String productionBody) throws ReordererException, ParserException;
     
     /**
-     * Add the given chunk or justification production to the agent. The chunk 
-     * is reordered and registered, but it is <b>not</b> added to the rete 
+     * Add the given chunk or justification production to the agent. The chunk
+     * is reordered and registered, but it is <b>not</b> added to the rete
      * network.
      * 
      * <p>This is part of a refactoring of make_production().
@@ -79,7 +79,7 @@ public interface ProductionManager
      * @return The production or <code>null</code> if not found
      */
     public Production getProduction(String name);
-
+    
     /**
      * Returns a list of productions of a particular type, or all productions
      * if type is <code>null</code>
@@ -88,7 +88,7 @@ public interface ProductionManager
      * @return List of productions, ordered by type and then by order of addition
      */
     public List<Production> getProductions(ProductionType type);
-
+    
     /**
      * Add the given production to the agent. If a production with the same name
      * is already loaded, it is excised and replaced.
@@ -99,7 +99,7 @@ public interface ProductionManager
      * @param reorder_nccs if true, NCC conditions on the LHS are reordered
      * @throws ReordererException if there is an error during reordering
      * @throws IllegalArgumentException if p is a chunk or justification or if
-     *      p (actual instance, not name) has already been added
+     *     p (actual instance, not name) has already been added
      */
     public ProductionAddResult addProduction(Production p, boolean reorder_nccs) throws ReordererException;
     

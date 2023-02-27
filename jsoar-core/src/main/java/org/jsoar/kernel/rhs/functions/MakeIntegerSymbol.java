@@ -23,8 +23,10 @@ public class MakeIntegerSymbol extends AbstractRhsFunctionHandler
     {
         super("make-integer-symbol");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
@@ -34,5 +36,5 @@ public class MakeIntegerSymbol extends AbstractRhsFunctionHandler
         final long value = UUID.randomUUID().getMostSignificantBits();
         return syms.createInteger(value);
     }
-
+    
 }

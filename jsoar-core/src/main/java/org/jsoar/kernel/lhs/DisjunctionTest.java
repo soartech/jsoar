@@ -27,12 +27,15 @@ public class DisjunctionTest extends ComplexTest
         this.disjunction_list = disjunction;
     }
     
+    @Override
     public DisjunctionTest asDisjunctionTest()
     {
         return this;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#copy()
      */
     @Override
@@ -40,7 +43,10 @@ public class DisjunctionTest extends ComplexTest
     {
         return this;
     }
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -53,6 +59,5 @@ public class DisjunctionTest extends ComplexTest
         }
         formatter.format(">>");
     }
-
     
 }

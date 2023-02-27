@@ -58,7 +58,7 @@ public class FromManualTypeXml extends AbstractRhsFunctionHandler
     {
         super("from-mt-xml", 1, Integer.MAX_VALUE);
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -71,24 +71,24 @@ public class FromManualTypeXml extends AbstractRhsFunctionHandler
             List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
-
+        
         final String xml = arguments.get(0).toString();
-        if (xml == null)
+        if(xml == null)
         {
             throw new RhsFunctionException("Only argument to '" + getName()
                     + "' RHS function must be an XML string.");
         }
-
+        
         final Document doc;
         try
         {
             doc = XmlTools.parse(xml);
         }
-        catch (SAXException e)
+        catch(SAXException e)
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }
@@ -97,25 +97,25 @@ public class FromManualTypeXml extends AbstractRhsFunctionHandler
         args.next();
         try
         {
-            while (args.hasNext())
+            while(args.hasNext())
             {
                 String type = args.next().toString();
-                if (type.equals("float"))
+                if(type.equals("float"))
                 {
                     mt.addFloatTag(args.next().toString());
                 }
-                else if (type.equals("int"))
+                else if(type.equals("int"))
                 {
                     mt.addIntTag(args.next().toString());
                 }
             }
         }
-        catch (TagAlreadyAddedException e)
+        catch(TagAlreadyAddedException e)
         {
             throw new RhsFunctionException(
                     "Int and float tags must be mutually exclusive.", e);
         }
-
+        
         return mt.fromXml(doc.getDocumentElement());
     }
 }

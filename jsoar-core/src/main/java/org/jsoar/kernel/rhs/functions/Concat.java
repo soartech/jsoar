@@ -39,8 +39,10 @@ public class Concat extends AbstractRhsFunctionHandler
     {
         super("concat");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override

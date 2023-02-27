@@ -5,8 +5,8 @@
  */
 package org.jsoar;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.StringWriter;
 
@@ -19,9 +19,9 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * @author ray
@@ -29,15 +29,18 @@ import org.junit.BeforeClass;
 public class JSoarTest
 {
     protected SymbolFactoryImpl syms;
-    protected RhsFunctionContext rhsFuncContext = new RhsFunctionContext() {
-
+    protected RhsFunctionContext rhsFuncContext = new RhsFunctionContext()
+    {
+        
         @Override
         public SymbolFactory getSymbols()
         {
             return syms;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#addWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
          */
         @Override
@@ -45,8 +48,10 @@ public class JSoarTest
         {
             throw new UnsupportedOperationException("This test implementation of RhsFunctionContext doesn't support addWme");
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getProductionBeingFired()
          */
         @Override
@@ -57,19 +62,19 @@ public class JSoarTest
         
     };
     
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    protected void setUp() throws Exception
     {
         this.syms = new SymbolFactoryImpl();
     }
     
-    @BeforeClass
-    public static void configureLogging()
+    @BeforeAll
+    static void configureLogging()
     {
     }
     
-    @AfterClass
-    public static void unconfigureLogging()
+    @AfterAll
+    static void unconfigureLogging()
     {
     }
     
@@ -83,5 +88,5 @@ public class JSoarTest
         assertEquals(body, writer.toString());
         
     }
-
+    
 }

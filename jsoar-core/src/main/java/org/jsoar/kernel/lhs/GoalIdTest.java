@@ -18,13 +18,16 @@ public class GoalIdTest extends ComplexTest
     {
         
     }
-
+    
+    @Override
     public GoalIdTest asGoalIdTest()
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#copy()
      */
     @Override
@@ -32,8 +35,10 @@ public class GoalIdTest extends ComplexTest
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -41,6 +46,5 @@ public class GoalIdTest extends ComplexTest
     {
         formatter.format("[GOAL ID TEST]");
     }
-
     
 }

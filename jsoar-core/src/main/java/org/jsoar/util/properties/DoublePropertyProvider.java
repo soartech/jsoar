@@ -31,7 +31,9 @@ public class DoublePropertyProvider implements PropertyProvider<Double>
         this.value.set(Double.doubleToLongBits(key.getDefaultValue()));
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.properties.PropertyProvider#get()
      */
     @Override
@@ -39,8 +41,10 @@ public class DoublePropertyProvider implements PropertyProvider<Double>
     {
         return Double.longBitsToDouble(value.get());
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.properties.PropertyProvider#set(java.lang.Object)
      */
     @Override
@@ -48,10 +52,10 @@ public class DoublePropertyProvider implements PropertyProvider<Double>
     {
         return Double.longBitsToDouble(this.value.getAndSet(Double.doubleToLongBits(value)));
     }
-
+    
     @Override
     public String toString()
     {
-        return Double.toString( Double.longBitsToDouble(value.get()) );
+        return Double.toString(Double.longBitsToDouble(value.get()));
     }
 }

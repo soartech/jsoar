@@ -14,11 +14,10 @@ import org.jsoar.util.events.SoarEvent;
 public abstract class AbstractWorldEvent implements SoarEvent
 {
     public final World world;
-
+    
     public AbstractWorldEvent(World world)
     {
         this.world = world;
     }
-    
     
 }

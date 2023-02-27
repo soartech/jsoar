@@ -9,6 +9,7 @@ import picocli.CommandLine.HelpCommand;
 
 /**
  * This is the implementation of the "pwd" command.
+ * 
  * @author austin.brehob
  */
 public class PwdCommand extends PicocliSoarCommand
@@ -19,12 +20,13 @@ public class PwdCommand extends PicocliSoarCommand
     }
     
     @Override
-    public Object getCommand() {
-
-        return (Pwd)super.getCommand();
+    public Object getCommand()
+    {
+        
+        return super.getCommand();
     }
     
-    @Command(name="pwd", description="Prints the working directory to the screen", subcommands={HelpCommand.class})
+    @Command(name = "pwd", description = "Prints the working directory to the screen", subcommands = { HelpCommand.class })
     static public class Pwd implements Callable<String>
     {
         private final SourceCommand sourceCommand;

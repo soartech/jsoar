@@ -37,20 +37,20 @@ import org.jsoar.kernel.tracing.Trace;
  * 
  * Possible enhancements
  * increase efficiency of wme removals
- *   approach 1: return timetag of new wme for use in efficient wme removal (requires user to create structure to store timetags)
- *   approach 2: keep map of wme to wmeImpl, so can directly look up wme to remove (requires user keep reference to original wmes around)
- *   approach 3: return new wme copy for use in efficient wme removal (requires user to create structure to store new wmes)
- * allow user to register rete listener (so can be directly notified of production matches). 
+ * approach 1: return timetag of new wme for use in efficient wme removal (requires user to create structure to store timetags)
+ * approach 2: keep map of wme to wmeImpl, so can directly look up wme to remove (requires user keep reference to original wmes around)
+ * approach 3: return new wme copy for use in efficient wme removal (requires user to create structure to store new wmes)
+ * allow user to register rete listener (so can be directly notified of production matches).
  * change isMatching to numMatches. Requires adding code to listener to increment/decrement counter on match/unmatch. (Possibly more efficient than getting PartialMatches structure)
  * 
- *  
+ * 
  */
 public class SimpleMatcher
 {
     private final SymbolFactoryImpl syms = new SymbolFactoryImpl();
     private final Listener listener = new Listener();
     private final Rete rete = new Rete(Trace.createStdOutTrace().enableAll(), syms);
-    private final Map<String, Production> productions = new HashMap<String, Production>();
+    private final Map<String, Production> productions = new HashMap<>();
     
     /**
      * Creates an instance of SimpleMatcher.
@@ -62,6 +62,7 @@ public class SimpleMatcher
     
     /**
      * Adds a production to the rete.
+     * 
      * @param s Production in standard Soar syntax without the "sp" or braces. Note that the RHS is currently ignored (this just does matches)
      * @return A Production instance
      * @throws ParserException If syntax error or duplicate production already exists in rete
@@ -70,8 +71,9 @@ public class SimpleMatcher
     {
         final OriginalParser parser = new OriginalParser();
         final StringReader reader = new StringReader(s);
-        final ParserContext context = new ParserContext() {
-
+        final ParserContext context = new ParserContext()
+        {
+            
             @Override
             public Object getAdapter(Class<?> klass)
             {
@@ -106,6 +108,7 @@ public class SimpleMatcher
     
     /**
      * Removes the specified production from the rete
+     * 
      * @param p A Production instance that is already in the rete
      */
     public void removeProduction(Production p)
@@ -115,7 +118,8 @@ public class SimpleMatcher
     }
     
     /**
-     * Removes the production with the specified name from the rete 
+     * Removes the production with the specified name from the rete
+     * 
      * @param productionName The name of the production to remove
      * @throws IllegalArgumentException If production with specified name is not in rete
      */
@@ -144,6 +148,7 @@ public class SimpleMatcher
     /**
      * Creates a copy of the wme and adds it to the SimpleMatcher's rete
      * Need to create a copy because a Wme can't be in multiple retes
+     * 
      * @param w Wme to add to the rete
      */
     public void addWme(Wme w)
@@ -157,6 +162,7 @@ public class SimpleMatcher
     
     /**
      * Finds a matching Wme in the rete and removes it
+     * 
      * @param w Wme instance
      * @throws IllegalArgumentException If Wme is not in rete
      */
@@ -180,8 +186,8 @@ public class SimpleMatcher
     public void removeAllWmes()
     {
         // need to make a copy since remove_wme_from_rete will destructively modify the collection returned by rete.getAllWmes
-        final Set<WmeImpl> wmes = new HashSet<WmeImpl>(rete.getAllWmes());
-
+        final Set<WmeImpl> wmes = new HashSet<>(rete.getAllWmes());
+        
         for(WmeImpl w : wmes)
         {
             rete.remove_wme_from_rete(w);
@@ -250,7 +256,7 @@ public class SimpleMatcher
     {
         final SymbolImpl copySym;
         final Identifier sId = origSym.asIdentifier();
-
+        
         if(sId != null)
         {
             copySym = syms.findOrCreateIdentifierExact(sId.getNameLetter(), sId.getNameNumber());
@@ -263,15 +269,18 @@ public class SimpleMatcher
         return copySym;
     }
     
-    private RhsFunctionContext rhsFuncContext = new RhsFunctionContext() {
-
+    private RhsFunctionContext rhsFuncContext = new RhsFunctionContext()
+    {
+        
         @Override
         public SymbolFactory getSymbols()
         {
             return syms;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#addWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
          */
         @Override
@@ -279,8 +288,10 @@ public class SimpleMatcher
         {
             throw new UnsupportedOperationException("This test implementation of RhsFunctionContext doesn't support addWme");
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getProductionBeingFired()
          */
         @Override
@@ -288,14 +299,16 @@ public class SimpleMatcher
         {
             return null;
         }
-
+        
     };
     
     private class Listener implements ReteListener
     {
-        Map<Production, Integer> matching = new HashMap<Production, Integer>();
+        Map<Production, Integer> matching = new HashMap<>();
         
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rete.ReteListener#finishRefraction(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.Production, org.jsoar.kernel.rete.Instantiation, org.jsoar.kernel.rete.ReteNode)
          */
         @Override
@@ -303,13 +316,15 @@ public class SimpleMatcher
         {
             return false;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rete.ReteListener#p_node_left_addition(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode, org.jsoar.kernel.rete.Token, org.jsoar.kernel.Wme)
          */
         @Override
         public void p_node_left_addition(Rete rete, ReteNode node, Token tok, WmeImpl w)
-        {            
+        {
             Integer i;
             final Production p = node.b_p().prod;
             if(matching.containsKey(p))
@@ -323,8 +338,10 @@ public class SimpleMatcher
             }
             matching.put(p, i);
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rete.ReteListener#p_node_left_removal(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode, org.jsoar.kernel.rete.Token, org.jsoar.kernel.Wme)
          */
         @Override
@@ -333,7 +350,7 @@ public class SimpleMatcher
             final Production p = node.b_p().prod;
             Integer i = matching.get(p);
             --i;
-            if(i>0)
+            if(i > 0)
             {
                 matching.put(p, i);
             }
@@ -342,16 +359,20 @@ public class SimpleMatcher
                 matching.remove(p);
             }
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rete.ReteListener#startRefraction(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.Production, org.jsoar.kernel.rete.Instantiation, org.jsoar.kernel.rete.ReteNode)
          */
         @Override
         public void startRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node)
         {
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rete.ReteListener#removingProductionNode(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode)
          */
         @Override

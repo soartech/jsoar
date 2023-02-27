@@ -5,11 +5,9 @@
  */
 package org.jsoar.tcl;
 
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.io.Reader;
 import java.net.URL;
@@ -24,56 +22,56 @@ import org.jsoar.kernel.parser.ParserContext;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.commands.SoarCommands;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class SoarTclInterfaceTest
+class SoarTclInterfaceTest
 {
     private SoarTclInterface ifc;
     
     /**
      * @throws java.lang.Exception
      */
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         final Agent agent = new Agent();
         ifc = SoarTclInterface.findOrCreate(agent);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown() throws Exception
     {
         SoarTclInterface.dispose(ifc);
         ifc = null;
     }
     
     @Test
-    public void testSourceResource() throws SoarException
+    void testSourceResource() throws SoarException
     {
         ifc.source(getClass().getResource("/" + SoarTclInterfaceTest.class.getCanonicalName().replace('.', '/') + "_sourceResource.soar"));
         
         assertNotNull(ifc.getAgent().getProductions().getProduction("top-state*propose*wait"));
     }
-
+    
     @Test
-    public void testSrandCommand() throws Exception
+    void testSrandCommand() throws Exception
     {
         ifc.eval("decide srand 98765");
-        List<Integer> firstInts = new ArrayList<Integer>();
+        List<Integer> firstInts = new ArrayList<>();
         for(int i = 0; i < 1000; ++i)
         {
             firstInts.add(ifc.getAgent().getRandom().nextInt());
         }
         ifc.eval("decide srand 98765");
-        List<Integer> secondInts = new ArrayList<Integer>();
+        List<Integer> secondInts = new ArrayList<>();
         for(int i = 0; i < 1000; ++i)
         {
             secondInts.add(ifc.getAgent().getRandom().nextInt());
@@ -82,7 +80,7 @@ public class SoarTclInterfaceTest
     }
     
     @Test
-    public void testEnvironmentVariablesAreAvailable() throws Exception
+    void testEnvironmentVariablesAreAvailable() throws Exception
     {
         final String path = ifc.eval("global env; set env(PATH)");
         assertEquals(System.getenv("PATH"), path);
@@ -90,7 +88,9 @@ public class SoarTclInterfaceTest
     
     public static class TestParser extends AbstractAdaptable implements Parser
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.parser.Parser#parseProduction(org.jsoar.kernel.parser.ParserContext, java.io.Reader)
          */
         @Override
@@ -101,7 +101,7 @@ public class SoarTclInterfaceTest
     }
     
     @Test
-    public void testSetParserCommand() throws Exception
+    void testSetParserCommand() throws Exception
     {
         final Parser oldParser = ifc.getAgent().getProductions().getParser();
         assertNotNull(oldParser);
@@ -116,7 +116,7 @@ public class SoarTclInterfaceTest
     }
     
     @Test
-    public void testCanLoadRelativePathInJar() throws Exception
+    void testCanLoadRelativePathInJar() throws Exception
     {
         // it turns out that loading a file from a jar whose path contains a "." causes problems
         // this problem can arise via a sequence like this (which NGS used to do):
@@ -141,8 +141,8 @@ public class SoarTclInterfaceTest
         String inputFile = "jar:" + path + "!/test.soar";
         
         URL url = new URL(inputFile);
-        SoarCommands.source(ifc, url );
+        SoarCommands.source(ifc, url);
         
-        assertTrue("Expected a rule to be loaded", ifc.getAgent().getProductions().getProductionCount() == 1);
+        assertEquals(1, ifc.getAgent().getProductions().getProductionCount(), "Expected a rule to be loaded");
     }
 }

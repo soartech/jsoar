@@ -5,7 +5,10 @@
  */
 package org.jsoar.kernel.memory;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,18 +20,20 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class WmesTest
+class WmesTest
 {
     private SymbolFactory syms;
     private MockFactory factory;
+    
     private static class Triple
     {
         final Identifier id;
         final Symbol attr;
         final Symbol value;
+        
         public Triple(Identifier id, Symbol attr, Symbol value)
         {
             this.id = id;
@@ -36,9 +41,10 @@ public class WmesTest
             this.value = value;
         }
     }
+    
     private class MockFactory implements WmeFactory<Void>
     {
-        final List<Triple> triples = new ArrayList<Triple>();
+        final List<Triple> triples = new ArrayList<>();
         
         @Override
         public Void addWme(Identifier id, Symbol attr, Symbol value)
@@ -46,7 +52,7 @@ public class WmesTest
             triples.add(new Triple(id, attr, value));
             return null;
         }
-
+        
         @Override
         public SymbolFactory getSymbols()
         {
@@ -54,15 +60,15 @@ public class WmesTest
         }
     }
     
-    @Before
-    public void setUp()
+    @BeforeEach
+    void setUp()
     {
         syms = new SymbolFactoryImpl();
         factory = new MockFactory();
     }
-
+    
     @Test
-    public void testCreateLinkedListWithEmptyListReturnsNil()
+    void testCreateLinkedListWithEmptyListReturnsNil()
     {
         final Symbol result = Wmes.createLinkedList(factory, Collections.emptyList().iterator());
         assertNotNull(result);
@@ -71,7 +77,7 @@ public class WmesTest
     }
     
     @Test
-    public void testCreateLinkedListWithOneEntry()
+    void testCreateLinkedListWithOneEntry()
     {
         final Identifier result = Wmes.createLinkedList(factory, Arrays.asList("first").iterator()).asIdentifier();
         assertNotNull(result);
@@ -81,7 +87,7 @@ public class WmesTest
     }
     
     @Test
-    public void testCreateLinkedListWithTwoEntries()
+    void testCreateLinkedListWithTwoEntries()
     {
         final Identifier result = Wmes.createLinkedList(factory, Arrays.asList("first", 99).iterator()).asIdentifier();
         assertNotNull(result);

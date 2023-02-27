@@ -8,10 +8,10 @@ package org.jsoar.kernel.symbols;
 import org.jsoar.script.ScriptCommand;
 
 /**
- * A symbol whose value is an arbitrary Java object. 
+ * A symbol whose value is an arbitrary Java object.
  * 
  * <p>This symbol is meant to support JSoar scripting.
- *  
+ * 
  * @author ray
  * @see ScriptCommand
  */

@@ -46,7 +46,7 @@ public class DefaultXmlToWme implements XmlToWme
      * Construct an XML to WME converter for RHS functions, i.e. it uses an
      * instance of {@link RhsFunctionContext} to generate symbols and WMEs.
      * 
-     * @param rhsContext the RHS function context to use 
+     * @param rhsContext the RHS function context to use
      * @return new converter
      */
     public static DefaultXmlToWme forRhsFunction(RhsFunctionContext rhsContext)
@@ -64,8 +64,10 @@ public class DefaultXmlToWme implements XmlToWme
     {
         this.wmeFactory = wmeFactory;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.xml.XmlToWme#fromXml(org.w3c.dom.Element)
      */
     public Identifier fromXml(Element element)
@@ -77,7 +79,7 @@ public class DefaultXmlToWme implements XmlToWme
     {
         assert element != null;
         assert targetId != null;
-
+        
         final SymbolFactory syms = wmeFactory.getSymbols();
         final NamedNodeMap attrs = element.getAttributes();
         final int attrsLength = attrs.getLength();
@@ -93,9 +95,9 @@ public class DefaultXmlToWme implements XmlToWme
         {
             final Attr attr = (Attr) attrs.item(i);
             
-            wmeFactory.addWme(attrsId, 
-                              syms.createString(attr.getName()), 
-                              syms.createString(attr.getValue()));
+            wmeFactory.addWme(attrsId,
+                    syms.createString(attr.getName()),
+                    syms.createString(attr.getValue()));
         }
     }
     
@@ -128,7 +130,7 @@ public class DefaultXmlToWme implements XmlToWme
                 final Identifier kidId = fromXmlInternal(kid);
                 wmeFactory.addWme(targetId, attribute, kidId);
                 
-                // Create ^/next link from last element to this one so we can preserve 
+                // Create ^/next link from last element to this one so we can preserve
                 // the order or the original xml in working memory
                 if(lastChildId != null)
                 {

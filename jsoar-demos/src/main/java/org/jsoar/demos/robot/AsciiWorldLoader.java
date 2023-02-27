@@ -31,7 +31,7 @@ public class AsciiWorldLoader
     {
         public final World world;
         public final Properties config;
-
+        
         public Result(World world, Properties config)
         {
             this.world = world;
@@ -39,20 +39,15 @@ public class AsciiWorldLoader
         }
     }
     
-    public Result load(URL url) throws IOException 
+    public Result load(URL url) throws IOException
     {
-        final InputStream in = url.openStream();
-        try 
+        try(InputStream in = url.openStream())
         {
             return load(in);
         }
-        finally
-        {
-            in.close();
-        }
     }
     
-    public Result load(InputStream in) throws IOException 
+    public Result load(InputStream in) throws IOException
     {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         final ByRef<Integer> maxLine = ByRef.create(0);
@@ -118,10 +113,10 @@ public class AsciiWorldLoader
     {
         assert line.charAt(start) == '#';
         
-        int i = start + 1; //line.indexOf('#', start);
+        int i = start + 1; // line.indexOf('#', start);
         i = i == -1 ? line.length() : i;
         
-        while(i < line.length()) 
+        while(i < line.length())
         {
             if(line.charAt(i) != '#')
             {
@@ -137,7 +132,7 @@ public class AsciiWorldLoader
     
     private String[] readLines(BufferedReader reader, ByRef<Integer> maxLine) throws IOException
     {
-        final List<String> lines = new ArrayList<String>();
+        final List<String> lines = new ArrayList<>();
         int max = 0;
         String line = reader.readLine();
         while(line != null && !"---".equals(line.trim()))

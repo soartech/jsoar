@@ -6,7 +6,7 @@
 package org.jsoar.util;
 
 /**
- * Basic implementation of a by-reference argument used to emulate reference 
+ * Basic implementation of a by-reference argument used to emulate reference
  * arguments in C++.
  * 
  * @author ray
@@ -20,21 +20,21 @@ public class ByRef<T>
     public T value;
     
     /**
-     * Convenience function to create a new ByRef. 
+     * Convenience function to create a new ByRef.
      * 
      * Initially, there was an addition type parameter, U extends T, to make it
      * a little easier to use, but it turns out that Eclipse compiles this usage
      * fine, but the actual JDK compiler hates it. Way it goes.
-     *  
+     * 
      * @param <T> The type of value held by this object
      * @param value the initial value
      * @return a new ByRef holder object
      */
     public static <T> ByRef<T> create(T value)
     {
-        return new ByRef<T>(value);
+        return new ByRef<>(value);
     }
-
+    
     /**
      * Construct a new ByRef object holding <code>null</code>
      */
@@ -52,6 +52,5 @@ public class ByRef<T>
     {
         this.value = value;
     }
-    
     
 }

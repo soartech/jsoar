@@ -22,7 +22,7 @@ import org.jsoar.util.adaptables.Adaptables;
 public class ExciseProductionAction extends AbstractDebuggerAction
 {
     private static final long serialVersionUID = -1460902354871319429L;
-
+    
     /**
      * @param manager the owning action manager
      */
@@ -32,8 +32,10 @@ public class ExciseProductionAction extends AbstractDebuggerAction
         
         setToolTip("Excise production");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
@@ -42,8 +44,10 @@ public class ExciseProductionAction extends AbstractDebuggerAction
         final List<Production> prods = Adaptables.adaptCollection(getSelectionManager().getSelection(), Production.class);
         setEnabled(!prods.isEmpty());
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -56,7 +60,7 @@ public class ExciseProductionAction extends AbstractDebuggerAction
         }
         
         final ThreadedAgent proxy = getApplication().getAgent();
-
+        
         final Callable<Void> call = () ->
         {
             for(Production p : prods)
@@ -67,9 +71,9 @@ public class ExciseProductionAction extends AbstractDebuggerAction
             return null;
         };
         
-        final CompletionHandler<Void> finish  = result -> getApplication().updateActionsAndStatus();
+        final CompletionHandler<Void> finish = result -> getApplication().updateActionsAndStatus();
         
         proxy.execute(call, SwingCompletionHandler.newInstance(finish));
     }
-
+    
 }

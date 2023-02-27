@@ -45,7 +45,9 @@ public class LongPropertyProvider implements PropertyProvider<Long>
         return value.get();
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.properties.PropertyProvider#get()
      */
     @Override
@@ -53,8 +55,10 @@ public class LongPropertyProvider implements PropertyProvider<Long>
     {
         return value.get();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.properties.PropertyProvider#set(java.lang.Object)
      */
     @Override
@@ -62,7 +66,7 @@ public class LongPropertyProvider implements PropertyProvider<Long>
     {
         return this.value.getAndSet(value.intValue());
     }
-
+    
     @Override
     public String toString()
     {

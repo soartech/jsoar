@@ -30,8 +30,10 @@ public class AcceptRhsFunction extends AbstractRhsFunctionHandler
     {
         super("accept", 0, 1);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -39,7 +41,7 @@ public class AcceptRhsFunction extends AbstractRhsFunctionHandler
             throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
-
+        
         final String message = arguments.isEmpty() ? "Input requested by agent:" : arguments.get(0).toString();
         
         try
@@ -47,17 +49,17 @@ public class AcceptRhsFunction extends AbstractRhsFunctionHandler
             final String result = askUserForInput(context, message);
             return context.getSymbols().createString(result != null ? result : "");
         }
-        catch (InterruptedException e)
+        catch(InterruptedException e)
         {
             Thread.currentThread().interrupt();
             throw new RhsFunctionException("Interrupted waiting for user input");
         }
-        catch (InvocationTargetException e)
+        catch(InvocationTargetException e)
         {
             throw new RhsFunctionException("Errot while waiting for user input: " + e.getMessage(), e);
         }
     }
-
+    
     private String askUserForInput(final RhsFunctionContext context, final String message) throws InterruptedException, InvocationTargetException
     {
         if(SwingUtilities.isEventDispatchThread())
@@ -66,15 +68,15 @@ public class AcceptRhsFunction extends AbstractRhsFunctionHandler
         }
         else
         {
-            final AtomicReference<String> result = new AtomicReference<String>();
+            final AtomicReference<String> result = new AtomicReference<>();
             SwingUtilities.invokeAndWait(() -> result.set(askUserForInputFromEventThread(context, message)));
             return result.get();
         }
     }
-
+    
     private String askUserForInputFromEventThread(RhsFunctionContext context, String message)
     {
-        return JOptionPane.showInputDialog(null, message, 
+        return JOptionPane.showInputDialog(null, message,
                 "JSoar - firing rule '" + context.getProductionBeingFired().getName() + "'",
                 JOptionPane.QUESTION_MESSAGE);
     }

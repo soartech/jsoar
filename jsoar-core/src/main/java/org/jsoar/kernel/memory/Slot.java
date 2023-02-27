@@ -29,53 +29,53 @@ import com.google.common.collect.Iterators;
  * 
  * <p>Fields in a slot:
  * <ul>
- *    <li>next, prev:  used for a doubly-linked list of all slots for a certain
- *      identifier.
+ * <li>next, prev: used for a doubly-linked list of all slots for a certain
+ * identifier.
  *
- *    <li>id, attr:   identifier and attribute of the slot
+ * <li>id, attr: identifier and attribute of the slot
  *
- *    <li>wmes:  header of a doubly-linked list of all wmes in the slot
+ * <li>wmes: header of a doubly-linked list of all wmes in the slot
  *
- *    <li>acceptable_preference_wmes:  header of doubly-linked list of all
- *      acceptable preference wmes in the slot.  (This is only used for
- *      context slots.)
+ * <li>acceptable_preference_wmes: header of doubly-linked list of all
+ * acceptable preference wmes in the slot. (This is only used for
+ * context slots.)
  *
- *    <li>all_preferences:  header of a doubly-linked list of all preferences
- *      currently in the slot
+ * <li>all_preferences: header of a doubly-linked list of all preferences
+ * currently in the slot
  *
- *    <li>preferences[NUM_PREFERENCE_TYPES]: array of headers of doubly-linked
- *      lists, one for each possible type of preference.  These store
- *      all the preferences, sorted into lists according to their types.
- *      Within each list, the preferences are sorted according to their
- *      match goal, with the pref. supported by the highest goal at the
- *      head of the list.
+ * <li>preferences[NUM_PREFERENCE_TYPES]: array of headers of doubly-linked
+ * lists, one for each possible type of preference. These store
+ * all the preferences, sorted into lists according to their types.
+ * Within each list, the preferences are sorted according to their
+ * match goal, with the pref. supported by the highest goal at the
+ * head of the list.
  *
- *    <li>CDPS: a dll of preferences in the context-dependent preference set,
- *    which is the set of all preferences that contributed to an operator's
- *    selection. This is used to allow Soar to backtrace through evaluation
- *    rules in substates. The rules that determine which preferences are
- *    in the CPSD are outlined in run_preference_semantics().
- *    
- *    <li>impasse_id:  points to the identifier of the attribute impasse object
- *      for this slot.  (NIL if the slot isn't impassed.)
+ * <li>CDPS: a dll of preferences in the context-dependent preference set,
+ * which is the set of all preferences that contributed to an operator's
+ * selection. This is used to allow Soar to backtrace through evaluation
+ * rules in substates. The rules that determine which preferences are
+ * in the CPSD are outlined in run_preference_semantics().
+ * 
+ * <li>impasse_id: points to the identifier of the attribute impasse object
+ * for this slot. (NIL if the slot isn't impassed.)
  *
- *    <li>isa_context_slot:  TRUE iff this is a context slot
+ * <li>isa_context_slot: TRUE iff this is a context slot
  *
- *    <li>impasse_type:  indicates the type of the impasse for this slot.  This
- *      is one of NONE_IMPASSE_TYPE, CONSTRAINT_FAILURE_IMPASSE_TYPE, etc.
+ * <li>impasse_type: indicates the type of the impasse for this slot. This
+ * is one of NONE_IMPASSE_TYPE, CONSTRAINT_FAILURE_IMPASSE_TYPE, etc.
  *
- *    <li>marked_for_possible_removal:  TRUE iff this slot is on the list of
- *      slots that might be deallocated at the end of the current top-level
- *      phases.
+ * <li>marked_for_possible_removal: TRUE iff this slot is on the list of
+ * slots that might be deallocated at the end of the current top-level
+ * phases.
  *
- *    <li>changed:  indicates whether the preferences for this slot have changed.
- *      For non-context slots, this is either NIL or a pointer to the
- *      corresponding dl_cons in changed_slots (see decide.c); for context
- *      slots, it's just a zero/nonzero flag.
+ * <li>changed: indicates whether the preferences for this slot have changed.
+ * For non-context slots, this is either NIL or a pointer to the
+ * corresponding dl_cons in changed_slots (see decide.c); for context
+ * slots, it's just a zero/nonzero flag.
  *
- *    <li>acceptable_preference_changed:  for context slots only; this is zero
- *      if no acceptable or require preference in this slot has changed;
- *      if one has changed, it points to a dl_cons.
+ * <li>acceptable_preference_changed: for context slots only; this is zero
+ * if no acceptable or require preference in this slot has changed;
+ * if one has changed, it points to a dl_cons.
  * </ul>
  * 
  * <p>gdatastructs.h:288
@@ -86,26 +86,26 @@ public class Slot
 {
     public Slot next, prev;// dll of slots for id
     
-    public final IdentifierImpl id; 
+    public final IdentifierImpl id;
     public final SymbolImpl attr;
-
+    
     private WmeImpl wmes; // dll of wmes in the slot
     private WmeImpl acceptable_preference_wmes;  // dll of acceptable pref. wmes
     
     private Preference all_preferences; // dll of all pref's in the slot
     
     private EnumMap<PreferenceType, Preference> preferencesByType;
-
+    
     private LinkedList<Preference> cdps; /* list of prefs in the CDPS to backtrace through */
     
     public IdentifierImpl impasse_id = null;               // null if slot is not impassed
-    public final boolean isa_context_slot;            
+    public final boolean isa_context_slot;
     public ImpasseType impasse_type = ImpasseType.NONE;
     public boolean marked_for_possible_removal = false;
     
     /**
      * for non-context slots: points to the corresponding
-     * dl_cons in changed_slots;  for context slots: just
+     * dl_cons in changed_slots; for context slots: just
      * zero/nonzero flag indicating slot changed
      * 
      * TODO Sub-class instead of using this for two things
@@ -119,7 +119,7 @@ public class Slot
      * TODO Sub-class instead of using this for two things
      */
     public Object acceptable_preference_changed;
-
+    
     public Map<Symbol, Long> wma_val_references;
     
     /**
@@ -131,11 +131,11 @@ public class Slot
      * @param attr the attribute of the slot
      * @param operator_symbol the operator symbol from {@link PredefinedSymbols}
      * @return the slot. A new one is constructed if a slot for the given id/attr doesn't already
-     *  exist.
+     * exist.
      */
     public static Slot make_slot(IdentifierImpl id, SymbolImpl attr, StringSymbolImpl operator_symbol)
     {
-        // Search for a slot first.  If it exists for the given symbol, then just return it
+        // Search for a slot first. If it exists for the given symbol, then just return it
         final Slot s = find_slot(id, attr);
         if(s != null)
         {
@@ -153,17 +153,17 @@ public class Slot
      * @param id the slot identifier
      * @param attr the slot attribute
      * @param operator_symbol the operator symbol from {@link PredefinedSymbols}. May be null
-     *          if you know that {@code attr} is not "operator". TODO get rid of this param
+     *     if you know that {@code attr} is not "operator". TODO get rid of this param
      */
     private Slot(IdentifierImpl id, SymbolImpl attr, StringSymbolImpl operator_symbol)
     {
         id.addSlot(this);
-
+        
         /*
          * Context slots are goals and operators; operator slots get created
          * with a goal (see create_new_context).
          */
-        if ((id.isGoal()) && (attr == operator_symbol))
+        if((id.isGoal()) && (attr == operator_symbol))
         {
             this.isa_context_slot = true;
         }
@@ -171,16 +171,16 @@ public class Slot
         {
             this.isa_context_slot = false;
         }
-
+        
         // s->changed = NIL;
         // s->acceptable_preference_changed = NIL;
         this.id = id;
         this.attr = attr;
     }
-
+    
     /**
      * Find_slot() looks for an existing slot for a given id/attr pair, and
-     * returns it if found.  If no such slot exists, it returns NIL.
+     * returns it if found. If no such slot exists, it returns NIL.
      * 
      * <p>tempmem.cpp:55:find_slot
      * 
@@ -190,13 +190,13 @@ public class Slot
      */
     public static Slot find_slot(IdentifierImpl id, Symbol attr)
     {
-        if (id == null)
+        if(id == null)
         {
             return null; // fixes bug #135 kjh
-        } 
-        for (Slot s = id.slots; s != null; s = s.next)
+        }
+        for(Slot s = id.slots; s != null; s = s.next)
         {
-            if (s.attr == attr)
+            if(s.attr == attr)
             {
                 return s;
             }
@@ -219,7 +219,6 @@ public class Slot
         }
         return preferencesByType.get(type);
     }
-    
     
     /**
      * @return the head of the list of WMEs in this slot
@@ -250,7 +249,7 @@ public class Slot
     }
     
     /**
-     * Remove all WMEs from this slot 
+     * Remove all WMEs from this slot
      */
     public void removeAllWmes()
     {
@@ -258,7 +257,7 @@ public class Slot
     }
     
     /**
-     * Returns an iterator over all the WMEs in this slot. Note that this should 
+     * Returns an iterator over all the WMEs in this slot. Note that this should
      * not be used for performance critical code.
      * 
      * @return An iterator over the wmes in this slot
@@ -326,7 +325,7 @@ public class Slot
         }
         pref.nextOfSlot = null;
         pref.previousOfSlot = null;
-
+        
     }
     
     /**
@@ -341,12 +340,12 @@ public class Slot
         // add preference to the list (in the right place, according to match
         // goal level of the instantiations) for the slot
         Preference s_prefs = this.getPreferencesByType(pref.type);
-        if (s_prefs == null)
+        if(s_prefs == null)
         {
             // this is the only pref. of its type, just put it at the head
             this.addPreferenceByType(pref, null);
         }
-        else if (s_prefs.inst.match_goal_level >= pref.inst.match_goal_level)
+        else if(s_prefs.inst.match_goal_level >= pref.inst.match_goal_level)
         {
             // it belongs at the head of the list, so put it there
             this.addPreferenceByType(pref, null);
@@ -355,17 +354,17 @@ public class Slot
         {
             // scan through the pref. list, find the one to insert after
             Preference it = s_prefs;
-            for (; it.next != null; it = it.next)
+            for(; it.next != null; it = it.next)
             {
-                if (it.inst.match_goal_level >= pref.inst.match_goal_level)
+                if(it.inst.match_goal_level >= pref.inst.match_goal_level)
                 {
                     break;
                 }
             }
-
+            
             // insert pref after it
             this.addPreferenceByType(pref, it);
-        }        
+        }
     }
     
     /**
@@ -441,22 +440,23 @@ public class Slot
      * Clear out and deallocate the CDPS.
      * 
      * tempmem.cpp:166:clear_CDPS
+     * 
      * @param context
      */
     public void clear_CDPS(final Adaptable context)
     {
-        if (!hasContextDependentPreferenceSet())
+        if(!hasContextDependentPreferenceSet())
         {
             return;
         }
-
+        
         /*
          * The CDPS should never exist on a top-level slot, so we do not need to
          * worry about checking for DO_TOP_LEVEL_REF_CTS.
          */
-
+        
         final RecognitionMemory recMemory = Adaptables.adapt(context, RecognitionMemory.class);
-
+        
         Iterator<Preference> it = cdps.iterator();
         while(it.hasNext())
         {
@@ -465,7 +465,7 @@ public class Slot
             it.remove();
         }
     }
-
+    
     public boolean hasContextDependentPreferenceSet()
     {
         return this.cdps != null && !this.cdps.isEmpty();
@@ -497,11 +497,11 @@ public class Slot
         final Trace trace = Adaptables.adapt(context, Trace.class);
         final Printer printer = trace.getPrinter();
         final boolean traceBacktracing = trace.isEnabled(Category.BACKTRACING);
-        if (traceBacktracing)
+        if(traceBacktracing)
         {
             printer.print("--> Adding preference to CDPS: %s", pref);
         }
-
+        
         if(this.cdps == null)
         {
             this.cdps = new LinkedList<Preference>();
@@ -510,27 +510,27 @@ public class Slot
         boolean already_exists = false;
         for(Preference p : cdps)
         {
-            if (p == pref)
+            if(p == pref)
             {
                 already_exists = true;
                 break;
             }
-
-            if (unique_value)
+            
+            if(unique_value)
             {
                 /*
                  * Checking if a preference is unique differs depending on the
                  * preference type
                  */
-
+                
                 /*
                  * Binary preferences can be considered equivalent if they point
                  * to the same operators in the correct relative spots
                  */
-                if (((pref.type == PreferenceType.BETTER) || (pref.type == PreferenceType.WORSE))
+                if(((pref.type == PreferenceType.BETTER) || (pref.type == PreferenceType.WORSE))
                         && ((p.type == PreferenceType.BETTER) || (p.type == PreferenceType.WORSE)))
                 {
-                    if (pref.type == p.type)
+                    if(pref.type == p.type)
                     {
                         already_exists = ((pref.value == p.value) && (pref.referent == p.referent));
                     }
@@ -539,7 +539,7 @@ public class Slot
                         already_exists = ((pref.value == p.referent) && (pref.referent == p.value));
                     }
                 }
-                else if ((pref.type == PreferenceType.BINARY_INDIFFERENT)
+                else if((pref.type == PreferenceType.BINARY_INDIFFERENT)
                         && (p.type == PreferenceType.BINARY_INDIFFERENT))
                 {
                     already_exists = (((pref.value == p.value) && (pref.referent == p.referent)) || ((pref.value == p.referent) && (pref.referent == p.value)));
@@ -552,18 +552,18 @@ public class Slot
                      */
                     already_exists = (pref.value == p.value) && (pref.type == p.type);
                 }
-                if (already_exists)
+                if(already_exists)
                 {
                     break;
                 }
             }
         }
-        if (!already_exists)
+        if(!already_exists)
         {
             this.cdps.push(pref);
             pref.preference_add_ref();
         }
-        else if (traceBacktracing)
+        else if(traceBacktracing)
         {
             printer.print("--> equivalent pref already exists. Not adding.\n");
         }

@@ -19,7 +19,7 @@ public class StandardCommands
 {
     /**
      * Install standard Soar command handlers on the given interpreter. This is
-     * a convenience method to reduce long, duplicate lists of handlers in 
+     * a convenience method to reduce long, duplicate lists of handlers in
      * multiple interpreters.
      * 
      * @param agent the agent
@@ -38,7 +38,6 @@ public class StandardCommands
         interp.addCommand("print", printCommand);
         
         interp.addCommand("preferences", new PreferencesCommand(agent));
-
         
         interp.addCommand("set-parser", new SetParserCommand(agent));
         interp.addCommand("properties", new PropertiesCommand(agent));
@@ -49,7 +48,7 @@ public class StandardCommands
         
         interp.addCommand("qmemory", new QMemoryCommand(agent));
         interp.addCommand("debugger", new DebuggerCommand(agent));
-
+        
         interp.addCommand("log", new LogCommand(agent, interp));
         
         interp.addCommand("handler", new HandlerCommand(agent));

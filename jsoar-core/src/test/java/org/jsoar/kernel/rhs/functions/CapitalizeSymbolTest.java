@@ -5,20 +5,20 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class CapitalizeSymbolTest extends JSoarTest
+class CapitalizeSymbolTest extends JSoarTest
 {
-
+    
     @Test
-    public void testExecute() throws Exception
+    void testExecute() throws Exception
     {
         CapitalizeSymbol capitalizeSymbol = new CapitalizeSymbol();
         
@@ -26,5 +26,5 @@ public class CapitalizeSymbolTest extends JSoarTest
         
         assertEquals("Foo bar", capitalizeSymbol.execute(rhsFuncContext, Symbols.asList(syms, "Foo bar")).asString().getValue());
     }
-
+    
 }

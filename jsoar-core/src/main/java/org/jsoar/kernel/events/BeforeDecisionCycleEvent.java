@@ -18,7 +18,7 @@ public class BeforeDecisionCycleEvent extends AbstractAgentEvent
     private final Phase phase;
     
     /**
-     * Construct a new event 
+     * Construct a new event
      *
      * @param agent the agent
      * @param phase the phase
@@ -28,7 +28,7 @@ public class BeforeDecisionCycleEvent extends AbstractAgentEvent
         super(agent);
         this.phase = phase;
     }
-
+    
     /**
      * @return the current phase
      */

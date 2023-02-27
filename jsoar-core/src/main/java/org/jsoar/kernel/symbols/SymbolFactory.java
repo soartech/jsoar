@@ -26,7 +26,7 @@ public interface SymbolFactory
      * @return The identifier, or <code>null</code> if not found
      */
     public Identifier findIdentifier(char nameLetter, long nameNumber);
-
+    
     /**
      * Create a new identifier
      * 
@@ -50,7 +50,7 @@ public interface SymbolFactory
      * @return The identifier
      */
     public Identifier findOrCreateIdentifier(char nameLetter, long nameNumber);
-
+    
     /**
      * Find an existing string symbol
      * 
@@ -60,7 +60,7 @@ public interface SymbolFactory
      * @return The symbol, or <code>null</code> if not found
      */
     public StringSymbol findString(String value);
-
+    
     /**
      * Create a new string symbol.
      * 
@@ -69,16 +69,16 @@ public interface SymbolFactory
      * 
      * @param value The string value of the symbol
      * @return A symbol. Subsequent calls with the same value will return the
-     *      same object.
+     * same object.
      */
     public StringSymbol createString(String value);
-
+    
     /**
      * <p>symtab.cpp:546:generate_new_sym_constant
      * 
      * @param prefix Prefix for the constant
-     * @param number Starting index for search. Receives one more than final value 
-     *               of postfix index.
+     * @param number Starting index for search. Receives one more than final value
+     *     of postfix index.
      * @return New string
      */
     public StringSymbol generateUniqueString(String prefix, ByRef<Integer> number);
@@ -91,10 +91,10 @@ public interface SymbolFactory
      * 
      * @param value The integer value of the symbol
      * @return A symbol. Subsequent calls with the same value will return the
-     *      same object.
+     * same object.
      */
     public IntegerSymbol createInteger(long value);
-
+    
     /**
      * Find an existing integer symbol
      * 
@@ -104,7 +104,7 @@ public interface SymbolFactory
      * @return The symbol, or <code>null</code> if not found
      */
     public IntegerSymbol findInteger(long value);
-
+    
     /**
      * Create a new double symbol
      * 
@@ -115,7 +115,7 @@ public interface SymbolFactory
      * @return The symbol
      */
     public DoubleSymbol createDouble(double value);
-
+    
     /**
      * Find an existing double symbol
      * 
@@ -123,7 +123,7 @@ public interface SymbolFactory
      * 
      * @param value The double value of the symbol
      * @return A symbol. Subsequent calls with the same value will return the
-     *      same object.
+     * same object.
      */
     public DoubleSymbol findDouble(double value);
     
@@ -152,9 +152,9 @@ public interface SymbolFactory
      * If the symbol is a {@link JavaSymbol}, the value is shared.
      * 
      * @param s the symbol to import
-     * @return imported symbol 
+     * @return imported symbol
      * @throws IllegalArgumentException if the symbol is an identifier
      */
     public Symbol importSymbol(Symbol s);
-
+    
 }

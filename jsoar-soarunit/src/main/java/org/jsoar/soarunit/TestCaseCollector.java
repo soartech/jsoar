@@ -22,23 +22,25 @@ import org.jsoar.util.UrlTools;
 public class TestCaseCollector
 {
     private final PrintWriterProxy out;
-    private final List<Entry> entries = new ArrayList<Entry>();
+    private final List<Entry> entries = new ArrayList<>();
     
     public TestCaseCollector(PrintWriterProxy out)
     {
         this.out = out;
     }
-
+    
     public void addEntry(File file, boolean recursive)
     {
         try
         {
             URL url = file.toURI().toURL();
             entries.add(new Entry(url, recursive));
-        } catch (MalformedURLException e) {
+        }
+        catch(MalformedURLException e)
+        {
         }
     }
-
+    
     public void addEntry(URL url, boolean recursive)
     {
         entries.add(new Entry(url, recursive));
@@ -48,11 +50,11 @@ public class TestCaseCollector
     {
         final int prefixIndex = greatestCommonPrefixIndex();
         
-        final List<TestCase> all = new ArrayList<TestCase>();
+        final List<TestCase> all = new ArrayList<>();
         for(Entry entry : entries)
         {
             final URL input = entry.url;
-            if (UrlTools.isFileURL(input))
+            if(UrlTools.isFileURL(input))
             {
                 File file = UrlTools.toFile2(input);
                 if(file.isFile())
@@ -73,12 +75,12 @@ public class TestCaseCollector
         return all;
         
     }
-
+    
     private List<TestCase> collectTestCasesInDirectory(File dir, int prefixIndex) throws SoarException, IOException
     {
         out.println("Collecting tests in directory '" + dir + "'");
         
-        final List<TestCase> result = new ArrayList<TestCase>();
+        final List<TestCase> result = new ArrayList<>();
         final File[] children = dir.listFiles();
         if(children != null)
         {
@@ -102,8 +104,8 @@ public class TestCaseCollector
     private boolean isTestFile(File file)
     {
         return file.isFile() &&
-              (file.getName().endsWith(".soarunit") ||
-               (file.getName().startsWith("test") && file.getName().endsWith(".soar")));
+                (file.getName().endsWith(".soarunit") ||
+                        (file.getName().startsWith("test") && file.getName().endsWith(".soar")));
     }
     
     private static class Entry
@@ -127,8 +129,10 @@ public class TestCaseCollector
     {
         // TODO: this has never been tested with multiple entries, as we never actually run with more than one entry
         int commonPrefixIndex = this.entries.get(0).url.getPath().length();
-        for(int i = 0; i < this.entries.size(); i++) {
-            for(int j = i+1; j < this.entries.size(); j++) {
+        for(int i = 0; i < this.entries.size(); i++)
+        {
+            for(int j = i + 1; j < this.entries.size(); j++)
+            {
                 final int index = greatestCommonPrefixIndex(this.entries.get(i).url.getPath(), this.entries.get(j).url.getPath());
                 commonPrefixIndex = Math.min(commonPrefixIndex, index);
             }
@@ -140,8 +144,10 @@ public class TestCaseCollector
     {
         
         int minLength = Math.min(a.length(), b.length());
-        for (int i = 0; i < minLength; i++) {
-            if (a.charAt(i) != b.charAt(i)) {
+        for(int i = 0; i < minLength; i++)
+        {
+            if(a.charAt(i) != b.charAt(i))
+            {
                 return i;
             }
         }

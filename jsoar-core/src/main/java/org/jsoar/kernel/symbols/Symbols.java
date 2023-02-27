@@ -14,12 +14,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.parser.original.Lexeme;
 import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.util.Arguments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility methods for dealing with {@link Symbol} and sub-classes.
@@ -28,14 +28,14 @@ import org.jsoar.util.Arguments;
  */
 public class Symbols
 {
-    private static final Logger logger = LoggerFactory.getLogger(Agent.class);
-    private static final boolean WARN_ON_JAVA_SYMBOLS = Boolean.valueOf(System.getProperty("jsoar.warnOnJavaSymbols", "true"));
-
+    private static final Logger LOG = LoggerFactory.getLogger(Agent.class);
+    private static final boolean WARN_ON_JAVA_SYMBOLS = Boolean.parseBoolean(System.getProperty("jsoar.warnOnJavaSymbols", "true"));
+    
     public static final int IDENTIFIER_SYMBOL_TYPE = 1;
     public static final int SYM_CONSTANT_SYMBOL_TYPE = 2;
     public static final int INT_CONSTANT_SYMBOL_TYPE = 3;
     public static final int FLOAT_CONSTANT_SYMBOL_TYPE = 4;
-
+    
     private static Pattern ID_PATTERN = Pattern.compile("^\\s*([a-zA-Z])(\\d+)\\s*$");
     
     public static int getSymbolType(Symbol sym)
@@ -58,20 +58,26 @@ public class Symbols
         }
         throw new IllegalArgumentException("Don't know integer type of symbol " + sym);
     }
-
-    private Symbols() {}
+    
+    private Symbols()
+    {
+    }
     
     /**
      * Sentinel value passed to {@link #create(SymbolFactory, Object)} to indicate
      * that a new identifier should be created.
      */
-    public static final Object NEW_ID = new Object() {
+    public static final Object NEW_ID = new Object()
+    {
         @Override
-        public String toString() { return "*create a new identifier*"; }
+        public String toString()
+        {
+            return "*create a new identifier*";
+        }
     };
     
     /**
-     * Convert an arbitrary Java object into a Soar symbol. 
+     * Convert an arbitrary Java object into a Soar symbol.
      * 
      * <p>The conversion is according to the following rules:
      * <ul>
@@ -108,18 +114,19 @@ public class Symbols
             return factory.createDouble(((Number) value).doubleValue());
         }
         if(value instanceof Integer || value instanceof Long || value instanceof Short || value instanceof Byte ||
-           value instanceof AtomicInteger || value instanceof AtomicLong)
+                value instanceof AtomicInteger || value instanceof AtomicLong)
         {
             return factory.createInteger(((Number) value).longValue());
         }
         
-        // Landing here could very well be a bug (passing null, or something 
+        // Landing here could very well be a bug (passing null, or something
         // else by accident. So we print a warning just in case.
         if(WARN_ON_JAVA_SYMBOLS)
         {
-            logger.warn("A Java symbol with value '" + value + "' is being created. " + 
-                    "Are you sure this is what you want to do? " + 
-                    "Disable this message with -Djsoar.warnOnJavaSymbols=false.");
+            LOG.warn("A Java symbol with value '{}' is being created. " +
+                    "Are you sure this is what you want to do? " +
+                    "Disable this message with -Djsoar.warnOnJavaSymbols=false.",
+                    value);
         }
         
         return factory.createJavaSymbol(value);
@@ -141,7 +148,7 @@ public class Symbols
      * @param sym The symbol to convert, not <code>null</code>
      * @return Symbol value as a Java object
      * @throws IllegalArgumentException if sym is <code>null</code>
-     * @throws IllegalStateException if sym type is unknown 
+     * @throws IllegalStateException if sym type is unknown
      */
     public static Object valueOf(Symbol sym)
     {
@@ -185,7 +192,7 @@ public class Symbols
      */
     public static List<Symbol> asList(SymbolFactory factory, Object... objects)
     {
-        List<Symbol> result = new ArrayList<Symbol>(objects.length);
+        List<Symbol> result = new ArrayList<>(objects.length);
         for(Object o : objects)
         {
             result.add(create(factory, o));
@@ -196,7 +203,7 @@ public class Symbols
     /**
      * Get the first letter of an attribute. Uses {@link Object#toString()}
      * and retrieves the first character. If {@code attr} is {@code null}, is
-     * an empty string, or begins with a non-alphabetic character, {@code 'Z'} 
+     * an empty string, or begins with a non-alphabetic character, {@code 'Z'}
      * is returned.
      * 
      * @param attr an attribute name
@@ -227,7 +234,7 @@ public class Symbols
      * @param symbols the symbol factory
      * @param idString the id string
      * @return the identifier, or {@code null} if parse failed, or the id doesn't
-     *      exist.
+     * exist.
      */
     public static Identifier parseIdentifier(SymbolFactory symbols, String idString)
     {
@@ -240,7 +247,7 @@ public class Symbols
                 final long number = Long.parseLong(matcher.group(2));
                 return symbols.findIdentifier(letter, number);
             }
-            catch (NumberFormatException e)
+            catch(NumberFormatException e)
             {
                 return null;
             }
@@ -250,13 +257,14 @@ public class Symbols
             return null;
         }
     }
+    
     /**
      * 
      * <p>sml_KernelHelpers.cpp:731:read_attribute_from_string
      * 
      * <p>TODO: This probably shouldn't be here because of the Agent dependency
      * 
-     * @param agent the agent 
+     * @param agent the agent
      * @param s the attribute as a string
      * @return the associated symbol, or {@code null} if not found.
      */
@@ -285,20 +293,30 @@ public class Symbols
             final Symbol attr;
             switch(lexeme.type)
             {
-            case SYM_CONSTANT: attr = syms.findString(lexeme.string); break;
-            case INTEGER: attr = syms.findInteger(lexeme.int_val); break;
-            case FLOAT:  attr = syms.findDouble(lexeme.float_val); break;
-            case IDENTIFIER: attr = syms.findIdentifier(lexeme.id_letter, lexeme.id_number); break; 
-            case VARIABLE: attr = agent.readIdentifierOrContextVariable(lexeme.string); break;
+            case SYM_CONSTANT:
+                attr = syms.findString(lexeme.string);
+                break;
+            case INTEGER:
+                attr = syms.findInteger(lexeme.int_val);
+                break;
+            case FLOAT:
+                attr = syms.findDouble(lexeme.float_val);
+                break;
+            case IDENTIFIER:
+                attr = syms.findIdentifier(lexeme.id_letter, lexeme.id_number);
+                break;
+            case VARIABLE:
+                attr = agent.readIdentifierOrContextVariable(lexeme.string);
+                break;
             default:
                 return null;
             }
             return attr;
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             return null;
-        } 
+        }
     }
     
     /**
@@ -321,16 +339,16 @@ public class Symbols
         }
         return 0.0;
     }
-
+    
     public static boolean equalByValue(Symbol s1, Symbol s2)
     {
         Identifier i1 = s1.asIdentifier();
         Identifier i2 = s2.asIdentifier();
-
+        
         // both are ids, so compare them
-        if (i1 != null && i2 != null)
+        if(i1 != null && i2 != null)
         {
-            if (i1.getNameLetter() == i2.getNameLetter()
+            if(i1.getNameLetter() == i2.getNameLetter()
                     && i1.getNameNumber() == i2.getNameNumber())
             {
                 return true;
@@ -341,7 +359,7 @@ public class Symbols
             }
         }
         // one is an id and the other is not, so they are not equal
-        else if (i1 != null || i2 != null)
+        else if(i1 != null || i2 != null)
         {
             return false;
         }

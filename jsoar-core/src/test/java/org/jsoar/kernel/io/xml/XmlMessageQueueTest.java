@@ -5,8 +5,7 @@
  */
 package org.jsoar.kernel.io.xml;
 
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
@@ -19,23 +18,24 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.XmlTools;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class XmlMessageQueueTest
+class XmlMessageQueueTest
 {
     private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
         int count = 0;
+        
         public MatchFunction()
         {
             super("match");
         }
-
+        
         @Override
         public Symbol execute(RhsFunctionContext context, List<Symbol> arguments)
                 throws RhsFunctionException
@@ -48,8 +48,8 @@ public class XmlMessageQueueTest
     private Agent agent;
     private MatchFunction match;
     
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp() throws Exception
     {
         this.agent = new Agent(false);
         agent.getTrace().disableAll();
@@ -58,18 +58,19 @@ public class XmlMessageQueueTest
         new CycleCountInput(this.agent.getInputOutput());
         this.agent.initialize();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown() throws Exception
     {
         this.agent.dispose();
         this.agent = null;
     }
     
-    @Test public void testMessageQueueRootIsCreated() throws Exception
+    @Test
+    void testMessageQueueRootIsCreated() throws Exception
     {
         XmlMessageQueue.newBuilder(agent.getInputOutput()).queueName("test-queue-root").create();
         
@@ -79,17 +80,18 @@ public class XmlMessageQueueTest
         assertEquals(1, match.count);
     }
     
-    @Test public void testMessagesAreAddedToQueue() throws Exception
+    @Test
+    void testMessagesAreAddedToQueue() throws Exception
     {
         final XmlMessageQueue queue = XmlMessageQueue.newBuilder(agent.getInputOutput()).queueName("test-messages").create();
         
         agent.getProductions().loadProduction("checkForMessages" +
-        		"(state <s> ^superstate nil ^io.input-link.test-messages <r>)" +
-        		"(<r> ^a <a> ^b <b> ^c <c>)" +
-        		"(<a> ^/text |message a| ^/next <b> -^/previous)" +
-        		"(<b> ^/text |message b| ^/previous <a> ^/next <c>)" +
-        		"(<c> ^/text |message c| ^/previous <b> -^/next)" +
-        		"--> (match)");
+                "(state <s> ^superstate nil ^io.input-link.test-messages <r>)" +
+                "(<r> ^a <a> ^b <b> ^c <c>)" +
+                "(<a> ^/text |message a| ^/next <b> -^/previous)" +
+                "(<b> ^/text |message b| ^/previous <a> ^/next <c>)" +
+                "(<c> ^/text |message c| ^/previous <b> -^/next)" +
+                "--> (match)");
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(0, match.count);
         
@@ -100,7 +102,8 @@ public class XmlMessageQueueTest
         assertEquals(1, match.count);
     }
     
-    @Test public void testMessagesAreRemovedFromQueueAfterTimeToLiveExpires() throws Exception
+    @Test
+    void testMessagesAreRemovedFromQueueAfterTimeToLiveExpires() throws Exception
     {
         final XmlMessageQueue queue = XmlMessageQueue.newBuilder(agent.getInputOutput()).timeToLive(20).queueName("test-messages").create();
         

@@ -12,8 +12,10 @@ import org.jsoar.kernel.Agent;
  */
 public class DefaultInterpreterFactory implements SoarCommandInterpreterFactory
 {
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.commands.SoarCommandInterpreterFactory#create(org.jsoar.kernel.Agent)
      */
     @Override
@@ -21,8 +23,10 @@ public class DefaultInterpreterFactory implements SoarCommandInterpreterFactory
     {
         return new DefaultInterpreter(agent);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.commands.SoarCommandInterpreterFactory#getName()
      */
     @Override
@@ -30,5 +34,5 @@ public class DefaultInterpreterFactory implements SoarCommandInterpreterFactory
     {
         return "default";
     }
-
+    
 }

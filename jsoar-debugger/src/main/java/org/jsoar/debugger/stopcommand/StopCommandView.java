@@ -39,22 +39,22 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
     private JXTextField txtCommand = new JXTextField("");
     private JTextPane txtResult = new JTextPane();
     private DefaultStyledDocument styledDocument = new DefaultStyledDocument();
-
-    public StopCommandView(MultipleCDockableFactory<?,?> factory, JSoarDebugger debuggerIn)
+    
+    public StopCommandView(MultipleCDockableFactory<?, ?> factory, JSoarDebugger debuggerIn)
     {
         super(factory, "Stop Command View");
         this.debugger = debuggerIn;
-
+        
         highlighter = Highlighter.getInstance(debugger);
-
+        
         setResizeLocked(false);
         setCloseable(true);
         setExternalizable(true);
-
-        debugger.getAgent().getAgent().getEvents().addListener(StopEvent.class,this);
+        
+        debugger.getAgent().getAgent().getEvents().addListener(StopEvent.class, this);
         JPanel p = new JPanel();
-        p.setLayout(new BorderLayout(2,2));
-//        txtResult.setLineWrap(true);
+        p.setLayout(new BorderLayout(2, 2));
+        // txtResult.setLineWrap(true);
         txtResult.setEditable(false);
         txtResult.setStyledDocument(styledDocument);
         txtCommand.getDocument().addDocumentListener(new DocumentListener()
@@ -64,13 +64,13 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
             {
                 updateCommand(e);
             }
-
+            
             @Override
             public void removeUpdate(DocumentEvent e)
             {
                 updateCommand(e);
             }
-
+            
             @Override
             public void changedUpdate(DocumentEvent e)
             {
@@ -79,25 +79,29 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
         });
         
         highlighter.setDefaultTextStyle(txtResult);
-
+        
         p.add(txtCommand, BorderLayout.NORTH);
         p.add(txtResult, BorderLayout.CENTER);
-
+        
         getContentPane().add(new JScrollPane(p));
     }
-
+    
     private void updateCommand(DocumentEvent e)
     {
-        setTitleText("On Stop: "+txtCommand.getText());
-        debugger.getAgent().execute(() -> { runStopCommand(); return null; }, null);
+        setTitleText("On Stop: " + txtCommand.getText());
+        debugger.getAgent().execute(() ->
+        {
+            runStopCommand();
+            return null;
+        }, null);
     }
-
+    
     @Override
     public void dispose()
     {
-
+        
     }
-
+    
     /**
      * This method will be called from the UI thread
      */
@@ -105,65 +109,72 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
     public void refresh(boolean afterInitSoar)
     {
         // runStopCommand() expects to run on the Soar agent thread
-        debugger.getAgent().execute(() -> { runStopCommand(); return null; }, null);
+        debugger.getAgent().execute(() ->
+        {
+            runStopCommand();
+            return null;
+        }, null);
     }
-
+    
     @Override
     public void selectionChanged(SelectionManager manager)
     {
-
+        
     }
-
+    
     public String getCurrentCommand()
     {
         return txtCommand.getText();
     }
-
+    
     /**
      * This method will be called on the Soar agent thread
      */
     @Override
     public void onEvent(SoarEvent event)
     {
-        if (event instanceof StopEvent){
+        if(event instanceof StopEvent)
+        {
             runStopCommand();
         }
     }
-
+    
     /**
      * This method should be called on the Soar agent thread
      */
     public void runStopCommand()
     {
         String command = getCommandToExecute();
-
-        if (command != null && !command.trim().isEmpty()) 
+        
+        if(command != null && !command.trim().isEmpty())
         {
             
-            LOG.info("stopcommand " + command + " running...");
-
-            //most commands don't actually return a string, but print straight to the writer. We need to add our own writer to intercept the output
+            LOG.info("stopcommand {} running...", command);
+            
+            // most commands don't actually return a string, but print straight to the writer. We need to add our own writer to intercept the output
             StringWriter writer = new StringWriter();
-
-            debugger.getAgent().getPrinter().pushWriter(writer); //redirect output to us
+            
+            debugger.getAgent().getPrinter().pushWriter(writer); // redirect output to us
             
             String commandReturnResult;
             try
             {
                 commandReturnResult = debugger.getAgent().getInterpreter().eval(command);
-            } catch (SoarException e) {
-                LOG.info("stopcommand " + command + " error!");
-                commandReturnResult = e.getMessage(); //print the error if there was one
+            }
+            catch(SoarException e)
+            {
+                LOG.info("stopcommand {} error!", command);
+                commandReturnResult = e.getMessage(); // print the error if there was one
             }
             
-            debugger.getAgent().getPrinter().popWriter();//stop redirecting output to us
-
+            debugger.getAgent().getPrinter().popWriter();// stop redirecting output to us
+            
             String commandPrintResult = writer.getBuffer().toString();
             final String result = commandReturnResult + commandPrintResult;
-
+            
             SwingUtilities.invokeLater(() -> txtResult.setText(result.trim()));
-
-            LOG.info("stopcommand " + command + " done!");
+            
+            LOG.info("stopcommand {} done!", command);
             
         }
     }
@@ -175,28 +186,31 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
         {
             EventQueue.invokeAndWait(() -> textholder[0] = txtCommand.getText());
         }
-        catch (InvocationTargetException e)
+        catch(InvocationTargetException e)
         {
             LOG.error("Exception while getting stop command", e);
             return "";
         }
-        catch (InterruptedException e)
+        catch(InterruptedException e)
         {
             Thread.currentThread().interrupt();
         }
         return textholder[0];
     }
-
+    
     /**
      * This method is called on the UI thread
      */
     public void setCommand(String command)
     {
         txtCommand.setText(command);
-        setTitleText("On Stop: "+txtCommand.getText());
+        setTitleText("On Stop: " + txtCommand.getText());
         // runStopCommand() expects to run on the Soar agent thread
-        debugger.getAgent().execute(() -> { runStopCommand(); return null; }, null);
+        debugger.getAgent().execute(() ->
+        {
+            runStopCommand();
+            return null;
+        }, null);
     }
-
-
+    
 }

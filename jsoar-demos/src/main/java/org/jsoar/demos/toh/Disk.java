@@ -10,7 +10,6 @@ import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.io.InputWmes;
 
-
 /**
  * @author ray
  */
@@ -21,7 +20,7 @@ public class Disk
     private Peg peg;
     private boolean moved;
     private InputWme pegWme, aboveWme;
-
+    
     /**
      * @param size
      */
@@ -34,7 +33,7 @@ public class Disk
     {
         return size;
     }
-
+    
     void setPeg(Peg peg)
     {
         if(this.peg != null)
@@ -44,7 +43,7 @@ public class Disk
         this.peg = peg;
         this.moved = true;
     }
-
+    
     /**
      * @param io
      * @param below
@@ -54,13 +53,8 @@ public class Disk
         if(pegWme == null)
         {
             // Build initial structure
-            InputBuilder builder = InputBuilder.create(io).
-            add("disk", size).
-            push("holds").
-                add("on", peg.getName()).markWme("peg").
-                add("disk", size).
-                add("above", getAbove(below)).markWme("above").
-                top();
+            InputBuilder builder = InputBuilder.create(io).add("disk", size).push("holds").add("on", peg.getName()).markWme("peg").add("disk", size).add("above", getAbove(below)).markWme("above")
+                    .top();
             
             // Retrieve WMEs we need to update later
             pegWme = builder.getWme("peg");

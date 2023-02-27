@@ -5,22 +5,24 @@
  */
 package org.jsoar.kernel;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import java.util.concurrent.TimeUnit;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * @author ray
  */
-public class ChunkingTests extends FunctionalTestHarness
-{    
+class ChunkingTests extends FunctionalTestHarness
+{
     @Test
-    public void testJustifications() throws Exception
+    void testJustifications() throws Exception
     {
         runTest("testJustifications", 2);
         Production j = agent.getProductions().getProduction("justification-1");
@@ -28,38 +30,41 @@ public class ChunkingTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testChunks() throws Exception
+    void testChunks() throws Exception
     {
         runTest("testChunks", 2);
         
         // Verify that the chunk was created correctly
-        JSoarTest.verifyProduction(agent, 
-                "chunk-1*d2*opnochange*1", 
-                ProductionType.CHUNK, 
+        JSoarTest.verifyProduction(agent,
+                "chunk-1*d2*opnochange*1",
+                ProductionType.CHUNK,
                 "sp {chunk-1*d2*opnochange*1\n" +
-                "    :chunk\n" +
-                "    (state <s1> ^operator <o1>)\n" +
-                "    (<o1> ^name onc)\n" +
-                "    -->\n" +
-                "    (<s1> ^result true +)\n" +
-                "}\n", false);
+                        "    :chunk\n" +
+                        "    (state <s1> ^operator <o1>)\n" +
+                        "    (<o1> ^name onc)\n" +
+                        "    -->\n" +
+                        "    (<s1> ^result true +)\n" +
+                        "}\n",
+                false);
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testChunks2() throws Exception
     {
         runTest("testChunks2", -1);
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testChunks2WithLearning() throws Exception
     {
         agent.getInterpreter().eval("chunk --on");
         runTest("testChunks2", -1);
     }
-        
+    
     @Test
-    public void testNegatedConjunctiveChunkLoopBug510() throws Exception
+    void testNegatedConjunctiveChunkLoopBug510() throws Exception
     {
         runTest("testNegatedConjunctiveChunkLoopBug510", 3);
         assertEquals(3, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
@@ -67,7 +72,7 @@ public class ChunkingTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testBlocksWorldLookAheadWithMaxNoChangeBug() throws Exception
+    void testBlocksWorldLookAheadWithMaxNoChangeBug() throws Exception
     {
         // This tests for a bug in the chunking caused by a bug in add_cond_to_tc()
         // where the id and attr test for positive conditions were added to the tc
@@ -80,8 +85,8 @@ public class ChunkingTests extends FunctionalTestHarness
         assertEquals(4, agent.getProductions().getProductions(ProductionType.CHUNK).size());
         
         // Make sure the chunk was built correctly.
-        JSoarTest.verifyProduction(agent, 
-                "chunk-1*d10*opnochange*1", 
+        JSoarTest.verifyProduction(agent,
+                "chunk-1*d10*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-1*d10*opnochange*1\n" +
                         "    :chunk\n" +
@@ -127,12 +132,13 @@ public class ChunkingTests extends FunctionalTestHarness
                         "    (<o9> ^bottom-block <o3>)\n" +
                         "    -->\n" +
                         "    (<e1> ^symbolic-value success +)\n" +
-                        "}\n", true);
-
+                        "}\n",
+                true);
+        
     }
-
+    
     @Test
-    public void testCDPS() throws Exception
+    void testCDPS() throws Exception
     {
         Chunker chunker = Adaptables.adapt(agent, Chunker.class);
         chunker.chunkThroughEvaluationRules = true;
@@ -141,60 +147,62 @@ public class ChunkingTests extends FunctionalTestHarness
         
         // Make sure the chunks were built correctly.
         
-        JSoarTest.verifyProduction(agent, 
-                "chunk-1*d5*opnochange*1", 
+        JSoarTest.verifyProduction(agent,
+                "chunk-1*d5*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-1*d5*opnochange*1\n" +
-                "    :chunk\n" +
-                "    (state <s1> ^numbers 5)\n" +
-                "    (<s1> ^numbers 4)\n" +
-                "    (<s1> ^superstate nil)\n" +
-                "    (<s1> ^operator <o1>)\n" +
-                "    (<o1> ^name do-test)\n" +
-                "    (<o1> ^test <t1>)\n" +
-                "    (<t1> ^operators 5)\n" +
-                "    (<t1> ^prohibits 3)\n" +
-                "    (<t1> ^prohibits 1)\n" +
-                "    (<t1> ^rejects 5)\n" +
-                "    (<t1> ^worsts 2)\n" +
-                "    (<s1> ^numbers 3)\n" +
-                "    (<s1> ^numbers 2)\n" +
-                "    (<s1> ^numbers 1)\n" +
-                "    (<s1> ^worst-test 2)\n" +
-                "    (<s1> ^reject-test 5)\n" +
-                "    (<s1> ^prohibit-test 3)\n" +
-                "    (<s1> ^prohibit-test 1)\n" +
-                "    (<s1> ^acceptable-test 5)\n" +
-                "    (<s1> ^acceptable-test 4)\n" +
-                "    (<s1> ^acceptable-test 3)\n" +
-                "    (<s1> ^acceptable-test 2)\n" +
-                "    (<s1> ^acceptable-test 1)\n" +
-                "    -->\n" +
-                "    (<s1> ^result op4 +)\n" +
-                "}\n", true);
+                        "    :chunk\n" +
+                        "    (state <s1> ^numbers 5)\n" +
+                        "    (<s1> ^numbers 4)\n" +
+                        "    (<s1> ^superstate nil)\n" +
+                        "    (<s1> ^operator <o1>)\n" +
+                        "    (<o1> ^name do-test)\n" +
+                        "    (<o1> ^test <t1>)\n" +
+                        "    (<t1> ^operators 5)\n" +
+                        "    (<t1> ^prohibits 3)\n" +
+                        "    (<t1> ^prohibits 1)\n" +
+                        "    (<t1> ^rejects 5)\n" +
+                        "    (<t1> ^worsts 2)\n" +
+                        "    (<s1> ^numbers 3)\n" +
+                        "    (<s1> ^numbers 2)\n" +
+                        "    (<s1> ^numbers 1)\n" +
+                        "    (<s1> ^worst-test 2)\n" +
+                        "    (<s1> ^reject-test 5)\n" +
+                        "    (<s1> ^prohibit-test 3)\n" +
+                        "    (<s1> ^prohibit-test 1)\n" +
+                        "    (<s1> ^acceptable-test 5)\n" +
+                        "    (<s1> ^acceptable-test 4)\n" +
+                        "    (<s1> ^acceptable-test 3)\n" +
+                        "    (<s1> ^acceptable-test 2)\n" +
+                        "    (<s1> ^acceptable-test 1)\n" +
+                        "    -->\n" +
+                        "    (<s1> ^result op4 +)\n" +
+                        "}\n",
+                true);
         
-        JSoarTest.verifyProduction(agent, 
-                "chunk-2*d11*opnochange*1", 
+        JSoarTest.verifyProduction(agent,
+                "chunk-2*d11*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-2*d11*opnochange*1\n" +
-                    "    :chunk\n" +
-                    "    (state <s1> ^numbers 2)\n" +
-                    "    (<s1> ^superstate nil)\n" +
-                    "    (<s1> ^operator <o1>)\n" +
-                    "    (<o1> ^name do-test)\n" +
-                    "    (<o1> ^test <t1>)\n" +
-                    "    (<t1> ^operators 3)\n" +
-                    "    (<s1> ^nindifferent-test 2)\n" +
-                    "    (<s1> ^acceptable-test 2)\n" +
-                    "    (<t1> ^numerics <n1>)\n" +
-                    "    (<n1> ^referent 0.6)\n" +
-                    "    (<n1> ^value 2)\n" +
-                    "    -->\n" +
-                    "    (<s1> ^result op2 +)\n" +
-                    "}\n", true);
+                        "    :chunk\n" +
+                        "    (state <s1> ^numbers 2)\n" +
+                        "    (<s1> ^superstate nil)\n" +
+                        "    (<s1> ^operator <o1>)\n" +
+                        "    (<o1> ^name do-test)\n" +
+                        "    (<o1> ^test <t1>)\n" +
+                        "    (<t1> ^operators 3)\n" +
+                        "    (<s1> ^nindifferent-test 2)\n" +
+                        "    (<s1> ^acceptable-test 2)\n" +
+                        "    (<t1> ^numerics <n1>)\n" +
+                        "    (<n1> ^referent 0.6)\n" +
+                        "    (<n1> ^value 2)\n" +
+                        "    -->\n" +
+                        "    (<s1> ^result op2 +)\n" +
+                        "}\n",
+                true);
         
-        JSoarTest.verifyProduction(agent, 
-                "chunk-3*d17*opnochange*1", 
+        JSoarTest.verifyProduction(agent,
+                "chunk-3*d17*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-3*d17*opnochange*1\n" +
                         "    :chunk\n" +
@@ -219,10 +227,11 @@ public class ChunkingTests extends FunctionalTestHarness
                         "    (<b1> ^value 1)\n" +
                         "    -->\n" +
                         "    (<s1> ^result op1 +)\n" +
-                    "}\n", true);
+                        "}\n",
+                true);
         
-        JSoarTest.verifyProduction(agent, 
-                "chunk-4*d23*opnochange*1", 
+        JSoarTest.verifyProduction(agent,
+                "chunk-4*d23*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-4*d23*opnochange*1\n" +
                         "    :chunk\n" +
@@ -237,10 +246,11 @@ public class ChunkingTests extends FunctionalTestHarness
                         "    (<s1> ^acceptable-test 2)\n" +
                         "    -->\n" +
                         "    (<s1> ^result op2 +)\n" +
-                    "}\n", true);
+                        "}\n",
+                true);
         
-        JSoarTest.verifyProduction(agent, 
-                "chunk-5*d29*opnochange*1", 
+        JSoarTest.verifyProduction(agent,
+                "chunk-5*d29*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-5*d29*opnochange*1\n" +
                         "    :chunk\n" +
@@ -255,10 +265,11 @@ public class ChunkingTests extends FunctionalTestHarness
                         "    (<s1> ^acceptable-test 1)\n" +
                         "    -->\n" +
                         "    (<s1> ^result op1 +)\n" +
-                    "}\n", true);
+                        "}\n",
+                true);
         
-        JSoarTest.verifyProduction(agent, 
-                "chunk-6*d35*opnochange*1", 
+        JSoarTest.verifyProduction(agent,
+                "chunk-6*d35*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-6*d35*opnochange*1\n" +
                         "    :chunk\n" +
@@ -281,10 +292,11 @@ public class ChunkingTests extends FunctionalTestHarness
                         "    (<n1> ^value 1)\n" +
                         "    -->\n" +
                         "    (<s1> ^result op1 +)\n" +
-                    "}\n", true);
+                        "}\n",
+                true);
         
-        JSoarTest.verifyProduction(agent, 
-                "chunk-7*d41*opnochange*1", 
+        JSoarTest.verifyProduction(agent,
+                "chunk-7*d41*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-7*d41*opnochange*1\n" +
                         "    :chunk\n" +
@@ -305,10 +317,11 @@ public class ChunkingTests extends FunctionalTestHarness
                         "    (<b1> ^value 2)\n" +
                         "    -->\n" +
                         "    (<s1> ^result op2 +)\n" +
-                    "}\n", true);
+                        "}\n",
+                true);
         
-        JSoarTest.verifyProduction(agent, 
-                "chunk-8*d47*opnochange*1", 
+        JSoarTest.verifyProduction(agent,
+                "chunk-8*d47*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-8*d47*opnochange*1\n" +
                         "    :chunk\n" +
@@ -323,10 +336,11 @@ public class ChunkingTests extends FunctionalTestHarness
                         "    (<s1> ^acceptable-test 8)\n" +
                         "    -->\n" +
                         "    (<s1> ^result op8 +)\n" +
-                    "}\n", true);
+                        "}\n",
+                true);
         
-        JSoarTest.verifyProduction(agent, 
-                "chunk-9*d53*opnochange*1", 
+        JSoarTest.verifyProduction(agent,
+                "chunk-9*d53*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-9*d53*opnochange*1\n" +
                         "    :chunk\n" +
@@ -431,10 +445,11 @@ public class ChunkingTests extends FunctionalTestHarness
                         "    (<s1> ^acceptable-test 1)\n" +
                         "    -->\n" +
                         "    (<s1> ^result op11 +)\n" +
-                    "}\n", true);
-
-        JSoarTest.verifyProduction(agent, 
-                "chunk-10*d59*opnochange*1", 
+                        "}\n",
+                true);
+        
+        JSoarTest.verifyProduction(agent,
+                "chunk-10*d59*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-10*d59*opnochange*1\n" +
                         "    :chunk\n" +
@@ -558,10 +573,11 @@ public class ChunkingTests extends FunctionalTestHarness
                         "    (<b22> ^value 1)\n" +
                         "    -->\n" +
                         "    (<s1> ^result op1 +)\n" +
-                    "}\n", true);
-
-        JSoarTest.verifyProduction(agent, 
-                "chunk-11*d65*opnochange*1", 
+                        "}\n",
+                true);
+        
+        JSoarTest.verifyProduction(agent,
+                "chunk-11*d65*opnochange*1",
                 ProductionType.CHUNK,
                 "sp {chunk-11*d65*opnochange*1\n" +
                         "    :chunk\n" +
@@ -588,7 +604,8 @@ public class ChunkingTests extends FunctionalTestHarness
                         "    (<s1> ^acceptable-test 1)\n" +
                         "    -->\n" +
                         "    (<s1> ^result op5 +)\n" +
-                    "}\n", true);
+                        "}\n",
+                true);
     }
-
+    
 }

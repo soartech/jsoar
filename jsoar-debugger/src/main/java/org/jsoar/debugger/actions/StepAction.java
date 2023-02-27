@@ -18,7 +18,7 @@ import org.jsoar.kernel.RunType;
 public class StepAction extends AbstractDebuggerAction
 {
     private static final long serialVersionUID = -1460902354871319429L;
-
+    
     private final RunType runType;
     
     /**
@@ -30,8 +30,10 @@ public class StepAction extends AbstractDebuggerAction
         setAcceleratorKey(KeyStroke.getKeyStroke(keyStroke));
         this.runType = runType;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
@@ -39,8 +41,10 @@ public class StepAction extends AbstractDebuggerAction
     {
         setEnabled(!getApplication().getAgent().isRunning());
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -51,5 +55,5 @@ public class StepAction extends AbstractDebuggerAction
         getApplication().getAgent().runFor(1, model.getType());
         getApplication().updateActionsAndStatus();
     }
-
+    
 }

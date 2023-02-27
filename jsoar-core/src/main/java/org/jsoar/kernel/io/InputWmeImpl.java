@@ -23,7 +23,7 @@ import org.jsoar.kernel.symbols.Symbol;
 class InputWmeImpl implements InputWme
 {
     private final InputOutputImpl io;
-    private final AtomicReference<WmeImpl> inner = new AtomicReference<WmeImpl>();
+    private final AtomicReference<WmeImpl> inner = new AtomicReference<>();
     
     InputWmeImpl(InputOutputImpl io, WmeImpl inner)
     {
@@ -55,7 +55,9 @@ class InputWmeImpl implements InputWme
         this.inner.get().setOuterInputWme(this);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.InputWme#getInputOutput()
      */
     @Override
@@ -63,8 +65,10 @@ class InputWmeImpl implements InputWme
     {
         return io;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.InputWme#remove()
      */
     @Override
@@ -72,8 +76,10 @@ class InputWmeImpl implements InputWme
     {
         io.removeInputWme(this);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.InputWme#update(org.jsoar.kernel.symbols.Symbol)
      */
     @Override
@@ -81,8 +87,10 @@ class InputWmeImpl implements InputWme
     {
         io.updateInputWme(this, newValue);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getAttribute()
      */
     @Override
@@ -90,8 +98,10 @@ class InputWmeImpl implements InputWme
     {
         return inner.get().getAttribute();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getChildren()
      */
     @Override
@@ -99,8 +109,10 @@ class InputWmeImpl implements InputWme
     {
         return inner.get().getChildren();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getIdentifier()
      */
     @Override
@@ -108,8 +120,10 @@ class InputWmeImpl implements InputWme
     {
         return inner.get().getIdentifier();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getPreferences()
      */
     @Override
@@ -117,8 +131,10 @@ class InputWmeImpl implements InputWme
     {
         return inner.get().getPreferences();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getTimetag()
      */
     @Override
@@ -126,8 +142,10 @@ class InputWmeImpl implements InputWme
     {
         return inner.get().getTimetag();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getValue()
      */
     @Override
@@ -135,8 +153,10 @@ class InputWmeImpl implements InputWme
     {
         return inner.get().getValue();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#isAcceptable()
      */
     @Override
@@ -144,8 +164,10 @@ class InputWmeImpl implements InputWme
     {
         return inner.get().isAcceptable();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -154,8 +176,10 @@ class InputWmeImpl implements InputWme
     {
         inner.get().formatTo(formatter, flags, width, precision);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
      */
     @Override
@@ -163,5 +187,5 @@ class InputWmeImpl implements InputWme
     {
         return inner.get().getAdapter(klass);
     }
-
+    
 }

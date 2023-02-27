@@ -26,7 +26,7 @@ public abstract class AbstractDebuggerAction extends AbstractAction
         super(label);
         this.manager = null;
     }
-
+    
     public AbstractDebuggerAction(String label, Icon icon)
     {
         super(label, icon);
@@ -39,7 +39,7 @@ public abstract class AbstractDebuggerAction extends AbstractAction
         this.manager = manager;
         this.manager.addAction(this);
     }
-
+    
     public AbstractDebuggerAction(ActionManager manager, String label, Icon icon)
     {
         super(label, icon);
@@ -53,7 +53,7 @@ public abstract class AbstractDebuggerAction extends AbstractAction
         this.manager = manager;
         manager.addObjectAction(this, klass, adapt);
     }
-
+    
     public AbstractDebuggerAction(ActionManager manager, String label, Icon icon, Class<?> klass, boolean adapt)
     {
         super(label, icon);
@@ -75,7 +75,7 @@ public abstract class AbstractDebuggerAction extends AbstractAction
     {
         this.putValue(NAME, label);
     }
-
+    
     public abstract void update();
     
     public String getId()

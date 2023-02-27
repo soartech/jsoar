@@ -17,7 +17,7 @@ import org.jsoar.util.events.SoarEvent;
 public abstract class AbstractInputOutputEvent implements SoarEvent
 {
     private final InputOutput io;
-
+    
     /**
      * Construct a new event
      * 

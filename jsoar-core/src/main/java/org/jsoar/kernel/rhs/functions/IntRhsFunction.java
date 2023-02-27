@@ -20,13 +20,13 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class IntRhsFunction extends AbstractRhsFunctionHandler
 {
-    private static final Pattern number = Pattern.compile("^(-?\\d+).*?");
+    private static final Pattern NUMBER = Pattern.compile("^(-?\\d+).*?");
     
     public IntRhsFunction()
     {
         super("int", 1, 1);
     }
-
+    
     public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
@@ -58,7 +58,7 @@ public class IntRhsFunction extends AbstractRhsFunctionHandler
     
     /**
      * Cast strings like "3", "3.0", and "3.44" to
-     * the appropriate (truncated) long value (3). 
+     * the appropriate (truncated) long value (3).
      * 
      * Emulates the behavior of strtol() for non-digit characters by
      * truncating at the first non-digit character after an optional
@@ -72,13 +72,13 @@ public class IntRhsFunction extends AbstractRhsFunctionHandler
             lng = Long.parseLong(s);
             return lng;
         }
-        catch (NumberFormatException e)
+        catch(NumberFormatException e)
         {
             // Truncate after the first non-digit character.
             // Handles mapping exponential notation (e.g., "45e-10" -> "45")
             // and also strtol()-style string handling ("123abc" -> "123").
-            Matcher matcher = number.matcher(s);
-            if (matcher.find() && matcher.groupCount() > 0)
+            Matcher matcher = NUMBER.matcher(s);
+            if(matcher.find() && matcher.groupCount() > 0)
             {
                 lng = Long.parseLong(matcher.group(1));
             }

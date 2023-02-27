@@ -16,12 +16,16 @@ import org.jsoar.soarunit.Test;
 import org.jsoar.soarunit.TestAgentFactory;
 import org.jsoar.soarunit.TestRunner;
 import org.jsoar.util.NullWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ray
  */
 public class DebugTestAction extends AbstractAction
 {
+    private static final Logger LOG = LoggerFactory.getLogger(DebugTestAction.class);
+    
     private static final long serialVersionUID = -3500496894588331412L;
     
     private final TestAgentFactory agentFactory;
@@ -34,9 +38,10 @@ public class DebugTestAction extends AbstractAction
         this.agentFactory = agentFactory;
         this.test = test;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -46,13 +51,15 @@ public class DebugTestAction extends AbstractAction
         {
             final TestRunner runner = new TestRunner(agentFactory, () -> pw, null);
             runner.debugTest(test.reload(), false);
-            pw.close();
         }
-        catch (SoarException | InterruptedException | IOException e)
+        catch(InterruptedException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
+        }
+        catch(SoarException | IOException e)
+        {
+            LOG.error("Error handling action event", e);
         }
     }
-
+    
 }

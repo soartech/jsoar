@@ -11,7 +11,7 @@ package org.jsoar.util.properties;
  * 
  * @author ray
  */
-public class DefaultPropertyProvider <T> implements PropertyProvider <T>
+public class DefaultPropertyProvider<T> implements PropertyProvider<T>
 {
     private T value;
     
@@ -20,7 +20,9 @@ public class DefaultPropertyProvider <T> implements PropertyProvider <T>
         this.value = key.getDefaultValue();
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.properties.PropertyProvider#get()
      */
     @Override
@@ -28,8 +30,10 @@ public class DefaultPropertyProvider <T> implements PropertyProvider <T>
     {
         return value;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.properties.PropertyProvider#set(java.lang.Object)
      */
     @Override
@@ -39,8 +43,10 @@ public class DefaultPropertyProvider <T> implements PropertyProvider <T>
         this.value = value;
         return oldValue;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -48,6 +54,5 @@ public class DefaultPropertyProvider <T> implements PropertyProvider <T>
     {
         return value != null ? value.toString() : "null";
     }
-
     
 }

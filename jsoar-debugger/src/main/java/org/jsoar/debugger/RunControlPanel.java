@@ -28,7 +28,7 @@ import org.jsoar.util.adaptables.Adaptables;
 public class RunControlPanel extends JPanel
 {
     private static final long serialVersionUID = 4339204720269679671L;
-
+    
     private JTextField countField;
     private JComboBox<RunType> stepTypeCombo;
     

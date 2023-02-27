@@ -9,7 +9,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
 
-
 /**
  * @author ray
  */
@@ -32,10 +31,10 @@ public class StringTools
     {
         StringBuilder dest = new StringBuilder();
         dest.append(first_and_last_char);
-        for (int i = 0; i < s.length(); ++i)
+        for(int i = 0; i < s.length(); ++i)
         {
             char c = s.charAt(i);
-            if (c == first_and_last_char || c == '\\')
+            if(c == first_and_last_char || c == '\\')
             {
                 dest.append('\\');
             }
@@ -45,7 +44,6 @@ public class StringTools
         return dest.toString();
     }
     
-    
     /**
      * Convert a glob-style pattern to a regular expression for use with
      * {@link java.util.regex.Pattern}.
@@ -53,13 +51,13 @@ public class StringTools
      * <p> The following substitutions are used:
      * 
      * <pre>
-     * GLOB            RE
-     * ----            -------
-     * *               .*
-     * ?               .
-     * .               \.
-     * \               \\
-     * [a-z]           [a-z]
+     * GLOB RE
+     * ---- -------
+     * * .*
+     * ? .
+     * . \.
+     * \ \\
+     * [a-z] [a-z]
      * </pre>
      * 
      * <p>For example {@code *foo* --> ^.*foo.*$}
@@ -75,11 +73,20 @@ public class StringTools
             final char c = glob.charAt(i);
             switch(c)
             {
-            case '*': out += ".*"; break;
-            case '?': out += '.'; break;
-            case '.': out += "\\."; break;
-            case '\\': out += "\\\\"; break;
-            default: out += c;
+            case '*':
+                out += ".*";
+                break;
+            case '?':
+                out += '.';
+                break;
+            case '.':
+                out += "\\.";
+                break;
+            case '\\':
+                out += "\\\\";
+                break;
+            default:
+                out += c;
             }
         }
         out += '$';

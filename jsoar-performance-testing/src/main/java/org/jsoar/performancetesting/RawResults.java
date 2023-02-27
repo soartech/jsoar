@@ -16,9 +16,10 @@ public class RawResults
     @CsvBindAndSplitByPosition(elementType = Long.class, position = 3)
     public List<Long> memoryLoads = new ArrayList<>();
     
-    public static String[] header = {"cpuTimes", "kernelTimes", "decisionCycles", "memoryLoads"};
+    public static String[] header = { "cpuTimes", "kernelTimes", "decisionCycles", "memoryLoads" };
     
-    public RawResults accumulate(RawResults other) {
+    public RawResults accumulate(RawResults other)
+    {
         this.cpuTimes.addAll(other.cpuTimes);
         this.kernelTimes.addAll(other.kernelTimes);
         this.decisionCycles.addAll(other.decisionCycles);

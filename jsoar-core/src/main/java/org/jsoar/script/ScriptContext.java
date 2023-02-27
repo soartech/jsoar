@@ -21,7 +21,7 @@ public class ScriptContext
     {
         this.agent = agent;
     }
-
+    
     public Adaptable getAgent()
     {
         return agent;

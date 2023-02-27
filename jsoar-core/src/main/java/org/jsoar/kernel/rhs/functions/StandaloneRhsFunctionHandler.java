@@ -5,13 +5,12 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-
 /**
  * @author ray
  */
 public abstract class StandaloneRhsFunctionHandler extends AbstractRhsFunctionHandler
 {
-
+    
     /**
      * @param name
      */
@@ -19,7 +18,7 @@ public abstract class StandaloneRhsFunctionHandler extends AbstractRhsFunctionHa
     {
         super(name);
     }
-
+    
     /**
      * @param name
      * @param minArgs
@@ -29,17 +28,17 @@ public abstract class StandaloneRhsFunctionHandler extends AbstractRhsFunctionHa
     {
         super(name, minArgs, maxArgs);
     }
-
+    
     @Override
     public boolean mayBeStandalone()
     {
         return true;
     }
-
+    
     @Override
     public boolean mayBeValue()
     {
         return false;
     }
-
+    
 }

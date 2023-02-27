@@ -37,8 +37,10 @@ public class TestProgressBar extends JComponent
         this.failed = failed;
         repaint();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     @Override

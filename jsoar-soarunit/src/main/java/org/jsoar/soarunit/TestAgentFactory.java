@@ -22,7 +22,7 @@ public interface TestAgentFactory
      * 
      * @param test the test to load
      * @param exitOnClose if true, the debugger should cause the VM to exit when it's
-     *      closed. Otherwise, the debugger should just clean up and hide itself
+     *     closed. Otherwise, the debugger should just clean up and hide itself
      * @throws SoarException
      * @throws InterruptedException
      */

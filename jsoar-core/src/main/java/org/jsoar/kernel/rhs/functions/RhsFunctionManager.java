@@ -22,8 +22,8 @@ import org.jsoar.util.Arguments;
 public class RhsFunctionManager
 {
     private final RhsFunctionContext rhsContext;
-    private final Map<String, RhsFunctionHandler> handlers = new ConcurrentHashMap<String, RhsFunctionHandler>();
-    private final Map<String, RhsFunctionHandler> disabledHandlers = new ConcurrentHashMap<String, RhsFunctionHandler>();
+    private final Map<String, RhsFunctionHandler> handlers = new ConcurrentHashMap<>();
+    private final Map<String, RhsFunctionHandler> disabledHandlers = new ConcurrentHashMap<>();
     
     /**
      * Construct a new RHS function manager with the given execution context
@@ -34,18 +34,18 @@ public class RhsFunctionManager
     {
         this.rhsContext = rhsContext;
     }
-
+    
     /**
      * Returns a list of all registered RHS function handlers. The list is
      * a copy and may be modified by the caller.
      * 
      * <p>This method may be called from any thread
      * 
-     * @return Copy of list of all registered RHS function handlers 
+     * @return Copy of list of all registered RHS function handlers
      */
     public List<RhsFunctionHandler> getHandlers()
     {
-        return new ArrayList<RhsFunctionHandler>(handlers.values());
+        return new ArrayList<>(handlers.values());
     }
     
     /**
@@ -92,64 +92,73 @@ public class RhsFunctionManager
     
     /**
      * Disables a RHS function handler (so that calling it is a NOP).
+     * 
      * @param name Name of handler to disable.
      */
     public void disableHandler(String name)
     {
-    	Arguments.checkNotNull(name, "name");
-    	
-    	if (handlers.containsKey(name))
-    		disabledHandlers.put(name, handlers.remove(name));
+        Arguments.checkNotNull(name, "name");
+        
+        if(handlers.containsKey(name))
+        {
+            disabledHandlers.put(name, handlers.remove(name));
+        }
     }
     
     /**
      * Enables a previously disabled RHS function handler (so that calling it is no longer a NOP).
+     * 
      * @param name Name of handler to enable.
      */
     public void enableHandler(String name)
     {
-    	Arguments.checkNotNull(name, "name");
-    	
-    	if (disabledHandlers.containsKey(name) && !handlers.containsKey(name))
-    		handlers.put(name, disabledHandlers.remove(name));
+        Arguments.checkNotNull(name, "name");
+        
+        if(disabledHandlers.containsKey(name) && !handlers.containsKey(name))
+        {
+            handlers.put(name, disabledHandlers.remove(name));
+        }
     }
     
     /**
      * Checks to see if a function handler is disabled.
+     * 
      * @param name Name of handler to check/
      * @return true if the handler is disabled; otherwise--if it is enabled or not registered--returns false.
      */
     public boolean isDisabled(String name)
     {
-    	Arguments.checkNotNull(name, "name");
-
-    	return disabledHandlers.containsKey(name);
+        Arguments.checkNotNull(name, "name");
+        
+        return disabledHandlers.containsKey(name);
     }
     
     public List<RhsFunctionHandler> getDisabledHandlers()
     {
-    	return new ArrayList<RhsFunctionHandler>(disabledHandlers.values());
+        return new ArrayList<>(disabledHandlers.values());
     }
     
     /**
      * Execute the named RHS function with the given arguments.
-     *  
+     * 
      * @param name The name of the RHS function to execute
      * @param arguments The arguments
      * @return The result
      * @throws RhsFunctionException if an error occurs or there is no such
-     *      RHS function.
+     *     RHS function.
      */
     public Symbol execute(String name, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctionHandler handler = handlers.get(name);
         
-        if (handler != null)
+        if(handler != null)
         {
             return handler.execute(rhsContext, arguments);
         }
-        else if (disabledHandlers.containsKey(name))
-        	return null;
+        else if(disabledHandlers.containsKey(name))
+        {
+            return null;
+        }
         
         throw new RhsFunctionException("No function '" + name + "' registered");
     }

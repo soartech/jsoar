@@ -13,11 +13,11 @@ import org.jsoar.kernel.Production;
  * <p>A node can be a member of several linked lists:
  * <ul>
  * <li>Child list of the node's parent. Use {@link #first_child} and {@link #next_sibling}
- * <li>List of nodes from an {@link AlphaMemory}. Use {@link PosNegNodeData#next_from_alpha_mem} and 
- *      {@link PosNegNodeData#prev_from_alpha_mem}
+ * <li>List of nodes from an {@link AlphaMemory}. Use {@link PosNegNodeData#next_from_alpha_mem} and
+ * {@link PosNegNodeData#prev_from_alpha_mem}
  * </ul>
  * 
-
+ * 
  * <p>rete.cpp:401
  * 
  * @author ray
@@ -25,25 +25,25 @@ import org.jsoar.kernel.Production;
 public class ReteNode
 {
     ReteNodeType node_type; // tells what kind of node this is
-
-    int left_hash_loc_field_num; // used only on hashed nodes, field_num: 0=id, 1=attr, 2=value 
-    int left_hash_loc_levels_up; // 0=current node's alphamem, 1=parent's, etc.
-    /*final*/ int node_id; // used for hash function                  
-
+    
+    int left_hash_loc_field_num; // used only on hashed nodes, field_num: 0=id, 1=attr, 2=value
+    int left_hash_loc_levels_up;
+    // 0=current node's alphamem, 1=parent's, etc.
+    /* final */ int node_id; // used for hash function
+    
     ReteNode parent;       // points to parent node
     ReteNode first_child;  // used for dll of all children
     ReteNode next_sibling; // regardless of unlinking status
     
     private AReteNodeData a = null;
     private BReteNodeData b = null;
-
-      
+    
     private ReteNode(ReteNodeType type, int node_id)
     {
         this.node_type = type;
         this.node_id = node_id;
-
-        if (type.bnode_is_positive() && type != ReteNodeType.P_BNODE)
+        
+        if(type.bnode_is_positive() && type != ReteNodeType.P_BNODE)
         {
             a = new PosNodeData(this);
         }
@@ -51,16 +51,16 @@ public class ReteNode
         {
             a = new NonPosNodeData();
         }
-
-        if (type == ReteNodeType.P_BNODE)
+        
+        if(type == ReteNodeType.P_BNODE)
         {
             b = new ProductionNodeData();
         }
-        else if (type == ReteNodeType.CN_BNODE || type == ReteNodeType.CN_PARTNER_BNODE)
+        else if(type == ReteNodeType.CN_BNODE || type == ReteNodeType.CN_PARTNER_BNODE)
         {
             b = new ConjunctiveNegationNodeData();
         }
-        else if (type == ReteNodeType.MEMORY_BNODE || type == ReteNodeType.UNHASHED_MEMORY_BNODE)
+        else if(type == ReteNodeType.MEMORY_BNODE || type == ReteNodeType.UNHASHED_MEMORY_BNODE)
         {
             b = new BetaMemoryNodeData();
         }
@@ -68,7 +68,7 @@ public class ReteNode
         {
             b = new PosNegNodeData();
         }
-
+        
         validateUnions();
     }
     
@@ -86,7 +86,7 @@ public class ReteNode
         
         validateUnions();
     }
-
+    
     private void validateUnions()
     {
         // Enforce a and b "unions"
@@ -94,12 +94,35 @@ public class ReteNode
         assert b != null;
     }
     
-    public PosNodeData a_pos() { return (PosNodeData) a; }
-    public NonPosNodeData a_np() { return (NonPosNodeData) a; }
-    public PosNegNodeData b_posneg() { return (PosNegNodeData) b; }
-    BetaMemoryNodeData b_mem() { return (BetaMemoryNodeData) b; }
-    ConjunctiveNegationNodeData b_cn() { return (ConjunctiveNegationNodeData) b; }
-    public ProductionNodeData b_p() { return (ProductionNodeData) b; }
+    public PosNodeData a_pos()
+    {
+        return (PosNodeData) a;
+    }
+    
+    public NonPosNodeData a_np()
+    {
+        return (NonPosNodeData) a;
+    }
+    
+    public PosNegNodeData b_posneg()
+    {
+        return (PosNegNodeData) b;
+    }
+    
+    BetaMemoryNodeData b_mem()
+    {
+        return (BetaMemoryNodeData) b;
+    }
+    
+    ConjunctiveNegationNodeData b_cn()
+    {
+        return (ConjunctiveNegationNodeData) b;
+    }
+    
+    public ProductionNodeData b_p()
+    {
+        return (ProductionNodeData) b;
+    }
     
     /**
      * <p>rete.cpp:432:real_parent_node
@@ -121,36 +144,36 @@ public class ReteNode
         return b_posneg().node_is_right_unlinked;
         // return (((unsigned long)((node)->b.posneg.next_from_alpha_mem)) & 1);
     }
-
+    
     /**
      * <p>rete.cpp:455:mark_node_as_right_unlinked
      */
     private void mark_node_as_right_unlinked()
     {
         b_posneg().node_is_right_unlinked = true;
-        //(node)->b.posneg.next_from_alpha_mem = static_cast<rete_node_struct *>((void *)1);
+        // (node)->b.posneg.next_from_alpha_mem = static_cast<rete_node_struct *>((void *)1);
     }
     
     /**
      * <p>rete.cpp:483:relink_to_right_mem
      */
-    /*package*/ void relink_to_right_mem()
+    /* package */ void relink_to_right_mem()
     {
         /* find first ancestor that's linked */
         ReteNode rtrm_ancestor = b_posneg().nearest_ancestor_with_same_am;
         ReteNode rtrm_prev;
-        while (rtrm_ancestor != null && rtrm_ancestor.node_is_right_unlinked())
+        while(rtrm_ancestor != null && rtrm_ancestor.node_is_right_unlinked())
         {
             rtrm_ancestor = rtrm_ancestor.b_posneg().nearest_ancestor_with_same_am;
         }
-        if (rtrm_ancestor != null)
+        if(rtrm_ancestor != null)
         {
             /* insert just before that ancestor */
             rtrm_prev = rtrm_ancestor.b_posneg().prev_from_alpha_mem;
             this.b_posneg().next_from_alpha_mem = rtrm_ancestor;
             this.b_posneg().prev_from_alpha_mem = rtrm_prev;
             rtrm_ancestor.b_posneg().prev_from_alpha_mem = this;
-            if (rtrm_prev != null)
+            if(rtrm_prev != null)
             {
                 rtrm_prev.b_posneg().next_from_alpha_mem = this;
             }
@@ -166,7 +189,7 @@ public class ReteNode
             this.b_posneg().next_from_alpha_mem = null;
             this.b_posneg().prev_from_alpha_mem = rtrm_prev;
             this.b_posneg().alpha_mem_.last_beta_node = this;
-            if (rtrm_prev != null)
+            if(rtrm_prev != null)
             {
                 rtrm_prev.b_posneg().next_from_alpha_mem = this;
             }
@@ -181,114 +204,112 @@ public class ReteNode
     /**
      * <p>rete.cpp:512:unlink_from_right_mem
      */
-    /*package*/ void unlink_from_right_mem() 
-    { 
-        if (this.b_posneg().next_from_alpha_mem == null) 
+    /* package */ void unlink_from_right_mem()
+    {
+        if(this.b_posneg().next_from_alpha_mem == null)
         {
             this.b_posneg().alpha_mem_.last_beta_node = this.b_posneg().prev_from_alpha_mem;
         }
         // The code below is an expansion of this remove_from_dll macro...
-//        remove_from_dll (this.b_posneg.alpha_mem_.beta_nodes, this, 
-//                         b.posneg.next_from_alpha_mem, 
-//                         b.posneg.prev_from_alpha_mem); 
+        // remove_from_dll (this.b_posneg.alpha_mem_.beta_nodes, this,
+        // b.posneg.next_from_alpha_mem,
+        // b.posneg.prev_from_alpha_mem);
         if(this.b_posneg().next_from_alpha_mem != null)
         {
-            this.b_posneg().next_from_alpha_mem.b_posneg().prev_from_alpha_mem = 
-                this.b_posneg().prev_from_alpha_mem;
+            this.b_posneg().next_from_alpha_mem.b_posneg().prev_from_alpha_mem = this.b_posneg().prev_from_alpha_mem;
         }
         if(this.b_posneg().prev_from_alpha_mem != null)
         {
-            this.b_posneg().prev_from_alpha_mem.b_posneg().next_from_alpha_mem = 
-                this.b_posneg().next_from_alpha_mem;
+            this.b_posneg().prev_from_alpha_mem.b_posneg().next_from_alpha_mem = this.b_posneg().next_from_alpha_mem;
         }
         else
         {
             this.b_posneg().alpha_mem_.beta_nodes = this.b_posneg().next_from_alpha_mem;
         }
-
-        mark_node_as_right_unlinked(); 
+        
+        mark_node_as_right_unlinked();
     }
-
+    
     /**
      * <p>rete.cpp:532:node_is_left_unlinked
      * 
      * @return True if this node is left unlinked
      */
-    /*package*/ boolean node_is_left_unlinked()
+    /* package */ boolean node_is_left_unlinked()
     {
         return a_pos().node_is_left_unlinked;
-        //return (((unsigned long)((node)->a.pos.next_from_beta_mem)) & 1);
+        // return (((unsigned long)((node)->a.pos.next_from_beta_mem)) & 1);
     }
-
+    
     /**
      * <p>rete.cpp:539:mark_node_as_left_unlinked
      */
-    /*package*/ void mark_node_as_left_unlinked()
+    /* package */ void mark_node_as_left_unlinked()
     {
-      a_pos().node_is_left_unlinked = true;
-      //(node)->a.pos.next_from_beta_mem = static_cast<rete_node_struct *>((void *)1);
+        a_pos().node_is_left_unlinked = true;
+        // (node)->a.pos.next_from_beta_mem = static_cast<rete_node_struct *>((void *)1);
     }
     
     /**
      * <p>rete.cpp:547:relink_to_left_mem
      */
-    /*package*/ void relink_to_left_mem() 
-    { 
+    /* package */ void relink_to_left_mem()
+    {
         a_pos().from_beta_mem.insertAtHead(parent.b_mem().first_linked_child);
         a_pos().node_is_left_unlinked = false;
     }
-
+    
     /**
      * <p>rete.cpp:555:unlink_from_left_mem
      */
-    /*package*/ void unlink_from_left_mem() 
+    /* package */ void unlink_from_left_mem()
     {
         a_pos().from_beta_mem.remove(parent.b_mem().first_linked_child);
-        mark_node_as_left_unlinked(); 
+        mark_node_as_left_unlinked();
     }
     
     /**
      * <p>rete.cpp:570:make_mp_bnode_left_unlinked
      */
-    /*package*/ void make_mp_bnode_left_unlinked() 
+    /* package */ void make_mp_bnode_left_unlinked()
     {
-      this.a_np().is_left_unlinked = true;
+        this.a_np().is_left_unlinked = true;
     }
-
+    
     /**
      * <p>rete.cpp:575:make_mp_bnode_left_linked
      */
-    /*package*/ void make_mp_bnode_left_linked() 
+    /* package */ void make_mp_bnode_left_linked()
     {
-      this.a_np().is_left_unlinked = false;
+        this.a_np().is_left_unlinked = false;
     }
-
+    
     /**
      * <p>rete.cpp:580:mp_bnode_is_left_unlinked
      * 
      * @return true if left unlinked
      */
-    /*package*/ boolean mp_bnode_is_left_unlinked() 
-    { 
-      return this.a_np().is_left_unlinked;
+    /* package */ boolean mp_bnode_is_left_unlinked()
+    {
+        return this.a_np().is_left_unlinked;
     }
     
     /**
-     * Splices a given node out of its parent's list of children.  This would
+     * Splices a given node out of its parent's list of children. This would
      * be a lot easier if the children lists were doubly-linked, but that
      * would take up a lot of extra space.
      * 
      * <p>rete.cpp:1744:remove_node_from_parents_list_of_children
      */
-    /*package*/ void remove_node_from_parents_list_of_children()
+    /* package */ void remove_node_from_parents_list_of_children()
     {
         ReteNode prev_sibling = this.parent.first_child;
-        if (prev_sibling == this)
+        if(prev_sibling == this)
         {
             this.parent.first_child = this.next_sibling;
             return;
         }
-        while (prev_sibling.next_sibling != this)
+        while(prev_sibling.next_sibling != this)
         {
             prev_sibling = prev_sibling.next_sibling;
         }
@@ -297,7 +318,7 @@ public class ReteNode
     
     /**
      * Scans up the net and finds the first (i.e., nearest) ancestor node
-     * that uses a given alpha_mem.  Returns that node, or NIL if none exists.
+     * that uses a given alpha_mem. Returns that node, or NIL if none exists.
      * For the returned node, {@link ReteNodeType#bnode_is_posneg()} will always
      * be true.
      * 
@@ -309,14 +330,20 @@ public class ReteNode
     ReteNode nearest_ancestor_with_same_am(AlphaMemory am)
     {
         ReteNode node = this;
-        while (node.node_type != ReteNodeType.DUMMY_TOP_BNODE)
+        while(node.node_type != ReteNodeType.DUMMY_TOP_BNODE)
         {
-            if (node.node_type == ReteNodeType.CN_BNODE)
+            if(node.node_type == ReteNodeType.CN_BNODE)
+            {
                 node = node.b_cn().partner.parent;
+            }
             else
+            {
                 node = node.real_parent_node();
-            if (node.node_type.bnode_is_posneg() && (node.b_posneg().alpha_mem_ == am))
+            }
+            if(node.node_type.bnode_is_posneg() && (node.b_posneg().alpha_mem_ == am))
+            {
                 return node;
+            }
         }
         return null;
     }
@@ -340,21 +367,21 @@ public class ReteNode
     static ReteNode make_new_mem_node(Rete rete, ReteNode parent, ReteNodeType node_type, VarLocation left_hash_loc)
     {
         ReteNode node = new ReteNode(node_type, rete.get_next_beta_node_id());
-
+        
         node.parent = parent;
         node.next_sibling = parent.first_child;
         parent.first_child = node;
-
+        
         /* These hash fields are not used for unhashed node types */
         node.left_hash_loc_field_num = left_hash_loc.field_num;
         node.left_hash_loc_levels_up = left_hash_loc.levels_up;
-
+        
         /* --- call new node's add_left routine with all the parent's tokens --- */
         rete.update_node_with_matches_from_above(node);
-
+        
         return node;
     }
-
+    
     /**
      * Make a new positive join node, return a pointer to it.
      * 
@@ -372,7 +399,7 @@ public class ReteNode
             boolean prefer_left_unlinking)
     {
         ReteNode node = new ReteNode(node_type, 0);
-
+        
         node.parent = parent_mem;
         node.next_sibling = parent_mem.first_child;
         parent_mem.first_child = node;
@@ -381,31 +408,31 @@ public class ReteNode
         node.b_posneg().alpha_mem_ = am;
         node.b_posneg().nearest_ancestor_with_same_am = node.nearest_ancestor_with_same_am(am);
         node.relink_to_right_mem();
-
-        //don't need to force WM through new node yet, as it's just a join
+        
+        // don't need to force WM through new node yet, as it's just a join
         // node with no children
-
+        
         // unlink the join node from one side if possible
-        if (parent_mem.a_np().tokens == null)
+        if(parent_mem.a_np().tokens == null)
         {
             node.unlink_from_right_mem();
         }
-        if (am.right_mems == null && !node.node_is_right_unlinked())
+        if(am.right_mems == null && !node.node_is_right_unlinked())
         {
             node.unlink_from_left_mem();
         }
-        if (prefer_left_unlinking && (parent_mem.a_np().tokens == null) && am.right_mems == null)
+        if(prefer_left_unlinking && (parent_mem.a_np().tokens == null) && am.right_mems == null)
         {
             node.relink_to_right_mem();
             node.unlink_from_left_mem();
         }
-
+        
         return node;
     }
     
     /**
      * Split a given MP node into separate M and P nodes, return a pointer
-     * to the new Memory node. 
+     * to the new Memory node.
      * 
      * <p>That is, splits an {@link ReteNodeType#MP_BNODE}
      * or {@link ReteNodeType#UNHASHED_MP_BNODE} node into two nodes:
@@ -417,7 +444,7 @@ public class ReteNode
      * child of the memory node. This node inherits the children of the input
      * node.
      * </ul>
-     *  
+     * 
      * <p>rete.cpp:1916:split_mp_node
      * 
      * @param mp_node the node to split
@@ -425,13 +452,13 @@ public class ReteNode
      */
     static ReteNode split_mp_node(Rete rete, ReteNode mp_node)
     {
-        assert mp_node.node_type == ReteNodeType.MP_BNODE || 
-               mp_node.node_type == ReteNodeType.UNHASHED_MP_BNODE;
+        assert mp_node.node_type == ReteNodeType.MP_BNODE ||
+                mp_node.node_type == ReteNodeType.UNHASHED_MP_BNODE;
         
         // determine appropriate node types for new M and P nodes
         final ReteNodeType mem_node_type;
         final ReteNodeType node_type;
-        if (mp_node.node_type == ReteNodeType.MP_BNODE)
+        if(mp_node.node_type == ReteNodeType.MP_BNODE)
         {
             node_type = ReteNodeType.POSITIVE_BNODE;
             mem_node_type = ReteNodeType.MEMORY_BNODE;
@@ -441,14 +468,14 @@ public class ReteNode
             node_type = ReteNodeType.UNHASHED_POSITIVE_BNODE;
             mem_node_type = ReteNodeType.UNHASHED_MEMORY_BNODE;
         }
-
+        
         // save a copy of the MP data, then kill the MP node
         final ReteNode parent = mp_node.parent;
         mp_node.remove_node_from_parents_list_of_children();
-
+        
         // create the new memory node
         final ReteNode mem_node = new ReteNode(mem_node_type, mp_node.node_id);
-
+        
         // Insert the memory node in the position of the original MP node
         mem_node.parent = parent;
         mem_node.next_sibling = parent.first_child;
@@ -456,18 +483,18 @@ public class ReteNode
         
         mem_node.left_hash_loc_field_num = mp_node.left_hash_loc_field_num;
         mem_node.left_hash_loc_levels_up = mp_node.left_hash_loc_levels_up;
-
+        
         // Transfer the MP node's tokens to new memory node
         mem_node.a_np().tokens = mp_node.a_np().tokens;
-        for (Token t = mp_node.a_np().tokens; t != null; t = t.next_of_node)
+        for(Token t = mp_node.a_np().tokens; t != null; t = t.next_of_node)
         {
             t.node = mem_node;
         }
-
+        
         final boolean mpIsLeftUnlinked = mp_node.mp_bnode_is_left_unlinked();
         
         // the old MP node will get transmogrified into the new Pos node
-        final ReteNode pos_node = mp_node; //TODO new ReteNode(node_type, mp_node.node_id);
+        final ReteNode pos_node = mp_node; // TODO new ReteNode(node_type, mp_node.node_id);
         // transmogrify the old MP node into the new Pos node
         pos_node.node_type = node_type;
         pos_node.a = new PosNodeData(pos_node);
@@ -480,19 +507,19 @@ public class ReteNode
         pos_node.first_child = mp_node.first_child;
         
         /*
-        TODO: Necessary when "new ReteNode(...)" above is enabled
-        for(ReteNode child = pos_node.first_child; child != null; child = child.next_sibling)
-        {
-            child.parent = pos_node;
-        }
-        */
+         * TODO: Necessary when "new ReteNode(...)" above is enabled
+         * for(ReteNode child = pos_node.first_child; child != null; child = child.next_sibling)
+         * {
+         * child.parent = pos_node;
+         * }
+         */
         
         pos_node.next_sibling = null; // The new pos node has no siblings
         pos_node.b = mp_node.b_posneg();
         pos_node.relink_to_left_mem(); /* for now, but might undo this below */
-
+        
         // set join node's unlinking status according to mp_copy's
-        if (mpIsLeftUnlinked)
+        if(mpIsLeftUnlinked)
         {
             pos_node.unlink_from_left_mem();
         }
@@ -500,7 +527,7 @@ public class ReteNode
         // Make sure nothing got screwed up
         mem_node.validateUnions();
         pos_node.validateUnions();
-
+        
         return mem_node;
     }
     
@@ -525,19 +552,19 @@ public class ReteNode
         
         final boolean posNodeIsLeftUnlinked = pos_node.node_is_left_unlinked();
         final ReteNode parent = mem_node.parent;
-
+        
         // sanity check: Mem node must have exactly one child
-        if (pos_node == null || pos_node.next_sibling != null)
+        if(pos_node == null || pos_node.next_sibling != null)
         {
             throw new IllegalArgumentException("Internal error: tried to merge_into_mp_node, but <>1 child");
         }
         
         assert (mem_node.node_type == ReteNodeType.MEMORY_BNODE && pos_node.node_type == ReteNodeType.POSITIVE_BNODE) ||
-               (mem_node.node_type == ReteNodeType.UNHASHED_MEMORY_BNODE && pos_node.node_type == ReteNodeType.UNHASHED_POSITIVE_BNODE);
-
+                (mem_node.node_type == ReteNodeType.UNHASHED_MEMORY_BNODE && pos_node.node_type == ReteNodeType.UNHASHED_POSITIVE_BNODE);
+        
         // determine appropriate node type for new MP node
         final ReteNodeType node_type;
-        if (mem_node.node_type == ReteNodeType.MEMORY_BNODE)
+        if(mem_node.node_type == ReteNodeType.MEMORY_BNODE)
         {
             node_type = ReteNodeType.MP_BNODE;
         }
@@ -545,18 +572,18 @@ public class ReteNode
         {
             node_type = ReteNodeType.UNHASHED_MP_BNODE;
         }
-
+        
         // the old Pos node gets transmogrified into the new MP node
         final ReteNode mp_node = pos_node;
         mp_node.node_type = node_type;
         mp_node.node_id = mem_node.node_id;
         mp_node.b = pos_node.b_posneg(); // inherit posneg from pos_copy
-        //assert mp_node.a_np == null;
+        // assert mp_node.a_np == null;
         mp_node.a = new NonPosNodeData();
-
+        
         // transfer the Mem node's tokens to the MP node
         mp_node.a_np().tokens = mem_node.a_np().tokens;
-        for (Token t = mem_node.a_np().tokens; t != null; t = t.next_of_node)
+        for(Token t = mem_node.a_np().tokens; t != null; t = t.next_of_node)
         {
             t.node = mp_node;
         }
@@ -569,22 +596,21 @@ public class ReteNode
         mp_node.next_sibling = parent.first_child;
         parent.first_child = mp_node;
         mp_node.first_child = pos_node.first_child;
-
+        
         // Now throw away the mem node
         mem_node.remove_node_from_parents_list_of_children();
-
+        
         // set MP node's unlinking status according to pos_copy's
         mp_node.make_mp_bnode_left_linked();
-        if (posNodeIsLeftUnlinked)
+        if(posNodeIsLeftUnlinked)
         {
             mp_node.make_mp_bnode_left_unlinked();
         }
-
+        
         mp_node.validateUnions();
         
         return mp_node;
     }
-    
     
     /**
      * Create a new MP node
@@ -604,8 +630,8 @@ public class ReteNode
             AlphaMemory am, ReteTest rt, boolean prefer_left_unlinking)
     {
         ReteNodeType mem_node_type = null, pos_node_type = null;
-
-        if (node_type == ReteNodeType.MP_BNODE)
+        
+        if(node_type == ReteNodeType.MP_BNODE)
         {
             pos_node_type = ReteNodeType.POSITIVE_BNODE;
             mem_node_type = ReteNodeType.MEMORY_BNODE;
@@ -642,7 +668,7 @@ public class ReteNode
             AlphaMemory am, ReteTest rt)
     {
         ReteNode node = new ReteNode(node_type, rete.get_next_beta_node_id());
-
+        
         node.parent = parent;
         node.next_sibling = parent.first_child;
         parent.first_child = node;
@@ -652,20 +678,18 @@ public class ReteNode
         node.b_posneg().alpha_mem_ = am;
         node.b_posneg().nearest_ancestor_with_same_am = node.nearest_ancestor_with_same_am(am);
         node.relink_to_right_mem();
-
+        
         // call new node's add_left routine with all the parent's tokens
         rete.update_node_with_matches_from_above(node);
-
+        
         // if no tokens arrived from parent, unlink the node
-        if (node.a_np().tokens == null)
+        if(node.a_np().tokens == null)
         {
             node.unlink_from_right_mem();
         }
-
+        
         return node;
     }
-
-    
     
     /**
      * Make new CN and CN_PARTNER nodes, return a pointer to the CN node.
@@ -681,14 +705,14 @@ public class ReteNode
     {
         // Find top node in the subconditions branch
         ReteNode ncc_subconditions_top_node = null;
-        for (ReteNode node = bottom_of_subconditions; node != parent; node = node.parent)
+        for(ReteNode node = bottom_of_subconditions; node != parent; node = node.parent)
         {
             ncc_subconditions_top_node = node;
         }
-
+        
         final ReteNode node = new ReteNode(ReteNodeType.CN_BNODE, rete.get_next_beta_node_id());
         final ReteNode partner = new ReteNode(ReteNodeType.CN_PARTNER_BNODE, 0);
-
+        
         /*
          * NOTE: for improved efficiency, <node> should be on the parent's
          * children list *after* the ncc subcontitions top node
@@ -699,20 +723,20 @@ public class ReteNode
         ncc_subconditions_top_node.next_sibling = node;
         parent.first_child = ncc_subconditions_top_node;
         node.first_child = null;
-
+        
         node.b_cn().partner = partner;
-
+        
         partner.parent = bottom_of_subconditions;
         partner.next_sibling = bottom_of_subconditions.first_child;
         bottom_of_subconditions.first_child = partner;
         partner.first_child = null;
         partner.b_cn().partner = node;
-
+        
         // call partner's add_left routine with all the parent's tokens
         rete.update_node_with_matches_from_above(partner);
         // call new node's add_left routine with all the parent's tokens
         rete.update_node_with_matches_from_above(node);
-
+        
         return node;
     }
     
@@ -721,10 +745,10 @@ public class ReteNode
      *
      * <p>Does not handle the following tasks:
      * <ul>
-     *   <li>filling in {@code p_node->b.p.parents_nvn} or discarding chunk variable names 
-     *   <li>filling in stuff on new_prod (except does fill in {@code new_prod->p_node})
-     *   <li>using {@code update_node_with_matches_from_above (p_node)} or handling
-     *     an initial refracted instantiation
+     * <li>filling in {@code p_node->b.p.parents_nvn} or discarding chunk variable names
+     * <li>filling in stuff on new_prod (except does fill in {@code new_prod->p_node})
+     * <li>using {@code update_node_with_matches_from_above (p_node)} or handling
+     * an initial refracted instantiation
      * </ul>
      * <p>rete.cpp:2163:make_new_production_node
      * 
@@ -736,7 +760,7 @@ public class ReteNode
     static ReteNode make_new_production_node(Rete rete, ReteNode parent, Production new_prod)
     {
         final ReteNode p_node = new ReteNode(ReteNodeType.P_BNODE, 0);
-
+        
         new_prod.setReteNode(rete, p_node);
         p_node.parent = parent;
         p_node.next_sibling = parent.first_child;
@@ -768,75 +792,79 @@ public class ReteNode
     static void deallocate_rete_node(Rete rete, ReteNode node)
     {
         // don't deallocate the dummy top node
-        if (node == rete.dummy_top_node)
+        if(node == rete.dummy_top_node)
+        {
             return;
-
+        }
+        
         // sanity check
-        if (node.node_type == ReteNodeType.P_BNODE)
+        if(node.node_type == ReteNodeType.P_BNODE)
         {
             throw new IllegalArgumentException("deallocate_rete_node() called on p-node");
         }
-
+        
         ReteNode parent = node.parent;
-
+        
         // if a cn node, deallocate its partner first
-        if (node.node_type == ReteNodeType.CN_BNODE)
+        if(node.node_type == ReteNodeType.CN_BNODE)
         {
             deallocate_rete_node(rete, node.b_cn().partner);
         }
-
+        
         // clean up any tokens at the node
-        if (!node.node_type.bnode_is_bottom_of_split_mp())
+        if(!node.node_type.bnode_is_bottom_of_split_mp())
         {
-            while (node.a_np().tokens != null)
+            while(node.a_np().tokens != null)
             {
                 rete.remove_token_and_subtree(node.a_np().tokens);
             }
         }
-
+        
         // stuff for posneg nodes only
-        if (node.node_type.bnode_is_posneg())
+        if(node.node_type.bnode_is_posneg())
         {
             node.b_posneg().other_tests = null;
             
             // right unlink the node, cleanup alpha memory
-            if (!node.node_is_right_unlinked())
+            if(!node.node_is_right_unlinked())
             {
                 node.unlink_from_right_mem();
             }
             node.b_posneg().alpha_mem_.remove_ref_to_alpha_mem(rete);
         }
-
+        
         // remove the node from its parent's list
         node.remove_node_from_parents_list_of_children();
-
+        
         // for unmerged pos. nodes: unlink, maybe merge its parent
-        if (node.node_type.bnode_is_bottom_of_split_mp())
+        if(node.node_type.bnode_is_bottom_of_split_mp())
         {
-            if (!node.node_is_left_unlinked())
+            if(!node.node_is_left_unlinked())
             {
                 node.unlink_from_left_mem();
             }
             // if parent is mem node with just one child, merge them
-            if (parent.first_child != null && parent.first_child.next_sibling == null)
+            if(parent.first_child != null && parent.first_child.next_sibling == null)
             {
                 merge_into_mp_node(rete, parent);
                 parent = null;
             }
         }
-
+        
         // if parent has no other children, deallocate it, and recurse
         /*
          * Added check to make sure that parent wasn't deallocated in previous
          * merge
          */
-        if (parent != null && parent.first_child == null)
+        if(parent != null && parent.first_child == null)
         {
-            deallocate_rete_node (rete, parent);
+            deallocate_rete_node(rete, parent);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -844,5 +872,5 @@ public class ReteNode
     {
         return node_id + ":" + node_type;
     }
-
+    
 }

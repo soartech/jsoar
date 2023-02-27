@@ -32,7 +32,7 @@ public class IntegerPropertyProvider implements PropertyProvider<Integer>
     
     public void reset()
     {
-        this.value.set(key.getDefaultValue().intValue());
+        this.value.set(key.getDefaultValue());
     }
     
     public int increment()
@@ -45,7 +45,9 @@ public class IntegerPropertyProvider implements PropertyProvider<Integer>
         return value.get();
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.properties.PropertyProvider#get()
      */
     @Override
@@ -53,16 +55,18 @@ public class IntegerPropertyProvider implements PropertyProvider<Integer>
     {
         return value.get();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.properties.PropertyProvider#set(java.lang.Object)
      */
     @Override
     public Integer set(Integer value)
     {
-        return this.value.getAndSet(value.intValue());
+        return this.value.getAndSet(value);
     }
-
+    
     @Override
     public String toString()
     {

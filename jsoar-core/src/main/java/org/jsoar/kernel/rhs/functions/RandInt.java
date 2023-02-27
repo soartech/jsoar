@@ -41,8 +41,10 @@ public class RandInt extends AbstractRhsFunctionHandler
         
         this.random = random;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -51,7 +53,7 @@ public class RandInt extends AbstractRhsFunctionHandler
     {
         RhsFunctions.checkArgumentCount(this, arguments);
         
-        if(arguments.size() == 0)
+        if(arguments.isEmpty())
         {
             return context.getSymbols().createInteger(random.nextInt());
         }
@@ -65,7 +67,7 @@ public class RandInt extends AbstractRhsFunctionHandler
             final long max = maxSym.getValue();
             if(max >= 0)
             {
-                return context.getSymbols().createInteger(random.nextInt(((int)max) + 1));
+                return context.getSymbols().createInteger(random.nextInt(((int) max) + 1));
             }
             else
             {
@@ -73,5 +75,5 @@ public class RandInt extends AbstractRhsFunctionHandler
             }
         }
     }
-
+    
 }

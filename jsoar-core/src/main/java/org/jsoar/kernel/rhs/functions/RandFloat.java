@@ -47,8 +47,10 @@ public class RandFloat extends AbstractRhsFunctionHandler
         
         this.random = random;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -57,35 +59,35 @@ public class RandFloat extends AbstractRhsFunctionHandler
     {
         RhsFunctions.checkArgumentCount(this, arguments);
         
-        if(arguments.size() == 0)
+        if(arguments.isEmpty())
         {
-        	return context.getSymbols().createDouble(random.nextDouble());
+            return context.getSymbols().createDouble(random.nextDouble());
         }
         else
         {
-        	double max;
-        	
-        	// argument could be an IntegerSymbol or DoubleSymbol, so check for both
-        	final DoubleSymbol maxSymD = arguments.get(0).asDouble();
-        	if(maxSymD != null)
-        	{
-        		max = maxSymD.getValue();
-        	}
-        	else
-        	{
-        		final IntegerSymbol maxSymI = arguments.get(0).asInteger();
-        		if(maxSymI != null)
-        		{
-        			max = maxSymI.getValue();
-        		}
-        		else
+            double max;
+            
+            // argument could be an IntegerSymbol or DoubleSymbol, so check for both
+            final DoubleSymbol maxSymD = arguments.get(0).asDouble();
+            if(maxSymD != null)
+            {
+                max = maxSymD.getValue();
+            }
+            else
+            {
+                final IntegerSymbol maxSymI = arguments.get(0).asInteger();
+                if(maxSymI != null)
+                {
+                    max = maxSymI.getValue();
+                }
+                else
                 {
                     throw new RhsFunctionException("rand-float: Expected double or integer for first argument, got " + arguments.get(0));
                 }
-        	} 
-        	
+            }
+            
             return context.getSymbols().createDouble(random.nextDouble() * max);
         }
     }
-
+    
 }

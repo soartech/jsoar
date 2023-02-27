@@ -5,21 +5,22 @@
  */
 package org.jsoar.debugger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
  */
-public class DefaultDebuggerProviderTest
+class DefaultDebuggerProviderTest
 {
-
+    
     @Test
-    public void testThatThisclassIsInTheRightPackageToAvoidBreakingReflection()
+    void testThatThisclassIsInTheRightPackageToAvoidBreakingReflection()
     {
-        assertEquals("The debugger provider's name or package has chanaged, but is referenced reflectively.",
-                org.jsoar.kernel.DefaultDebuggerProvider.DEFAULT_CLASS, DefaultDebuggerProvider.class.getCanonicalName());
+        assertEquals(
+                org.jsoar.kernel.DefaultDebuggerProvider.DEFAULT_CLASS, DefaultDebuggerProvider.class.getCanonicalName(),
+                "The debugger provider's name or package has chanaged, but is referenced reflectively.");
     }
-
+    
 }

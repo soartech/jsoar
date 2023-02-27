@@ -12,8 +12,8 @@ import java.util.LinkedList;
 
 public class EpisodicMemoryIdReservation
 {
-    public long /*epmem_node_id*/ my_id;
-    public final long /*epmem_hash_id*/ my_hash;
+    public long /* epmem_node_id */ my_id;
+    public final long /* epmem_hash_id */ my_hash;
     public LinkedList<EpisodicMemoryIdPair> my_pool;
     
     public EpisodicMemoryIdReservation(long id, long hash)

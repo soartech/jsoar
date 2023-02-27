@@ -33,11 +33,11 @@ import org.jsoar.util.markers.Marker;
 public class VariableGenerator
 {
     private SymbolFactoryImpl syms;
-
+    
     private int[] gensymed_variable_count = new int[26];
-
+    
     private int current_variable_gensym_number = 0;
-
+    
     /**
      * @param syms
      */
@@ -45,7 +45,7 @@ public class VariableGenerator
     {
         this.syms = syms;
     }
-
+    
     /**
      * @return the syms
      */
@@ -53,7 +53,7 @@ public class VariableGenerator
     {
         return syms;
     }
-
+    
     /**
      * reset_variable_generator
      * 
@@ -64,35 +64,35 @@ public class VariableGenerator
             Action actions_with_vars_to_avoid)
     {
         // reset counts, and increment the gensym number
-        for (int i = 0; i < 26; i++)
+        for(int i = 0; i < 26; i++)
         {
             gensymed_variable_count[i] = 1;
         }
         
         current_variable_gensym_number++;
-        if (current_variable_gensym_number == Integer.MAX_VALUE)
+        if(current_variable_gensym_number == Integer.MAX_VALUE)
         {
             syms.reset_variable_gensym_numbers();
             current_variable_gensym_number = 1;
         }
-
+        
         // mark all variables in the given conds and actions
         Marker tc_number = DefaultMarker.create();
         ListHead<Variable> var_list = ListHead.newInstance();
-
+        
         Condition.addAllVariables(conds_with_vars_to_avoid, tc_number, var_list);
         Action.addAllVariables(actions_with_vars_to_avoid, tc_number, var_list);
-
-        for (ListItem<Variable> var = var_list.first; var != null; var = var.next)
+        
+        for(ListItem<Variable> var = var_list.first; var != null; var = var.next)
         {
             var.item.gensym_number = current_variable_gensym_number;
         }
     }
-
+    
     public Variable generate_new_variable(String prefix)
     {
         char first_letter = prefix.charAt(0);
-        if (Character.isLetter(first_letter))
+        if(Character.isLetter(first_letter))
         {
             first_letter = Character.toLowerCase(first_letter);
         }
@@ -100,24 +100,24 @@ public class VariableGenerator
         {
             first_letter = 'v';
         }
-
+        
         Variable New = null;
-        while (true)
+        while(true)
         {
             String name = "<" + prefix
                     + gensymed_variable_count[first_letter - 'a']++ + ">";
-
+            
             New = syms.make_variable(name);
-            if (New.gensym_number != current_variable_gensym_number)
+            if(New.gensym_number != current_variable_gensym_number)
             {
                 break;
-
+                
             }
         }
-
+        
         New.current_binding_value = null;
         New.gensym_number = current_variable_gensym_number;
         return New;
     }
-
+    
 }

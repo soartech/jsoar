@@ -24,18 +24,20 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
         super(factory, hash_id);
         this.value = value;
     }
-
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.IntegerSymbol#getValue()
      */
     public long getValue()
     {
         return value;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Symbol#asIntConstant()
      */
     @Override
@@ -43,8 +45,10 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
      */
     @Override
@@ -52,8 +56,10 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
     {
         return factory.createInteger(value);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -61,9 +67,10 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
     {
         return other.asInteger() != null;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericLess(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -78,8 +85,10 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
         
         return f != null ? getValue() < f.getValue() : super.numericLess(other);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericLessOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -94,8 +103,10 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
         
         return f != null ? getValue() <= f.getValue() : super.numericLess(other);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreater(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -110,8 +121,10 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
         
         return f != null ? getValue() > f.getValue() : super.numericLess(other);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreaterOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -127,7 +140,9 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
         return f != null ? getValue() >= f.getValue() : super.numericLess(other);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -135,9 +150,10 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
     {
         return Long.toString(getValue());
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -145,6 +161,5 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
     {
         formatter.format(Long.toString(getValue()));
     }
-    
     
 }

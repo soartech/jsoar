@@ -24,9 +24,9 @@ import org.jsoar.util.events.SoarEventManager;
  * This is the JSoar I/O interface. This is the interface you use for handling output
  * commands as well as providing input to the agent.
  * 
- * <p>Note that the methods in this interface should generally only be called 
- * from the {@link InputEvent} and {@link OutputEvent} callbacks in the agent thread. 
- *  
+ * <p>Note that the methods in this interface should generally only be called
+ * from the {@link InputEvent} and {@link OutputEvent} callbacks in the agent thread.
+ * 
  * <p>See also: <a href="http://code.google.com/p/jsoar/wiki/JSoarInput">JSoar Input Guide</a>
  * and <a href="http://code.google.com/p/jsoar/wiki/JSoarOutput">JSoar Output Guide</a>
  *
@@ -72,11 +72,11 @@ public interface InputOutput
      * @return The newly created WME object
      * @throws IllegalArgumentException if id, attr, or value is <code>null</code>
      * @throws IllegalArgumentException if id, attr, or value were not created by
-     *      {@link #getSymbols()}. Use {@link SymbolFactory#importSymbol(Symbol)} for
-     *      this case.
+     *     {@link #getSymbols()}. Use {@link SymbolFactory#importSymbol(Symbol)} for
+     *     this case.
      */
     InputWme addInputWme(Identifier id, Symbol attr, Symbol value);
-            
+    
     /**
      * @return The identifier of the input-link, typically <code>I2</code>
      */
@@ -88,27 +88,27 @@ public interface InputOutput
     Identifier getOutputLink();
     
     /**
-     * Returns a list of new output commands added to the output link in the 
+     * Returns a list of new output commands added to the output link in the
      * last decision cycle. The returned list is a copy and may be manipulated
      * by the caller
      * 
      * @return List of new output command WMEs added to the output link in the
-     *     last decision cycle.
+     * last decision cycle.
      */
     List<Wme> getPendingCommands();
     
     /**
-     * Returns a list of output commands removed from the output link in the 
+     * Returns a list of output commands removed from the output link in the
      * last decision cycle. The returned list is a copy and may be manipulated
      * by the caller
      * 
      * @return List of output command WMEs removed from the output link in the
-     *     last decision cycle.
+     * last decision cycle.
      */
     List<Wme> getRemovingCommands();
-
+    
     /**
-     * Notify the agent that asynchronous input is ready. This will ensure that 
+     * Notify the agent that asynchronous input is ready. This will ensure that
      * the agent will break out of suspension (e.g. due to "wait" rhs function)
      * and proceed to the input phase.
      * 

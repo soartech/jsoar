@@ -17,6 +17,7 @@ import org.jsoar.util.properties.PropertyProvider;
 /**
  * 
  * <p>semantic_memory.h:92:smem_stat_container
+ * 
  * @author ray
  */
 class DefaultSemanticMemoryStats implements SemanticMemoryStatistics
@@ -42,8 +43,8 @@ class DefaultSemanticMemoryStats implements SemanticMemoryStatistics
     }
     
     static final PropertyKey<String> DB_LIB_VERSION = key("db-lib-version", String.class).defaultValue(null).build();
-    final DefaultPropertyProvider<String> db_lib_version = new DefaultPropertyProvider<String>(DB_LIB_VERSION);
-
+    final DefaultPropertyProvider<String> db_lib_version = new DefaultPropertyProvider<>(DB_LIB_VERSION);
+    
     static final PropertyKey<Long> MEM_USAGE = key("mem-usage", Long.class).defaultValue(0L).build();
     final LongPropertyProvider mem_usage = new LongPropertyProvider(MEM_USAGE);
     
@@ -72,7 +73,7 @@ class DefaultSemanticMemoryStats implements SemanticMemoryStatistics
     final LongPropertyProvider edges = new LongPropertyProvider(EDGES);
     
     private final PropertyManager properties;
-    private final Set<PropertyKey<?>> keys = new HashSet<PropertyKey<?>>();
+    private final Set<PropertyKey<?>> keys = new HashSet<>();
     
     public DefaultSemanticMemoryStats(PropertyManager properties)
     {
@@ -88,33 +89,34 @@ class DefaultSemanticMemoryStats implements SemanticMemoryStatistics
         add(NODES, nodes);
         add(EDGES, edges);
     }
-
+    
     private <T> void add(PropertyKey<T> key, PropertyProvider<T> value)
     {
         this.properties.setProvider(key, value);
     }
-
+    
     @SuppressWarnings("unchecked")
     public void reset()
     {
-        for(@SuppressWarnings("rawtypes") PropertyKey key : keys)
+        for(@SuppressWarnings("rawtypes")
+        PropertyKey key : keys)
         {
             properties.set(key, key.getDefaultValue());
         }
     }
-
+    
     @Override
     public long getRetrieves()
     {
         return retrieves.get();
     }
-
+    
     @Override
     public long getQueries()
     {
         return queries.get();
     }
-
+    
     @Override
     public long getStores()
     {

@@ -46,7 +46,7 @@ public class DefaultProductionManager implements ProductionManager
     private ReinforcementLearning rl;
     private SourceLocation currentSourceLocation;
     
-    private final ParserContext parserContext = new ParserContext() 
+    private final ParserContext parserContext = new ParserContext()
     {
         @Override
         public Object getAdapter(Class<?> klass)
@@ -61,15 +61,17 @@ public class DefaultProductionManager implements ProductionManager
     
     private Parser parser = new OriginalParser();
     
-    private EnumMap<ProductionType, Set<Production>> productionsByType = new EnumMap<ProductionType, Set<Production>>(ProductionType.class);
+    // note the initializer for this map immediately below -- ensures that the values start as empty collections
+    // use of an initializer is confusing -- should just use a guava multimap instead
+    private EnumMap<ProductionType, Set<Production>> productionsByType = new EnumMap<>(ProductionType.class);
     {
         for(ProductionType type : ProductionType.values())
         {
             productionsByType.put(type, new LinkedHashSet<Production>());
         }
     }
-    private Map<String, Production> productionsByName = new HashMap<String, Production>();
-
+    private Map<String, Production> productionsByName = new HashMap<>();
+    
     public DefaultProductionManager(Agent context)
     {
         this.context = context;
@@ -88,13 +90,15 @@ public class DefaultProductionManager implements ProductionManager
     public void resetStatistics()
     {
         // reset_production_firing_counts(thisAgent);
-        for (Production p : this.productionsByName.values())
+        for(Production p : this.productionsByName.values())
         {
             p.resetFiringCount();
         }
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ProductionManager#addChunk(org.jsoar.kernel.Production)
      */
     @Override
@@ -102,28 +106,30 @@ public class DefaultProductionManager implements ProductionManager
     {
         if(p.getType() != ProductionType.CHUNK &&
                 p.getType() != ProductionType.JUSTIFICATION)
-             {
-                 throw new IllegalArgumentException("Production '" + p + "' is not a chunk or justification");
-             }
-             
-             // Reorder the production
-             p.reorder(this.syms.getVariableGenerator(), 
-                       new ConditionReorderer(this.syms.getVariableGenerator(), context.getTrace(), context.getMultiAttributes(), p.getName()), 
-                       new ActionReorderer(context.getPrinter(), p.getName()), 
-                       false);
-             
-             validateLongTermIdentifiersInProduction(p);
-
-             // Tell RL about the new production
-             rl.addProduction(p);
-             
-             // Production is added to the rete by the chunker
-
-             productionsByType.get(p.getType()).add(p);
-             productionsByName.put(p.getName(), p);
+        {
+            throw new IllegalArgumentException("Production '" + p + "' is not a chunk or justification");
+        }
+        
+        // Reorder the production
+        p.reorder(this.syms.getVariableGenerator(),
+                new ConditionReorderer(this.syms.getVariableGenerator(), context.getTrace(), context.getMultiAttributes(), p.getName()),
+                new ActionReorderer(context.getPrinter(), p.getName()),
+                false);
+        
+        validateLongTermIdentifiersInProduction(p);
+        
+        // Tell RL about the new production
+        rl.addProduction(p);
+        
+        // Production is added to the rete by the chunker
+        
+        productionsByType.get(p.getType()).add(p);
+        productionsByName.put(p.getName(), p);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ProductionManager#exciseProduction(org.jsoar.kernel.Production, boolean)
      */
     @Override
@@ -133,20 +139,22 @@ public class DefaultProductionManager implements ProductionManager
         
         productionsByType.get(prod.getType()).remove(prod);
         productionsByName.remove(prod.getName());
-
+        
         rl.exciseProduction(prod);
-
-        if (print_sharp_sign)
+        
+        if(print_sharp_sign)
         {
             context.getPrinter().print("#").flush();
         }
-        if (prod.getReteNode() != null)
+        if(prod.getReteNode() != null)
         {
             this.rete.excise_production_from_rete(prod);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ProductionManager#getProduction(java.lang.String)
      */
     @Override
@@ -154,8 +162,10 @@ public class DefaultProductionManager implements ProductionManager
     {
         return productionsByName.get(name);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ProductionManager#getProductions(org.jsoar.kernel.ProductionType)
      */
     @Override
@@ -165,11 +175,11 @@ public class DefaultProductionManager implements ProductionManager
         if(type != null)
         {
             Set<Production> ofType = productionsByType.get(type);
-            result = new ArrayList<Production>(ofType);
+            result = new ArrayList<>(ofType);
         }
         else
         {
-            result = new ArrayList<Production>(getProductionCount());
+            result = new ArrayList<>(getProductionCount());
             for(Set<Production> ofType : productionsByType.values())
             {
                 result.addAll(ofType);
@@ -177,8 +187,10 @@ public class DefaultProductionManager implements ProductionManager
         }
         return result;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ProductionManager#getParser()
      */
     @Override
@@ -186,8 +198,10 @@ public class DefaultProductionManager implements ProductionManager
     {
         return parser;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ProductionManager#setParser(org.jsoar.kernel.parser.Parser)
      */
     @Override
@@ -196,8 +210,10 @@ public class DefaultProductionManager implements ProductionManager
         Arguments.checkNotNull(parser, "parser");
         this.parser = parser;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ProductionManager#loadProduction(java.lang.String)
      */
     @Override
@@ -206,7 +222,9 @@ public class DefaultProductionManager implements ProductionManager
         return loadProduction(productionBody, DefaultSourceLocation.UNKNOWN);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ProductionManager#loadProduction(java.lang.String, org.jsoar.util.SourceLocation)
      */
     @Override
@@ -228,13 +246,15 @@ public class DefaultProductionManager implements ProductionManager
         }
         return p;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ProductionManager#addProduction(org.jsoar.kernel.Production, boolean)
      */
     public ProductionAddResult addProduction(Production p, boolean reorder_nccs) throws ReordererException
     {
-        if(productionsByName.values().contains(p))
+        if(productionsByName.containsValue(p))
         {
             throw new IllegalArgumentException("Production instance '" + p + " already added.");
         }
@@ -248,17 +268,17 @@ public class DefaultProductionManager implements ProductionManager
         // of the production was known. We do this here so we can eliminate the
         // production field of StringSymbolImpl.
         Production existing = getProduction(p.getName());
-        if (existing != null) 
+        if(existing != null)
         {
             exciseProduction(existing, context.getTrace().isEnabled(Category.LOADING));
         }
-
+        
         // Reorder the production
-        p.reorder(this.syms.getVariableGenerator(), 
-                  new ConditionReorderer(this.syms.getVariableGenerator(), context.getTrace(), context.getMultiAttributes(), p.getName()), 
-                  new ActionReorderer(context.getPrinter(), p.getName()), 
-                  reorder_nccs);
-
+        p.reorder(this.syms.getVariableGenerator(),
+                new ConditionReorderer(this.syms.getVariableGenerator(), context.getTrace(), context.getMultiAttributes(), p.getName()),
+                new ActionReorderer(context.getPrinter(), p.getName()),
+                reorder_nccs);
+        
         validateLongTermIdentifiersInProduction(p);
         
         // Tell RL about the new production
@@ -268,9 +288,9 @@ public class DefaultProductionManager implements ProductionManager
         ProductionAddResult result = this.rete.add_production_to_rete(p);
         
         // from parser.cpp
-        if (result==ProductionAddResult.DUPLICATE_PRODUCTION) 
+        if(result == ProductionAddResult.DUPLICATE_PRODUCTION)
         {
-            exciseProduction (p, false);
+            exciseProduction(p, false);
             return result;
         }
         
@@ -281,31 +301,34 @@ public class DefaultProductionManager implements ProductionManager
         
         return result;
     }
-
+    
     /**
      * Performs semantic memory validation of a production. Throws an exception
      * if the production is invalid.
      * 
      * <p>Extracted from production.cpp:make_production.
+     * 
      * @param p the production to check
      * @throws IllegalArgumentException if the production is invalid
      */
     private void validateLongTermIdentifiersInProduction(Production p)
     {
         if(p.getType() != ProductionType.JUSTIFICATION &&
-           !DefaultSemanticMemory.smem_valid_production(p.getFirstCondition(), p.getFirstAction()))
+                !DefaultSemanticMemory.smem_valid_production(p.getFirstCondition(), p.getFirstAction()))
         {
             throw new IllegalArgumentException("Ungrounded LTI in production: " + p);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ProductionManager#getProductionCounts()
      */
     @Override
     public Map<ProductionType, Integer> getProductionCounts()
     {
-        Map<ProductionType, Integer> counts = new EnumMap<ProductionType, Integer>(ProductionType.class);
+        Map<ProductionType, Integer> counts = new EnumMap<>(ProductionType.class);
         for(ProductionType type : ProductionType.values())
         {
             counts.put(type, 0);
@@ -316,8 +339,10 @@ public class DefaultProductionManager implements ProductionManager
         }
         return Collections.unmodifiableMap(counts);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ProductionManager#getTotalProductions()
      */
     @Override
@@ -331,11 +356,12 @@ public class DefaultProductionManager implements ProductionManager
      * no longer being consistent. You probably don't want to call this.)
      * 
      * Adds a production into the "production by name" and "production by type" maps.
+     * 
      * @param p the production to note.
      */
     public void addProductionToNameTypeMaps(Production p)
     {
         productionsByType.get(p.getType()).add(p);
-        productionsByName.put(p.getName(), p); 
+        productionsByName.put(p.getName(), p);
     }
 }

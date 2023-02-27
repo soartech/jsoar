@@ -31,8 +31,10 @@ public class Interrupt extends AbstractRhsFunctionHandler
         
         this.decisionCycle = decisionCycle;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
@@ -42,8 +44,10 @@ public class Interrupt extends AbstractRhsFunctionHandler
         decisionCycle.interrupt(rhsContext.getProductionBeingFired().getName());
         return null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler#mayBeStandalone()
      */
     @Override
@@ -51,8 +55,10 @@ public class Interrupt extends AbstractRhsFunctionHandler
     {
         return true;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler#mayBeValue()
      */
     @Override
@@ -60,5 +66,5 @@ public class Interrupt extends AbstractRhsFunctionHandler
     {
         return false;
     }
-
+    
 }

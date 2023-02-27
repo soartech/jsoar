@@ -22,11 +22,11 @@ import org.jsoar.kernel.symbols.Symbol;
  * 
  * <p><b>deep-copy</b> takes a single identifier argument and returns a copy
  * of the working memory structure reachable from that identifier. Impasse
- * WMEs (those WMEs in the <code>impasse_wmes</code> list of 
- * <code>IdentifierImpl</code> are not copied. The created WMEs have the same 
+ * WMEs (those WMEs in the <code>impasse_wmes</code> list of
+ * <code>IdentifierImpl</code> are not copied. The created WMEs have the same
  * support as normal WMEs created by the production instantiation that is
  * firing. That is, <b>deep-copy</b> can be thought of as a macro that generates
- * the RHS actions to copy the working memory reachable from a particular id.  
+ * the RHS actions to copy the working memory reachable from a particular id.
  * 
  * <p>rhsfun.cpp:681:deep_copy_rhs_function_code
  * 
@@ -36,7 +36,7 @@ public class DeepCopy extends AbstractRhsFunctionHandler
 {
     // Filter out impasse WMEs from the copy operation. Otherwise, there's a weird
     // crash. This is the behavior of the original SoarTech implementation anyway.
-    private static final EnumSet<WmeType> filter = EnumSet.complementOf(EnumSet.of(WmeType.IMPASSE));
+    private static final EnumSet<WmeType> FILTER = EnumSet.complementOf(EnumSet.of(WmeType.IMPASSE));
     
     /**
      */
@@ -44,8 +44,10 @@ public class DeepCopy extends AbstractRhsFunctionHandler
     {
         super("deep-copy", 1, 1);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -59,7 +61,7 @@ public class DeepCopy extends AbstractRhsFunctionHandler
             throw new RhsFunctionException("Only argument to '" + getName() + "' RHS function must be an identifier.");
         }
         
-        Map<Identifier, Identifier> idMap = new HashMap<Identifier, Identifier>();
+        Map<Identifier, Identifier> idMap = new HashMap<>();
         
         return copy(context, startId, idMap);
     }
@@ -71,7 +73,7 @@ public class DeepCopy extends AbstractRhsFunctionHandler
      * @param id The identifier to copy
      * @param idMap Map from existing identifiers to new identifiers in the copy
      * @return New identifier for id. That is, the identifier in the copy that id
-     *      maps to in idMap.
+     * maps to in idMap.
      */
     private Identifier copy(RhsFunctionContext context, Identifier id, Map<Identifier, Identifier> idMap)
     {
@@ -84,14 +86,14 @@ public class DeepCopy extends AbstractRhsFunctionHandler
         targetId = context.getSymbols().createIdentifier(id.getNameLetter());
         idMap.put(id, targetId);
         
-        Iterator<Wme> it = id.getWmes(filter); // Don't copy impasse WMEs.
-        while (it.hasNext())
+        Iterator<Wme> it = id.getWmes(FILTER); // Don't copy impasse WMEs.
+        while(it.hasNext())
         {
             final Wme w = it.next();
-
+            
             final Symbol value = w.getValue();
             Identifier valueId = value.asIdentifier();
-            if (valueId == null)
+            if(valueId == null)
             {
                 // Terminal WME. Just add and move on.
                 context.addWme(targetId, w.getAttribute(), value);

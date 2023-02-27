@@ -18,27 +18,31 @@ import org.jsoar.debugger.AboutDialog;
 public class AboutAction extends AbstractDebuggerAction
 {
     private static final long serialVersionUID = -7639843952865259437L;
-
+    
     public AboutAction(ActionManager manager)
     {
         super(manager, "About");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
     public void update()
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        AboutDialog.show(SwingUtilities.getRoot((Component)e.getSource()));
+        AboutDialog.show(SwingUtilities.getRoot((Component) e.getSource()));
     }
-
+    
 }

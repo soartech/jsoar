@@ -11,11 +11,11 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -31,10 +31,10 @@ public class DefaultWmeToXml
     public static final String TEXT = "/text";
     public static final String NEXT = "/next";
     
-    private static final Logger logger = LoggerFactory.getLogger(DefaultXmlToWme.class);
-    private static final DocumentBuilder builder = XmlTools.createDocumentBuilder();
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultXmlToWme.class);
+    private static final DocumentBuilder BUILDER = XmlTools.createDocumentBuilder();
     
-    private final Map<Identifier, Element> idMap = new HashMap<Identifier, Element>();
+    private final Map<Identifier, Element> idMap = new HashMap<>();
     
     /**
      * Convert a working memory tree to an XML document starting at the given
@@ -46,7 +46,7 @@ public class DefaultWmeToXml
      */
     public Document toXml(Identifier root, String rootName)
     {
-        final Document doc = builder.getDOMImplementation().createDocument(null, rootName, null);
+        final Document doc = BUILDER.getDOMImplementation().createDocument(null, rootName, null);
         toXml(root, doc.getDocumentElement());
         return doc;
     }
@@ -73,7 +73,7 @@ public class DefaultWmeToXml
         }
         else
         {
-            logger.warn("Don't know what to do with " + ATTRS + " element with non-id value: " + attrWme);
+            LOG.warn("Don't know what to do with {} element with non-id value: {}", ATTRS, attrWme);
         }
     }
     
@@ -91,7 +91,7 @@ public class DefaultWmeToXml
         final Element wmeElement = doc.createElement(wme.getAttribute().toString());
         element.appendChild(wmeElement);
         
-        //  If it's an ID, process sub-structure
+        // If it's an ID, process sub-structure
         final Identifier idValue = wme.getValue().asIdentifier();
         if(idValue != null)
         {
@@ -99,7 +99,7 @@ public class DefaultWmeToXml
             if(valueElement != null)
             {
                 // TODO what should we do here? XLink?
-                logger.warn("Don't know what to do with non-tree memory structure: " + wme);
+                LOG.warn("Don't know what to do with non-tree memory structure: {}", wme);
                 wmeElement.setTextContent(idValue.toString());
             }
             else
@@ -113,7 +113,7 @@ public class DefaultWmeToXml
             // element's text content.
             final String value = wme.getValue().toString();
             wmeElement.setTextContent(value);
-        }        
+        }
     }
     
     /**

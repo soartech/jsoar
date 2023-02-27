@@ -24,8 +24,10 @@ public class CapitalizeSymbol extends AbstractRhsFunctionHandler
     {
         super("capitalize-symbol", 1, 1);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
@@ -35,7 +37,8 @@ public class CapitalizeSymbol extends AbstractRhsFunctionHandler
         
         Symbol sym = arguments.get(0);
         StringSymbol strsym = sym.asString();
-        if(strsym == null) {
+        if(strsym == null)
+        {
             throw new RhsFunctionException("capitalize-symbol RHS function expects a string argument, got " + sym.toString());
         }
         

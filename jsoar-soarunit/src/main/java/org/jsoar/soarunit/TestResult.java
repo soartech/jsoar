@@ -5,7 +5,6 @@
  */
 package org.jsoar.soarunit;
 
-
 /**
  * @author ray
  */
@@ -29,7 +28,7 @@ public class TestResult
         this.output = output;
         this.firingCounts = firingCounts;
     }
-
+    
     /**
      * @return the test
      */
@@ -37,7 +36,7 @@ public class TestResult
     {
         return test;
     }
-
+    
     /**
      * @return the passed
      */
@@ -45,7 +44,7 @@ public class TestResult
     {
         return passed;
     }
-
+    
     /**
      * @return the message
      */
@@ -53,7 +52,7 @@ public class TestResult
     {
         return message;
     }
-
+    
     /**
      * @return the output
      */
@@ -61,7 +60,7 @@ public class TestResult
     {
         return output;
     }
-
+    
     /**
      * @return the firingCounts
      */
@@ -72,15 +71,17 @@ public class TestResult
     
     public double getInitTimeInSeconds()
     {
-        return ((double) initNanos) / 1000000000.0;
+        return initNanos / 1000000000.0;
     }
     
     public double getRunTimeInSeconds()
     {
-        return ((double) runNanos) / 1000000000.0;
+        return runNanos / 1000000000.0;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
