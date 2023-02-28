@@ -1,5 +1,5 @@
 [![license](https://img.shields.io/badge/license-BSD--3-green)](https://github.com/soartech/jsoar/blob/maven/LICENSE.txt)
-![version](https://img.shields.io/badge/jsoar-4.1.3-blue)
+![version](https://img.shields.io/badge/jsoar-5.0.0-blue)
 
 [![javadoc-jsoar-core](https://img.shields.io/badge/javadoc-jsoar--core-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-core) 
 [![javadoc-jsoar-tcl](https://img.shields.io/badge/javadoc-jsoar--tcl-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-tcl) 
@@ -14,9 +14,9 @@ JSoar is a pure Java implementation of the Soar kernel. See the [JSoar Wiki](htt
 
 ## Obtaining JSoar ##
 
-Pre-built releases are available on github: https://github.com/soartech/jsoar/releases
-
 To add a dependency on JSoar using Maven or gradle, include the following dependencies as needed. A typical project may include jsoar-core, jsoar-debugger, jsoar-tcl, and jsoar-soarunit.
+
+We no longer provide pre-built binaries on github, but they can be downloaded from maven central if desired. Building from source is also straightforward (see below).
 
 JSoar Core (required):
 * Maven
