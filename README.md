@@ -5,7 +5,6 @@
 [![javadoc-jsoar-tcl](https://img.shields.io/badge/javadoc-jsoar--tcl-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-tcl) 
 [![javadoc-jsoar-debugger](https://img.shields.io/badge/javadoc-jsoar--debugger-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-debugger) 
 [![javadoc-jsoar-soarunit](https://img.shields.io/badge/javadoc-jsoar--soarunit-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-soarunit) 
-[![javadoc-jsoar-soar2soar](https://img.shields.io/badge/javadoc-jsoar--soar2soar-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-soar2soar) 
 [![javadoc-jsoar-demos](https://img.shields.io/badge/javadoc-jsoar--demos-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-demos) 
 
 ![Maven Build](https://github.com/soartech/jsoar/workflows/Maven%20Build/badge.svg)
