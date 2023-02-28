@@ -168,6 +168,7 @@ To create a release using the Maven Release plugin:
 * Make sure everything is fully merged and all commits are pushed.
 * `mvn -Dusername=<yourGithubUsername> release:prepare -DdryRun=true`
 	* This runs through all the questions (if you're not sure, accept all the default answers), make sure everything builds, and creates temp versions of the pom files showing what changes will be made.
+    * If a prompt doesn't pop up for your signing password, you may have to force gpg/kleopatra to wake up. Try executing this from the command line: `echo "test" | gpg --clearsign`. If that works, you should be good to go. If not, then something is probably wrong with your gpg install.
 * If everything looks good in the dry run:
 	* `mvn -Dusername=<yourGithubUsername> release:clean`
 		* This removes all the temp files from the dry run
