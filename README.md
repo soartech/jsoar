@@ -4,8 +4,11 @@
 [![javadoc-jsoar-core](https://img.shields.io/badge/javadoc-jsoar--core-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-core) 
 [![javadoc-jsoar-tcl](https://img.shields.io/badge/javadoc-jsoar--tcl-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-tcl) 
 [![javadoc-jsoar-debugger](https://img.shields.io/badge/javadoc-jsoar--debugger-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-debugger) 
+[![javadoc-jsoar-legilimens](https://img.shields.io/badge/javadoc-jsoar--legilimens-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-legilimens) 
 [![javadoc-jsoar-soarunit](https://img.shields.io/badge/javadoc-jsoar--soarunit-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-soarunit) 
 [![javadoc-jsoar-demos](https://img.shields.io/badge/javadoc-jsoar--demos-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-demos) 
+[![javadoc-jsoar-repl](https://img.shields.io/badge/javadoc-jsoar--repl-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-repl) 
+[![javadoc-jsoar-performance-testing](https://img.shields.io/badge/javadoc-jsoar--performance--testing-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-performance-testing) 
 
 ![Maven Build](https://github.com/soartech/jsoar/workflows/Maven%20Build/badge.svg)
 
@@ -97,37 +100,10 @@ dependencies {
 }
 ```
 
-[Soar2Soar](https://derbinsky.info/public/_custom/research/misc/talks/soar2soar_soarworkshop_2010.pdf):
-* Maven
-```
-<dependency>
-    <groupId>com.soartech</groupId>
-    <artifactId>jsoar-soar2soar</artifactId>
-    <version>${jsoar.version}</version>
-</dependency>
-```
-* Gradle
-```
-dependencies {
-    compile 'com.soartech:jsoar-soar2soar:$jsoarVersion'
-}
-```
-
-JSoar Demos has a number of examples of using JSoar that you can look at; it probably doesn't make sense to depend on this:
-* Maven
-```
-<dependency>
-    <groupId>com.soartech</groupId>
-    <artifactId>jsoar-demos</artifactId>
-    <version>${jsoar.version}</version>
-</dependency>
-```
-* Gradle
-```
-dependencies {
-    compile 'com.soartech:jsoar-demos:$jsoarVersion'
-}
-```
+**The following subprojects are examples and tools that it probably doesn't make sense to depend on:**
+* JSoar Demos has a number of examples of using JSoar that you can look at.
+* JSoar Repl is a simple command line REPL.
+* JSoar Performance Testing is designed to support repeatable tests across JSoar and CSoar, supporting multiple versions of each, to support performance comparisons.
 
 ## Developer info ##
 
