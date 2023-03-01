@@ -2,7 +2,7 @@ module org.jsoar.legilimens
 {
     requires transitive freemarker;
     requires transitive org.jsoar.core;
-    requires org.restlet;
+    requires transitive org.restlet;
     requires org.restlet.ext.freemarker;
     requires org.slf4j;
     requires jdk.httpserver;
