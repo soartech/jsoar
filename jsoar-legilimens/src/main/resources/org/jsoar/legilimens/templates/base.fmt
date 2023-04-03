@@ -14,7 +14,7 @@
 <#global agents_url="${rootRef}/agents"/>
 
 <#global logo>
-<a class="logo" href="http://jsoar.googlecode.com"><@img name="logo.png"/></a>
+<a class="logo" href="https://github.com/soartech/jsoar"><@img name="logo.png"/></a>
 </#global>
 
 <#global flash>
