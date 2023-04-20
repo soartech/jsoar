@@ -1,0 +1,2 @@
+org.jsoar.util.commands.DefaultInterpreterFactory
+org.jsoar.tcl.SoarTclInterfaceFactory
