@@ -14,7 +14,7 @@ public abstract class StandaloneRhsFunctionHandler extends AbstractRhsFunctionHa
     /**
      * @param name
      */
-    public StandaloneRhsFunctionHandler(String name)
+    protected StandaloneRhsFunctionHandler(String name)
     {
         super(name);
     }
@@ -24,7 +24,7 @@ public abstract class StandaloneRhsFunctionHandler extends AbstractRhsFunctionHa
      * @param minArgs
      * @param maxArgs
      */
-    public StandaloneRhsFunctionHandler(String name, int minArgs, int maxArgs)
+    protected StandaloneRhsFunctionHandler(String name, int minArgs, int maxArgs)
     {
         super(name, minArgs, maxArgs);
     }

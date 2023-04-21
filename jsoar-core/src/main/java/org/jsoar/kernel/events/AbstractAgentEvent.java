@@ -22,7 +22,7 @@ public abstract class AbstractAgentEvent implements SoarEvent
      * 
      * @param agent the agent
      */
-    public AbstractAgentEvent(Agent agent)
+    protected AbstractAgentEvent(Agent agent)
     {
         this.agent = agent;
     }

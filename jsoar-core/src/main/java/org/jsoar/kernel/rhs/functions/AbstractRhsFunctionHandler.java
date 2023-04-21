@@ -24,7 +24,7 @@ public abstract class AbstractRhsFunctionHandler implements RhsFunctionHandler
      * 
      * @param name Name of the function
      */
-    public AbstractRhsFunctionHandler(String name)
+    protected AbstractRhsFunctionHandler(String name)
     {
         this(name, 0, Integer.MAX_VALUE);
     }
@@ -39,7 +39,7 @@ public abstract class AbstractRhsFunctionHandler implements RhsFunctionHandler
      * @throws IllegalArgumentException If name is <code>null</code> or minArgs is
      *     greater than maxArgs
      */
-    public AbstractRhsFunctionHandler(String name, int minArgs, int maxArgs)
+    protected AbstractRhsFunctionHandler(String name, int minArgs, int maxArgs)
     {
         Arguments.checkNotNull(name, "name");
         Arguments.check(minArgs <= maxArgs, "minArgs > maxArgs");

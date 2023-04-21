@@ -21,40 +21,40 @@ public abstract class AbstractDebuggerAction extends AbstractAction
     
     private final ActionManager manager;
     
-    public AbstractDebuggerAction(String label)
+    protected AbstractDebuggerAction(String label)
     {
         super(label);
         this.manager = null;
     }
     
-    public AbstractDebuggerAction(String label, Icon icon)
+    protected AbstractDebuggerAction(String label, Icon icon)
     {
         super(label, icon);
         this.manager = null;
     }
     
-    public AbstractDebuggerAction(ActionManager manager, String label)
+    protected AbstractDebuggerAction(ActionManager manager, String label)
     {
         super(label);
         this.manager = manager;
         this.manager.addAction(this);
     }
     
-    public AbstractDebuggerAction(ActionManager manager, String label, Icon icon)
+    protected AbstractDebuggerAction(ActionManager manager, String label, Icon icon)
     {
         super(label, icon);
         this.manager = manager;
         this.manager.addAction(this);
     }
     
-    public AbstractDebuggerAction(ActionManager manager, String label, Class<?> klass, boolean adapt)
+    protected AbstractDebuggerAction(ActionManager manager, String label, Class<?> klass, boolean adapt)
     {
         super(label);
         this.manager = manager;
         manager.addObjectAction(this, klass, adapt);
     }
     
-    public AbstractDebuggerAction(ActionManager manager, String label, Icon icon, Class<?> klass, boolean adapt)
+    protected AbstractDebuggerAction(ActionManager manager, String label, Icon icon, Class<?> klass, boolean adapt)
     {
         super(label, icon);
         this.manager = manager;

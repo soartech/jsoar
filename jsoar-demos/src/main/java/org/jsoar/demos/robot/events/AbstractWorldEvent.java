@@ -15,7 +15,7 @@ public abstract class AbstractWorldEvent implements SoarEvent
 {
     public final World world;
     
-    public AbstractWorldEvent(World world)
+    protected AbstractWorldEvent(World world)
     {
         this.world = world;
     }

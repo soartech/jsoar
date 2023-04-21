@@ -21,7 +21,7 @@ public abstract class AbstractProductionEvent extends AbstractAgentEvent
      * @param agent The agent
      * @param production The production
      */
-    public AbstractProductionEvent(Agent agent, Production production)
+    protected AbstractProductionEvent(Agent agent, Production production)
     {
         super(agent);
         this.production = production;

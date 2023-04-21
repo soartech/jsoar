@@ -10,11 +10,11 @@ import picocli.CommandLine.ParseResult;
 
 public abstract class PicocliSoarCommand implements SoarCommand
 {
-    protected final static String NULL = null;
+    protected static final String NULL = null;
     
-    final protected Agent agent;
-    final protected Object picocliCommand;
-    final protected CommandLine commandLine;
+    protected final Agent agent;
+    protected final Object picocliCommand;
+    protected final CommandLine commandLine;
     
     protected boolean autoFlush = true;
     
@@ -23,7 +23,7 @@ public abstract class PicocliSoarCommand implements SoarCommand
      * A command with an agent may print results to the agent's printer
      * and/or return a result directly.
      */
-    public PicocliSoarCommand(Agent agent, Object picocliCommand)
+    protected PicocliSoarCommand(Agent agent, Object picocliCommand)
     {
         this.agent = agent;
         this.picocliCommand = picocliCommand;
@@ -35,7 +35,7 @@ public abstract class PicocliSoarCommand implements SoarCommand
      * Creates a PicocliSoarCommand with no agent.
      * A command with no agent is expected to return any result directly.
      */
-    public PicocliSoarCommand(Object picocliCommand)
+    protected PicocliSoarCommand(Object picocliCommand)
     {
         this(null, picocliCommand);
     }

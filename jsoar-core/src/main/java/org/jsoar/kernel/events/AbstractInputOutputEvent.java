@@ -23,7 +23,7 @@ public abstract class AbstractInputOutputEvent implements SoarEvent
      * 
      * @param io The I/O interface
      */
-    public AbstractInputOutputEvent(InputOutput io)
+    protected AbstractInputOutputEvent(InputOutput io)
     {
         this.io = io;
     }

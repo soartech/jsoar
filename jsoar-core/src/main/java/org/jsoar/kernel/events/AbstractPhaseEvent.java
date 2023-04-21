@@ -30,7 +30,7 @@ public abstract class AbstractPhaseEvent extends AbstractAgentEvent
      * @param before if <code>true</code> this is a "before" event, otherwise
      *     it's an "after" event
      */
-    public AbstractPhaseEvent(Agent agent, Phase phase, boolean before)
+    protected AbstractPhaseEvent(Agent agent, Phase phase, boolean before)
     {
         super(agent);
         this.phase = phase;

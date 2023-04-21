@@ -57,7 +57,7 @@ public abstract class AbstractSoarDatabase
      * @param driver the driver name
      * @param db the database connection
      */
-    public AbstractSoarDatabase(String driver, Connection db)
+    protected AbstractSoarDatabase(String driver, Connection db)
     {
         this.driver = driver;
         this.db = db;

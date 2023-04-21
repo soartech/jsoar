@@ -49,7 +49,7 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
      * 
      * @param io
      */
-    public AbstractXmlFileToWme(InputOutput io)
+    protected AbstractXmlFileToWme(InputOutput io)
     {
         factory = io.asWmeFactory();
     }
@@ -64,7 +64,7 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
      * 
      * @param wmeFactory
      */
-    public AbstractXmlFileToWme(WmeFactory<?> wmeFactory)
+    protected AbstractXmlFileToWme(WmeFactory<?> wmeFactory)
     {
         factory = wmeFactory;
     }
