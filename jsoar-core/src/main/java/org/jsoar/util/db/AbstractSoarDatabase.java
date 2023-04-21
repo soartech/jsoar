@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -248,13 +249,13 @@ public abstract class AbstractSoarDatabase
             in.close();
         }
         
-        String tempString = temp.toString("UTF-8");
+        String tempString = temp.toString(StandardCharsets.UTF_8);
         for(Map.Entry<String, String> entry : replacements.entrySet())
         {
             tempString = tempString.replace(entry.getKey(), entry.getValue());
         }
         
-        return new ByteArrayInputStream(tempString.getBytes("UTF-8"));
+        return new ByteArrayInputStream(tempString.getBytes(StandardCharsets.UTF_8));
     }
     
     public boolean backupDb(String fileName) throws SQLException
