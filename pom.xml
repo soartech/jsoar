@@ -36,8 +36,8 @@
         <!-- plugin versions -->
         <checkstyle.version>10.9.3</checkstyle.version>
         <graalvm.native-image.version>0.9.21</graalvm.native-image.version>
-        <jacoco.version>0.8.8</jacoco.version>
-        <maven.checkstyle.version>3.2.1</maven.checkstyle.version>
+        <jacoco.version>0.8.9</jacoco.version>
+        <maven.checkstyle.version>3.2.2</maven.checkstyle.version>
         <maven.compiler.version>3.11.0</maven.compiler.version>
         <maven.gpg.version>3.0.1</maven.gpg.version>
         <maven.javadoc.version>3.5.0</maven.javadoc.version>
