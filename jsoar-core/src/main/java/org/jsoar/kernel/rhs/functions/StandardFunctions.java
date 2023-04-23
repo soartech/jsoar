@@ -107,7 +107,8 @@ public class StandardFunctions
             new ListRhsFunction(),
             new FormatRhsFunction(),
             new Timestamp(),
-            new SetCount()));
+            new SetCount(), 
+            new Size()));
     {
         allInternal.addAll(MathFunctions.ALL);
     }
