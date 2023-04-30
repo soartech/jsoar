@@ -35,8 +35,9 @@
         
         <!-- plugin versions -->
         <checkstyle.version>10.9.3</checkstyle.version>
+        <cyclonedx.version>2.7.8</cyclonedx.version>
         <graalvm.native-image.version>0.9.21</graalvm.native-image.version>
-        <jacoco.version>0.8.9</jacoco.version>
+        <jacoco.version>0.8.10</jacoco.version>
         <maven.checkstyle.version>3.2.2</maven.checkstyle.version>
         <maven.compiler.version>3.11.0</maven.compiler.version>
         <maven.gpg.version>3.0.1</maven.gpg.version>
@@ -53,8 +54,7 @@
         <commons.beanutils.version>1.9.4</commons.beanutils.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.math3.version>3.6.1</commons.math3.version>
-        <cyclonedx.version>2.7.7</cyclonedx.version>
-        <graalvm.version>22.3.1</graalvm.version>
+        <graalvm.version>22.3.2</graalvm.version>
         <guava.version>31.1-jre</guava.version>
         <jackson.version>2.14.2</jackson.version>
         <json.simple.version>4.0.1</json.simple.version>
@@ -62,7 +62,7 @@
         <logback.version>1.4.7</logback.version>
         <mockito.version>5.1.1</mockito.version>
         <opencsv.version>5.7.1</opencsv.version>
-        <picocli.version>4.7.1</picocli.version>
+        <picocli.version>4.7.3</picocli.version>
         <re2j.version>1.7</re2j.version>
         <slf4j.version>2.0.7</slf4j.version>
         <spring.core.version>5.3.27</spring.core.version>
