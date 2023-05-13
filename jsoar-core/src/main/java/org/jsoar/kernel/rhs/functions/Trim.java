@@ -24,7 +24,7 @@ public class Trim extends AbstractRhsFunctionHandler
                     + context.getProductionBeingFired());
         }
         
-        return context.getSymbols().createString(strArg.toString().trim());
+        return context.getSymbols().createString(strArg.toString().strip());
     }
 
 }

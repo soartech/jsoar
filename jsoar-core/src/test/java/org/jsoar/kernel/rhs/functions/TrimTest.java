@@ -244,4 +244,148 @@ public class TrimTest extends JSoarTest {
         assertTrue(sw.toString().contains("Error executing RHS function"));
     }
 
+    @Test
+    void testWithMultipleLeadingUnicodes() throws Exception {
+        // A production to create ^message with multiple leading unicodes
+        agent.getProductions().loadProduction("" +
+                "createMessages\n" +
+                "(state <s> ^superstate nil)\n" +
+                "-->\n" +
+                "(<s> ^message | \n \u2000 this is a test message| )");
+
+        // A production to trim the ^message
+        agent.getProductions().loadProduction("" +
+                "trimMessage\n" +
+                "(state <s> ^superstate nil ^message <m1> )\n" +
+                "-->\n" +
+                "(<s> ^trimmed (trim <m1> ))");
+
+        // Finally a production to validate that the trim function is correct
+        agent.getProductions().loadProduction("" +
+                "testStructure\n" +
+                "(state <s> ^trimmed |this is a test message| )\n" +
+                "-->\n" +
+                "(match)");
+
+        agent.getProperties().set(SoarProperties.WAITSNC, true);
+        agent.runFor(2, RunType.DECISIONS);
+
+        assertTrue(matched.value);
+    }
+
+    @Test
+    void testWithMultipleTrailingUnicodes() throws Exception {
+        // A production to create ^message with multiple trailing unicodes
+        agent.getProductions().loadProduction("" +
+                "createMessages\n" +
+                "(state <s> ^superstate nil)\n" +
+                "-->\n" +
+                "(<s> ^message | this is a test message \n \u2000 | )");
+
+        // A production to trim the ^message
+        agent.getProductions().loadProduction("" +
+                "trimMessage\n" +
+                "(state <s> ^superstate nil ^message <m1> )\n" +
+                "-->\n" +
+                "(<s> ^trimmed (trim <m1> ))");
+
+        // Finally a production to validate that the trim function is correct
+        agent.getProductions().loadProduction("" +
+                "testStructure\n" +
+                "(state <s> ^trimmed |this is a test message| )\n" +
+                "-->\n" +
+                "(match)");
+
+        agent.getProperties().set(SoarProperties.WAITSNC, true);
+        agent.runFor(2, RunType.DECISIONS);
+
+        assertTrue(matched.value);
+    }
+
+    @Test
+    void testWithLeadingAndTrailingUnicodesAndWhiteSpaces() throws Exception {
+        // A production to create ^message with multiple leading and trailing unicodes and whitespaces
+        agent.getProductions().loadProduction("" +
+                "createMessages\n" +
+                "(state <s> ^superstate nil)\n" +
+                "-->\n" +
+                "(<s> ^message | \n \t \u2000  this is a test message  \n \t \u2000  | )");
+
+        // A production to trim the ^message
+        agent.getProductions().loadProduction("" +
+                "trimMessage\n" +
+                "(state <s> ^superstate nil ^message <m1> )\n" +
+                "-->\n" +
+                "(<s> ^trimmed (trim <m1> ))");
+
+        // Finally a production to validate that the trim function is correct
+        agent.getProductions().loadProduction("" +
+                "testStructure\n" +
+                "(state <s> ^trimmed |this is a test message| )\n" +
+                "-->\n" +
+                "(match)");
+
+        agent.getProperties().set(SoarProperties.WAITSNC, true);
+        agent.runFor(2, RunType.DECISIONS);
+
+        assertTrue(matched.value);
+    }
+
+    @Test
+    void testWithMultipleMiddleUnicodes() throws Exception {
+        // A production to create ^message with multiple middle unicodes
+        agent.getProductions().loadProduction("" +
+                "createMessages\n" +
+                "(state <s> ^superstate nil)\n" +
+                "-->\n" +
+                "(<s> ^message |this\u0020is a test\u0020message| )");
+
+        // A production to trim the ^message
+        agent.getProductions().loadProduction("" +
+                "trimMessage\n" +
+                "(state <s> ^superstate nil ^message <m1> )\n" +
+                "-->\n" +
+                "(<s> ^trimmed (trim <m1> ))");
+
+        // Finally a production to validate that the trim function is correct
+        agent.getProductions().loadProduction("" +
+                "testStructure\n" +
+                "(state <s> ^trimmed |this is a test message| )\n" +
+                "-->\n" +
+                "(match)");
+
+        agent.getProperties().set(SoarProperties.WAITSNC, true);
+        agent.runFor(2, RunType.DECISIONS);
+
+        assertTrue(matched.value);
+    }
+
+    @Test
+    void testWithLeadingTrailingMiddleUnicodesAndWhiteSpaces() throws Exception {
+        // A production to create ^message with multiple leading, trailing and middle unicodes and whitespaces
+        agent.getProductions().loadProduction("" +
+                "createMessages\n" +
+                "(state <s> ^superstate nil)\n" +
+                "-->\n" +
+                "(<s> ^message |  \u2000 \n \u0020 this\u0020is a test\u0020message \u2000 \u0020 \t  | )");
+
+        // A production to trim the ^message
+        agent.getProductions().loadProduction("" +
+                "trimMessage\n" +
+                "(state <s> ^superstate nil ^message <m1> )\n" +
+                "-->\n" +
+                "(<s> ^trimmed (trim <m1> ))");
+
+        // Finally a production to validate that the trim function is correct
+        agent.getProductions().loadProduction("" +
+                "testStructure\n" +
+                "(state <s> ^trimmed |this is a test message| )\n" +
+                "-->\n" +
+                "(match)");
+
+        agent.getProperties().set(SoarProperties.WAITSNC, true);
+        agent.runFor(2, RunType.DECISIONS);
+
+        assertTrue(matched.value);
+    }
 }
