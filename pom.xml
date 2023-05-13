@@ -34,9 +34,9 @@
         <maven.compiler.release>11</maven.compiler.release>
         
         <!-- plugin versions -->
-        <checkstyle.version>10.9.3</checkstyle.version>
+        <checkstyle.version>10.11.0</checkstyle.version>
         <cyclonedx.version>2.7.8</cyclonedx.version>
-        <graalvm.native-image.version>0.9.21</graalvm.native-image.version>
+        <graalvm.native-image.version>0.9.22</graalvm.native-image.version>
         <jacoco.version>0.8.10</jacoco.version>
         <maven.checkstyle.version>3.2.2</maven.checkstyle.version>
         <maven.compiler.version>3.11.0</maven.compiler.version>
@@ -50,7 +50,7 @@
         <sonarqube.version>3.9.1.2184</sonarqube.version>
         
         <!-- dependency versions -->
-        <classgraph.version>4.8.157</classgraph.version>
+        <classgraph.version>4.8.158</classgraph.version>
         <commons.beanutils.version>1.9.4</commons.beanutils.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.math3.version>3.6.1</commons.math3.version>
@@ -58,7 +58,7 @@
         <guava.version>31.1-jre</guava.version>
         <jackson.version>2.14.2</jackson.version>
         <json.simple.version>4.0.1</json.simple.version>
-        <junit-jupiter.version>5.9.2</junit-jupiter.version>
+        <junit-jupiter.version>5.9.3</junit-jupiter.version>
         <logback.version>1.4.7</logback.version>
         <mockito.version>5.1.1</mockito.version>
         <opencsv.version>5.7.1</opencsv.version>
