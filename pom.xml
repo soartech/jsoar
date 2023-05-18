@@ -69,9 +69,8 @@
         <sqlite.jdbc.version>3.41.2.1</sqlite.jdbc.version>
         
         <!-- sonarqube configuration -->
-        <sonar.host.url>http://192.168.5.76:9000</sonar.host.url>
         <sonar.junit.reportPaths>target/surefire-reports</sonar.junit.reportPaths>
-        <sonar.qualitygate.wait>False</sonar.qualitygate.wait>
+        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
     </properties>
 
     <build>
