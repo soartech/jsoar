@@ -34,25 +34,25 @@
         <maven.compiler.release>11</maven.compiler.release>
         
         <!-- plugin versions -->
-        <checkstyle.version>10.11.0</checkstyle.version>
-        <cyclonedx.version>2.7.8</cyclonedx.version>
+        <checkstyle.version>10.12.0</checkstyle.version>
+        <cyclonedx.version>2.7.9</cyclonedx.version>
         <graalvm.native-image.version>0.9.22</graalvm.native-image.version>
         <jacoco.version>0.8.10</jacoco.version>
-        <maven.checkstyle.version>3.2.2</maven.checkstyle.version>
+        <maven.checkstyle.version>3.3.0</maven.checkstyle.version>
         <maven.compiler.version>3.11.0</maven.compiler.version>
-        <maven.gpg.version>3.0.1</maven.gpg.version>
+        <maven.gpg.version>3.1.0</maven.gpg.version>
         <maven.javadoc.version>3.5.0</maven.javadoc.version>
-        <maven.release.version>3.0.0</maven.release.version>
+        <maven.release.version>3.0.1</maven.release.version>
         <maven.resources.version>3.3.1</maven.resources.version>
         <maven.shade.version>3.4.1</maven.shade.version>
-        <maven.source.version>3.2.1</maven.source.version>
-        <maven.surefire.version>3.0.0</maven.surefire.version>
+        <maven.source.version>3.3.0</maven.source.version>
+        <maven.surefire.version>3.1.2</maven.surefire.version>
         <sonarqube.version>3.9.1.2184</sonarqube.version>
         
         <!-- dependency versions -->
-        <classgraph.version>4.8.158</classgraph.version>
+        <classgraph.version>4.8.160</classgraph.version>
         <commons.beanutils.version>1.9.4</commons.beanutils.version>
-        <commons.io.version>2.11.0</commons.io.version>
+        <commons.io.version>2.13.0</commons.io.version>
         <commons.math3.version>3.6.1</commons.math3.version>
         <graalvm.version>22.3.2</graalvm.version>
         <guava.version>31.1-jre</guava.version>
@@ -62,11 +62,11 @@
         <logback.version>1.4.7</logback.version>
         <mockito.version>5.1.1</mockito.version>
         <opencsv.version>5.7.1</opencsv.version>
-        <picocli.version>4.7.3</picocli.version>
+        <picocli.version>4.7.4</picocli.version>
         <re2j.version>1.7</re2j.version>
         <slf4j.version>2.0.7</slf4j.version>
         <spring.core.version>5.3.27</spring.core.version>
-        <sqlite.jdbc.version>3.41.2.1</sqlite.jdbc.version>
+        <sqlite.jdbc.version>3.42.0.0</sqlite.jdbc.version>
         
         <!-- sonarqube configuration -->
         <sonar.junit.reportPaths>target/surefire-reports</sonar.junit.reportPaths>
