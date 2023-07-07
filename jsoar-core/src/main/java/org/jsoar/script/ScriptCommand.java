@@ -48,7 +48,14 @@ public class ScriptCommand extends PicocliSoarCommand
         @Override
         public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
         {
-            interp.addCommand("script", new ScriptCommand((Agent) context));
+            try
+            {
+                interp.addCommand("script", new ScriptCommand((Agent) context));
+            }
+            catch(NoClassDefFoundError e)
+            {
+                LOG.warn("Failed to register script command. Probably ScriptEngineManager not supported on this platform (e.g., Android). You can ignore this if you're not using the script command", e);
+            }
         }
     }
     
