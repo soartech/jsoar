@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.jsoar.util.Arguments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of {@link ExecutionTimer}. By default, uses ServiceLoader
@@ -19,6 +21,8 @@ import org.jsoar.util.Arguments;
  */
 public class DefaultExecutionTimer extends AbstractExecutionTimer
 {
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultExecutionTimer.class);
+    
     private ExecutionTimeSource source;
     private long start;
     private long total;
@@ -47,22 +51,21 @@ public class DefaultExecutionTimer extends AbstractExecutionTimer
     private DefaultExecutionTimer()
     {
         // http://commons.apache.org/discovery/ may be a nice alternative
-        // is we starting doing more of this
+        // if we starting doing more of this
         ServiceLoader<ExecutionTimeSource> loader = ServiceLoader.load(ExecutionTimeSource.class);
         Iterator<ExecutionTimeSource> it = loader.iterator();
         if(it.hasNext())
         {
             source = it.next();
+            LOG.info("Found ExecutionTimeSource implementation: {}", source.getClass().getCanonicalName());
         }
         else
         {
-            throw new IllegalStateException("Could not locate an implementation of ExecutionTimeSource");
+            LOG.warn("Could not dynmaically locate an implementation of ExecutionTimeSource. Using default WallclockExecutionTimeSource.");
+            source = new WallclockExecutionTimeSource();
         }
     }
     
-    /**
-     * @param source
-     */
     private DefaultExecutionTimer(ExecutionTimeSource source)
     {
         Arguments.checkNotNull(source, "source");
