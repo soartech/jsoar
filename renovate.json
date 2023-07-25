@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>git/renovate-bot/renovate-config"
+    "local>soar/renovate-config"
   ],
   "schedule": ["on saturday"]
 }
