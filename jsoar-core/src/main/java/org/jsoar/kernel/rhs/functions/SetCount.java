@@ -1,11 +1,11 @@
 package org.jsoar.kernel.rhs.functions;
 
+import java.util.Iterator;
 import java.util.List;
 
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
-
-import com.google.common.collect.Streams;
 
 public class SetCount extends AbstractRhsFunctionHandler
 {
@@ -30,9 +30,18 @@ public class SetCount extends AbstractRhsFunctionHandler
         if(arguments.size() == 2)
         {
             Symbol targetAttr = arguments.get(1);
-            long setSize = Streams.stream(setId.getWmes())
-                    .filter(w -> w.getAttribute().equals(targetAttr))
-                    .count();
+            
+            long setSize = 0;
+            Iterator<Wme> itr = setId.getWmes();
+            while(itr.hasNext())
+            {
+                Wme w = itr.next();
+                if(w.getAttribute().equals(targetAttr))
+                {
+                    setSize++;
+                }
+            }
+            
             return context.getSymbols().createInteger(setSize);
             
         }
