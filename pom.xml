@@ -34,7 +34,7 @@
         <maven.compiler.release>11</maven.compiler.release>
         
         <!-- plugin versions -->
-        <checkstyle.version>10.12.1</checkstyle.version>
+        <checkstyle.version>10.12.4</checkstyle.version>
         <cyclonedx.version>2.7.9</cyclonedx.version>
         <graalvm.native-image.version>0.9.23</graalvm.native-image.version>
         <jacoco.version>0.8.10</jacoco.version>
@@ -50,22 +50,22 @@
         <sonarqube.version>3.9.1.2184</sonarqube.version>
         
         <!-- dependency versions -->
-        <classgraph.version>4.8.161</classgraph.version>
+        <classgraph.version>4.8.164</classgraph.version>
         <commons.beanutils.version>1.9.4</commons.beanutils.version>
         <commons.io.version>2.13.0</commons.io.version>
         <commons.math3.version>3.6.1</commons.math3.version>
-        <graalvm.version>22.3.2</graalvm.version>
-        <guava.version>32.1.1-jre</guava.version>
+        <graalvm.version>22.3.3</graalvm.version>
+        <guava.version>32.1.3-jre</guava.version>
         <jackson.version>2.15.2</jackson.version>
         <json.simple.version>4.0.1</json.simple.version>
-        <junit-jupiter.version>5.9.3</junit-jupiter.version>
-        <logback.version>1.4.8</logback.version>
+        <junit-jupiter.version>5.10.1</junit-jupiter.version>
+        <logback.version>1.4.11</logback.version>
         <mockito.version>5.4.0</mockito.version>
-        <opencsv.version>5.7.1</opencsv.version>
+        <opencsv.version>5.8</opencsv.version>
         <picocli.version>4.7.4</picocli.version>
         <re2j.version>1.7</re2j.version>
         <slf4j.version>2.0.7</slf4j.version>
-        <spring.core.version>5.3.28</spring.core.version>
+        <spring.core.version>5.3.29</spring.core.version>
         <sqlite.jdbc.version>3.42.0.0</sqlite.jdbc.version>
         
         <!-- sonarqube configuration -->
