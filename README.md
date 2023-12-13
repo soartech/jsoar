@@ -138,7 +138,7 @@ To create a release using the Maven Release plugin:
 
 * Make sure you have a github account that has permission to commit to the jsoar repo.
 * Make sure you have ossrh server setup in your settings.xml with the soartech-releases account.
-* To build using the poms as-is, you should use a Java 8 JDK. More recent JDKs will work, but without additional changes to the poms, they may not produce jar files that can be linked with Java 8 applications.
+* To build using the poms as-is, you should use a Java 11 JDK. More recent JDKs will work, but without additional changes to the poms, they may not produce jar files that can be linked with Java 11 applications.
 
 * Make sure everything is fully merged and all commits are pushed.
 * `mvn -Dusername=<yourGithubUsername> release:prepare -DdryRun=true`
