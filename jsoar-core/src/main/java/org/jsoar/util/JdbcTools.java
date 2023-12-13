@@ -28,6 +28,8 @@ import org.jsoar.kernel.SoarException;
  */
 public class JdbcTools
 {
+    private JdbcTools() {}
+    
     /**
      * Open a JDBC connection.
      * 

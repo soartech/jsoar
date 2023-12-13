@@ -33,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import org.jsoar.debugger.SwingCompletionHandler;
 import org.jsoar.debugger.selection.SelectionManager;
@@ -89,14 +90,7 @@ public class WorkingMemoryTree extends JComponent
     private Point offset = new Point();
     private Point lastMouseDragPoint = null;
     
-    private final CompletionHandler<Void> repaint = SwingCompletionHandler.newInstance(new CompletionHandler<Void>()
-    {
-        @Override
-        public void finish(Void result)
-        {
-            repaint();
-        }
-    });
+    private final CompletionHandler<Void> repaint = SwingCompletionHandler.newInstance((Void result) -> repaint());
     
     public WorkingMemoryTree(ThreadedAgent agent)
     {
@@ -815,7 +809,7 @@ public class WorkingMemoryTree extends JComponent
     public static void swingMain() throws InterruptedException, ExecutionException, TimeoutException
     {
         final JFrame f = new JFrame();
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         
         final ThreadedAgent agent = ThreadedAgent.create();
         agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));

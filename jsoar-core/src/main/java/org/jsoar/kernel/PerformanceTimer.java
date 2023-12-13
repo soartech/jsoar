@@ -76,10 +76,10 @@ public class PerformanceTimer
         Collections.sort(kernelTimes);
         Collections.sort(decisionCycles);
         Collections.sort(totalMemory);
-        System.out.printf("   CPU: min %f, med %f, max %f\n", cpuTimes.get(0), cpuTimes.get(cpuTimes.size() / 2), cpuTimes.get(cpuTimes.size() - 1));
-        System.out.printf("Kernel: min %f, med %f, max %f\n", kernelTimes.get(0), kernelTimes.get(kernelTimes.size() / 2), kernelTimes.get(kernelTimes.size() - 1));
-        System.out.printf("DecCyc: min %8d, med %8d, max %8d\n", decisionCycles.get(0), decisionCycles.get(decisionCycles.size() / 2), decisionCycles.get(decisionCycles.size() - 1));
-        System.out.printf("TotMem: min %8d, med %8d, max %8d\n", totalMemory.get(0), totalMemory.get(totalMemory.size() / 2), totalMemory.get(totalMemory.size() - 1));
+        System.out.printf("   CPU: min %f, med %f, max %f%n", cpuTimes.get(0), cpuTimes.get(cpuTimes.size() / 2), cpuTimes.get(cpuTimes.size() - 1));
+        System.out.printf("Kernel: min %f, med %f, max %f%n", kernelTimes.get(0), kernelTimes.get(kernelTimes.size() / 2), kernelTimes.get(kernelTimes.size() - 1));
+        System.out.printf("DecCyc: min %8d, med %8d, max %8d%n", decisionCycles.get(0), decisionCycles.get(decisionCycles.size() / 2), decisionCycles.get(decisionCycles.size() - 1));
+        System.out.printf("TotMem: min %8d, med %8d, max %8d%n", totalMemory.get(0), totalMemory.get(totalMemory.size() / 2), totalMemory.get(totalMemory.size() - 1));
         
     }
     

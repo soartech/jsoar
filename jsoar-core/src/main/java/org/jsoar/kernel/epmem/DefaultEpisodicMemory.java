@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -501,11 +500,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 epmem_init_db_ex(readonly);
             }
-            catch(SQLException e)
-            {
-                throw new SoarException("While attaching epmem: " + e.getMessage(), e);
-            }
-            catch(IOException e)
+            catch(SQLException | IOException e)
             {
                 throw new SoarException("While attaching epmem: " + e.getMessage(), e);
             }
@@ -572,25 +567,25 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             switch(pageSize)
             {
             case page_16k:
-                pageSizeLong = 16 * 1024;
+                pageSizeLong = 16 * 1024L;
                 break;
             case page_1k:
-                pageSizeLong = 1 * 1024;
+                pageSizeLong = 1 * 1024L;
                 break;
             case page_2k:
-                pageSizeLong = 2 * 1024;
+                pageSizeLong = 2 * 1024L;
                 break;
             case page_32k:
-                pageSizeLong = 32 * 1024;
+                pageSizeLong = 32 * 1024L;
                 break;
             case page_4k:
-                pageSizeLong = 4 * 1024;
+                pageSizeLong = 4 * 1024L;
                 break;
             case page_64k:
-                pageSizeLong = 64 * 1024;
+                pageSizeLong = 64 * 1024L;
                 break;
             case page_8k:
-                pageSizeLong = 8 * 1024;
+                pageSizeLong = 8 * 1024L;
                 break;
             default:
                 break;
@@ -1284,16 +1279,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             epmem_respond_to_cmd(new_memory);
         }
-        catch(SQLException e)
+        catch(SQLException | SoarException e)
         {
             LOG.error("While responding to epmem command: " + e.getMessage(), e);
             agent.getPrinter().error("While responding to epmem command: " + e.getMessage());
         }
-        catch(SoarException e)
-        {
-            LOG.error("While responding to epmem command: " + e.getMessage(), e);
-            agent.getPrinter().error("While responding to epmem command: " + e.getMessage());
-        }
+        
         // my_agent->epmem_timers->total->stop();
     }
     
@@ -1608,7 +1599,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // wme's with constant values
                 for(Map.Entry<Long, Boolean> r : epmem_node_removals.entrySet())
                 {
-                    if(r.getValue())
+                    if(Boolean.TRUE.equals(r.getValue()))
                     {
                         // remove NOW entry
                         // id = ?
@@ -1640,7 +1631,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // wme's with identifier values
                 for(Map.Entry<Long, Boolean> r : epmem_edge_removals.entrySet())
                 {
-                    if(r.getValue())
+                    if(Boolean.TRUE.equals(r.getValue()))
                     {
                         // remove NOW entry
                         // id = ?
@@ -2290,7 +2281,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     epmem_edge_removals.put(wme.epmem_id, false);
                     
                     // we add ONLY if the last thing we did was remove
-                    if(epmem_edge_maxes.get((int) (wme.epmem_id - 1L)))
+                    if(Boolean.TRUE.equals(epmem_edge_maxes.get((int) (wme.epmem_id - 1L))))
                     {
                         epmem_edge.add(wme.epmem_id);
                         epmem_edge_maxes.set((int) (wme.epmem_id - 1L), false);
@@ -2419,7 +2410,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         epmem_node_removals.put(wme.epmem_id, false);
                         
                         // add ONLY if the last thing we did was add
-                        if(epmem_node_maxes.get((int) (wme.epmem_id - 1L)))
+                        if(Boolean.TRUE.equals(epmem_node_maxes.get((int) (wme.epmem_id - 1L))))
                         {
                             epmem_node.add(wme.epmem_id);
                             epmem_node_maxes.set((int) (wme.epmem_id - 1L), false);
@@ -3182,7 +3173,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 meta_wmes.clear();
                 
                 // process command
-                if(good_cue.value)
+                if(Boolean.TRUE.equals(good_cue.value))
                 {
                     // retrieve
                     if(path.value == 1)
@@ -3802,9 +3793,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // Comparator code comes from episodic_memory.h: 617
                         // The java implementation sorts in reverse order, becuase the Java and C
                         // queue implementations sort their elements in reverse orders.
-                        new Comparator<EpmemPEdge>()
-                        {
-                            public int compare(EpmemPEdge a, EpmemPEdge b)
+                        (EpmemPEdge a, EpmemPEdge b) ->
                             {
                                 if(a.time != b.time)
                                 {
@@ -3817,16 +3806,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     return (a.triple.compareTo(b.triple));
                                 }
                             }
-                        });
+                        );
         // epmem_interval_pq interval_pq;
         PriorityQueue<EpmemInterval> interval_pq = new PriorityQueue<>(
                 11,
                 // Comparator based on episodic_memory.h: 627
                 // The java implementation sorts in reverse order, becuase the Java and C
                 // queue implementations sort their elements in reverse orders.
-                new Comparator<EpmemInterval>()
-                {
-                    public int compare(EpmemInterval a, EpmemInterval b)
+                (EpmemInterval a, EpmemInterval b) ->
                     {
                         if(a.time != b.time)
                         {
@@ -3843,7 +3830,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             return (a.is_end_point == EPMEM_RANGE_END) ? 1 : -1;
                         }
                     }
-                });
+                );
         
         // variables needed to track satisfiability
         // number of literals with a certain symbol as its value
@@ -4456,15 +4443,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     // std::sort(gm_ordering.begin(), gm_ordering.end(), epmem_gm_mcv_comparator);
                                     Collections.sort(
                                             gm_ordering,
-                                            new Comparator<EpmemLiteral>()
-                                            {
-                                                // episodic_memory.cpp:3427
-                                                @Override
-                                                public int compare(EpmemLiteral a, EpmemLiteral b)
-                                                {
-                                                    return (a.matches.size() < b.matches.size() ? -1 : 1);
-                                                }
-                                            });
+                                            (EpmemLiteral a, EpmemLiteral b) -> (a.matches.size() < b.matches.size() ? -1 : 1)
+                                            );
                                 }
                                 // epmem_literal_deque::iterator begin = gm_ordering.begin();
                                 // epmem_literal_deque::iterator end = gm_ordering.end();
@@ -6749,7 +6729,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             cue_wmes.add((w_p));
             
-            if(good_cue.value)
+            if(Boolean.TRUE.equals(good_cue.value))
             {
                 // collect information about known commands
                 if(w_p.attr == predefinedSyms.epmem_sym_retrieve)
@@ -7400,11 +7380,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             LOG.error("Failed to reinitialize database", e);
         }
-        catch(IOException e)
-        {
-            LOG.error("Failed to reinitialize epmem", e);
-        }
-        catch(SoarException e)
+        catch(IOException | SoarException e)
         {
             LOG.error("Failed to reinitialize epmem", e);
         }
@@ -7706,7 +7682,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return return_val;
     }
     
-    static public boolean compare_symbol(Symbol a, Symbol b)
+    public static boolean compare_symbol(Symbol a, Symbol b)
     {
         Identifier idA = a.asIdentifier();
         Identifier idB = b.asIdentifier();
@@ -7761,11 +7737,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 return epmem_parse_and_add_string("{" + chunkString + "}");     // The interpreter strips braces; put them back.
             }
         }
-        catch(IOException e)
-        {
-            throw new SoarException(e);
-        }
-        catch(SQLException e)
+        catch(IOException | SQLException e)
         {
             throw new SoarException(e);
         }

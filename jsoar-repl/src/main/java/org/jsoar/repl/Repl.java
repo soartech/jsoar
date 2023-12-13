@@ -1,6 +1,5 @@
 package org.jsoar.repl;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -21,15 +20,8 @@ public class Repl
         // System.setProperty("jsoar.agent.interpreter", "tcl");
         
         Repl repl = new Repl(System.in, System.out);
-        try
-        {
-            repl.start();
-        }
-        catch(IOException e)
-        {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        
+        repl.start();
         
         repl.shutdown();
     }
@@ -46,7 +38,7 @@ public class Repl
         this.out = out;
     }
     
-    public void start() throws IOException
+    public void start()
     {
         initialize();
         
@@ -95,7 +87,7 @@ public class Repl
     private void initialize()
     {
         // ensure we shutdown cleanly
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> this.shutdown()));
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
         
         // echo agent output to the print stream
         this.agent.execute(() ->

@@ -76,7 +76,7 @@ public class SmemCommand extends PicocliSoarCommand
     
     @Command(name = "smem", description = "Controls the behavior of "
             + "and displays information about semantic memory", subcommands = { HelpCommand.class })
-    static public class SmemC implements Runnable
+    public static class SmemC implements Runnable
     {
         private final Agent agent;
         private final DefaultSemanticMemory smem;

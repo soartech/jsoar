@@ -3041,25 +3041,25 @@ public class DefaultSemanticMemory implements SemanticMemory
             switch(pageSize)
             {
             case page_16k:
-                pageSizeLong = 16 * 1024;
+                pageSizeLong = 16 * 1024L;
                 break;
             case page_1k:
-                pageSizeLong = 1 * 1024;
+                pageSizeLong = 1 * 1024L;
                 break;
             case page_2k:
-                pageSizeLong = 2 * 1024;
+                pageSizeLong = 2 * 1024L;
                 break;
             case page_32k:
-                pageSizeLong = 32 * 1024;
+                pageSizeLong = 32 * 1024L;
                 break;
             case page_4k:
-                pageSizeLong = 4 * 1024;
+                pageSizeLong = 4 * 1024L;
                 break;
             case page_64k:
-                pageSizeLong = 64 * 1024;
+                pageSizeLong = 64 * 1024L;
                 break;
             case page_8k:
-                pageSizeLong = 8 * 1024;
+                pageSizeLong = 8 * 1024L;
                 break;
             default:
                 break;
@@ -3087,11 +3087,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 smem_init_db();
             }
-            catch(SQLException e)
-            {
-                throw new SoarException("While attaching SMEM: " + e.getMessage(), e);
-            }
-            catch(IOException e)
+            catch(SQLException | IOException e)
             {
                 throw new SoarException("While attaching SMEM: " + e.getMessage(), e);
             }
@@ -3480,11 +3476,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             return smem_parse_chunks_safe(chunkString);
         }
-        catch(IOException e)
-        {
-            throw new SoarException(e);
-        }
-        catch(SQLException e)
+        catch(IOException | SQLException e)
         {
             throw new SoarException(e);
         }
@@ -4034,12 +4026,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             smem_respond_to_cmd(store_only);
         }
-        catch(SQLException e)
-        {
-            // TODO SMEM error
-            throw new RuntimeException(e);
-        }
-        catch(SoarException e)
+        catch(SQLException | SoarException e)
         {
             // TODO SMEM error
             throw new RuntimeException(e);
