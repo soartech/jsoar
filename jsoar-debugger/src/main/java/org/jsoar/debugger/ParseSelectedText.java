@@ -19,6 +19,8 @@ import org.jsoar.debugger.actions.ExecuteCommandAction;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.adaptables.Adaptables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /************************************************************************
  * 
@@ -29,6 +31,9 @@ import org.jsoar.util.adaptables.Adaptables;
  ************************************************************************/
 public class ParseSelectedText
 {
+    
+    private static Logger LOG = LoggerFactory.getLogger(ParseSelectedText.class);
+    
     public abstract static class SelectedObject
     {
         public abstract Object retrieveSelection(JSoarDebugger debugger);
@@ -240,7 +245,7 @@ public class ParseSelectedText
         StringBuilder buffer = new StringBuilder();
         for(int i = 0; i < 3; i++)
         {
-            buffer.append("Token " + i + " is |" + m_Tokens[i] + "| ");
+            buffer.append("Token " + i + " is " + m_Tokens[i] + " ");
         }
         
         return buffer.toString();
@@ -461,60 +466,201 @@ public class ParseSelectedText
         return false;
     }
     
-    /** Extract prev, current and next tokens */
+    /**
+     *  Extract prev, current and next tokens
+     *  
+     *  Tokens with spaces are delimited by pipes. This code is not perfect because without starting from the beginning of the entire text
+     *  we can't be sure whether a click is inside or outside a pipe. We make the simplifying assumption that it's ok to just start at the
+     *  beginning of the line (which is probably correct 99.9% of the time). Then we walk forward, tokenizing until we get to the token
+     *  that contains the clicked character. From there we can get the previous and next tokens by walking forward and back one token.
+     */
     protected void parseTokens()
     {
-        int len = m_FullText.length();
+        // we're going to limit the search to the current line to avoid finding attributes arbitrarily far back in the trace
+        int[] currentLineBounds = getCurrentLineBounds();
+        String currentLine = m_FullText.substring(currentLineBounds[0], currentLineBounds[1]);
+        
+        // get the location of the click in the current line
+        int currentLineSelection = m_SelectionStart - currentLineBounds[0];
+        
+        int len = currentLine.length();
         
         // Start by skipping over any white space to get to real content
-        while(m_SelectionStart < len && isWhiteSpace(m_FullText.charAt(m_SelectionStart)))
-        {
-            m_SelectionStart++;
-        }
+        currentLineSelection = nextNonWhitespaceCharIndex(currentLine, currentLineSelection);
         
-        if(m_SelectionStart == len)
+        if(currentLineSelection == len)
         {
             return;
         }
         
-        int startPos = m_SelectionStart;
-        
-        // Move back to the space at the start of the current token
-        int back1 = lastIndexOfSet(m_FullText, kWhiteSpaceChars, startPos);
-        
-        // Now move back to the space at the start of the previous token
-        int back2 = lastIndexOfSet(m_FullText, kWhiteSpaceChars, back1 - 1);
-        
-        // Move to the space at the end of the current token
-        int fore1 = indexOfSet(m_FullText, kWhiteSpaceChars, startPos);
-        
-        // Move to the space at the end of the next token
-        int fore2 = indexOfSet(m_FullText, kWhiteSpaceChars, fore1 + 1);
-        
-        // Handle the end correctly
-        if(fore1 == -1)
+        // get the first token
+        int[] currentTokenBounds = getNextTokenBounds(currentLine, 0);
+        if(currentTokenBounds != NOT_FOUND)
         {
-            fore1 = m_FullText.length();
+            // iterate until we find the token that the selection is in
+            while(currentLineSelection > currentTokenBounds[1])
+            {
+                currentTokenBounds = getNextTokenBounds(currentLine, currentTokenBounds[1] + 1);
+            }
         }
-        if(fore2 == -1)
+        else
         {
-            fore2 = m_FullText.length();
+            // there was no preceding attribute start. Since we have nothing to anchor on, we'll assume that the current token does not have spaces.
+            final int currentTokenStart = lastIndexOfSet(currentLine, kWhiteSpaceChars, currentLineSelection) + 1; // add 1 because don't want to include whitespace in token
+            final int currentTokenEnd = indexOfSet(currentLine, kWhiteSpaceChars, currentLineSelection);
+            // careful! can't just change the values in currentTokenBounds, because it's pointing to NOT_FOUND. Need to make a new array.
+            currentTokenBounds = new int[] {currentTokenStart, currentTokenEnd};
         }
         
-        // Extract the three tokens
-        if(back1 != -1)
+        // parsing failed -- not clear how this can happen
+        if(currentTokenBounds == NOT_FOUND)
         {
-            m_Tokens[K_PREV_TOKEN] = m_FullText.substring(back2 + 1, back1);
-        }
-        if(fore2 != -1 && fore1 < fore2)
-        {
-            m_Tokens[K_NEXT_TOKEN] = m_FullText.substring(fore1 + 1, fore2);
-        }
-        if(fore1 != -1)
-        {
-            m_Tokens[K_CURR_TOKEN] = m_FullText.substring(back1 + 1, fore1);
+            return;
         }
         
-        // System.out.println(toString()) ;
+        // set the current token
+        m_Tokens[K_CURR_TOKEN] = currentLine.substring(currentTokenBounds[0], currentTokenBounds[1]);
+        
+        // try to get the previous and next tokens
+        // if there aren't any then we will leave those tokens null
+        int[] prevTokenBounds = getPrevTokenBounds(currentLine, currentTokenBounds[0] - 1);
+        int[] nextTokenBounds = getNextTokenBounds(currentLine, currentTokenBounds[1]);
+        if(prevTokenBounds != NOT_FOUND)
+        {
+            m_Tokens[K_PREV_TOKEN] = currentLine.substring(prevTokenBounds[0], prevTokenBounds[1]);
+        }
+        if(nextTokenBounds != NOT_FOUND)
+        {
+            m_Tokens[K_NEXT_TOKEN] = currentLine.substring(nextTokenBounds[0], nextTokenBounds[1]);
+        }
+        
+        // toString involves looping, so let's avoid it if we don't need it
+        if(LOG.isTraceEnabled())
+        {
+            LOG.trace(toString());
+        }
+    }
+    
+    
+    private static final int[] NOT_FOUND = {-1, -1};
+    
+    private int[] getCurrentLineBounds() {
+        int lineStart = m_FullText.lastIndexOf('\n', m_SelectionStart);
+        if(lineStart == -1)
+        {
+            lineStart = 0;
+        }
+        
+        int lineEnd = m_FullText.indexOf("\n", m_SelectionStart);
+        if(lineEnd == -1)
+        {
+            lineEnd = m_FullText.length();
+        }
+        return new int[] {lineStart, lineEnd};
+    }
+    
+    int nextNonWhitespaceCharIndex(String text, int startPos) {
+        final int len = text.length();
+        while(startPos < len && isWhiteSpace(text.charAt(startPos)))
+        {
+            startPos++;
+        }
+        
+        return startPos;
+    }
+    
+    int prevNonWhitespaceCharIndex(String text, int endPos) {
+        
+        while(endPos >= 0 && isWhiteSpace(text.charAt(endPos)))
+        {
+            endPos--;
+        }
+        
+        return endPos;
+    }
+    
+    private int[] getNextTokenBounds(String text, int startPos)
+    {
+        final int tokenStart = nextNonWhitespaceCharIndex(text, startPos);
+        if(tokenStart == text.length())
+        {
+            return NOT_FOUND;
+        }
+        
+        final int tokenEnd = getTokenEnd(text, tokenStart);
+        
+        return new int[] {tokenStart, tokenEnd};
+        
+    }
+    
+    private int getTokenEnd(String text, int tokenStart)
+    {
+        int tokenEnd;
+        int curCharIndex = tokenStart;
+        if(text.charAt(curCharIndex) == '^')
+        {
+            // start of an attribute, go to next character
+            curCharIndex++;
+        }
+        if(text.charAt(curCharIndex) == '|')
+        {
+            // token wrapped in pipes, end is next pipe
+            tokenEnd = text.indexOf('|', curCharIndex + 1) + 1; // add one to get past the ending pipe
+        }
+        else
+        {
+            // token ends at whitespace
+            tokenEnd = indexOfSet(text, kWhiteSpaceChars, tokenStart + 1);
+        }
+        
+        if(tokenEnd == -1)
+        {
+            // somehow we didn't find the end of the token, so set it to the end of the line instead
+            tokenEnd = text.length();
+        }
+        return tokenEnd;
+    }
+    
+    private int getTokenStart(String text, int tokenEnd)
+    {
+        int tokenStart;
+        if(text.charAt(tokenEnd) == '|')
+        {
+            // token wrapped in pipes, start is prev pipe
+            tokenStart = text.lastIndexOf('|', tokenEnd - 1);
+            if(tokenStart > 0 && text.charAt(tokenStart - 1) == '^')
+            {
+                // it's an attribute, include the ^
+                tokenStart--;
+            }
+        }
+        else
+        {
+            // token starts at whitespace
+            tokenStart = lastIndexOfSet(text, kWhiteSpaceChars, tokenEnd - 1) + 1; // add 1 because we don't want to include the space in the token
+        }
+        
+        if(tokenStart == -1)
+        {
+            // somehow we didn't find the end of the token, so set it to the end of the line instead
+            tokenStart = 0;
+        }
+        return tokenStart;
+    }
+    
+    private int [] getPrevTokenBounds(String text, int endPos)
+    {
+        if(endPos == 0)
+        {
+            return NOT_FOUND;
+        }
+        final int prevTokenEnd = prevNonWhitespaceCharIndex(text, endPos);
+        if(prevTokenEnd == -1)
+        {
+            // only whitespace left before
+            return NOT_FOUND;
+        }
+        final int prevTokenStart = getTokenStart(text, prevTokenEnd);
+        return new int[] {prevTokenStart, prevTokenEnd + 1}; // have to add 1 because substring end is non-inclusive
     }
 }
