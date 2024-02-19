@@ -213,11 +213,11 @@ public class ParseSelectedText
     
     // Soar functions on triplets (ID ^att value) so we often need to parse
     // the tokens before and after the current selection position
-    protected final static int K_PREV_TOKEN = 0;
-    protected final static int K_CURR_TOKEN = 1;
-    protected final static int K_NEXT_TOKEN = 2;
+    protected static final int K_PREV_TOKEN = 0;
+    protected static final int K_CURR_TOKEN = 1;
+    protected static final int K_NEXT_TOKEN = 2;
     protected String[] m_Tokens = new String[3];
-    protected final char[] kWhiteSpaceChars = { ' ', '|', '\n', '\r', ')', '(', '{', '}' };
+    protected static final char[] kWhiteSpaceChars = { ' ', '\n', '\r', ')', '(', '{', '}' };
     
     // The raw values
     protected String m_FullText;
