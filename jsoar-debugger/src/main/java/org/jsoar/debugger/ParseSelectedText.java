@@ -222,7 +222,7 @@ public class ParseSelectedText
     protected static final int K_CURR_TOKEN = 1;
     protected static final int K_NEXT_TOKEN = 2;
     protected String[] m_Tokens = new String[3];
-    protected static final char[] kWhiteSpaceChars = { ' ', '\n', '\r', ')', '(', '{', '}' };
+    protected static final char[] WHITE_SPACE_CHARS = { ' ', '\n', '\r', ')', '(', '{', '}' };
     
     // The raw values
     protected String m_FullText;
@@ -455,7 +455,7 @@ public class ParseSelectedText
     
     protected boolean isWhiteSpace(char ch)
     {
-        for(char kWhiteSpaceChar : kWhiteSpaceChars)
+        for(char kWhiteSpaceChar : WHITE_SPACE_CHARS)
         {
             if(kWhiteSpaceChar == ch)
             {
@@ -506,8 +506,8 @@ public class ParseSelectedText
         else
         {
             // there was no preceding attribute start. Since we have nothing to anchor on, we'll assume that the current token does not have spaces.
-            final int currentTokenStart = lastIndexOfSet(currentLine, kWhiteSpaceChars, currentLineSelection) + 1; // add 1 because don't want to include whitespace in token
-            final int currentTokenEnd = indexOfSet(currentLine, kWhiteSpaceChars, currentLineSelection);
+            final int currentTokenStart = lastIndexOfSet(currentLine, WHITE_SPACE_CHARS, currentLineSelection) + 1; // add 1 because don't want to include whitespace in token
+            final int currentTokenEnd = indexOfSet(currentLine, WHITE_SPACE_CHARS, currentLineSelection);
             // careful! can't just change the values in currentTokenBounds, because it's pointing to NOT_FOUND. Need to make a new array.
             currentTokenBounds = new int[] {currentTokenStart, currentTokenEnd};
         }
@@ -544,7 +544,8 @@ public class ParseSelectedText
     
     private static final int[] NOT_FOUND = {-1, -1};
     
-    private int[] getCurrentLineBounds() {
+    private int[] getCurrentLineBounds()
+    {
         int lineStart = m_FullText.lastIndexOf('\n', m_SelectionStart);
         if(lineStart == -1)
         {
@@ -559,7 +560,8 @@ public class ParseSelectedText
         return new int[] {lineStart, lineEnd};
     }
     
-    int nextNonWhitespaceCharIndex(String text, int startPos) {
+    private int nextNonWhitespaceCharIndex(String text, int startPos)
+    {
         final int len = text.length();
         while(startPos < len && isWhiteSpace(text.charAt(startPos)))
         {
@@ -569,7 +571,8 @@ public class ParseSelectedText
         return startPos;
     }
     
-    int prevNonWhitespaceCharIndex(String text, int endPos) {
+    private int prevNonWhitespaceCharIndex(String text, int endPos)
+    {
         
         while(endPos >= 0 && isWhiteSpace(text.charAt(endPos)))
         {
@@ -610,7 +613,7 @@ public class ParseSelectedText
         else
         {
             // token ends at whitespace
-            tokenEnd = indexOfSet(text, kWhiteSpaceChars, tokenStart + 1);
+            tokenEnd = indexOfSet(text, WHITE_SPACE_CHARS, tokenStart + 1);
         }
         
         if(tokenEnd == -1)
@@ -637,7 +640,7 @@ public class ParseSelectedText
         else
         {
             // token starts at whitespace
-            tokenStart = lastIndexOfSet(text, kWhiteSpaceChars, tokenEnd - 1) + 1; // add 1 because we don't want to include the space in the token
+            tokenStart = lastIndexOfSet(text, WHITE_SPACE_CHARS, tokenEnd - 1) + 1; // add 1 because we don't want to include the space in the token
         }
         
         if(tokenStart == -1)
