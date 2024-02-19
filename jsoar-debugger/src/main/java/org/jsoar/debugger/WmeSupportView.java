@@ -20,8 +20,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.jdesktop.swingx.JXList;
 import org.jdesktop.swingx.JXTable;
@@ -70,19 +68,14 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
         this.entryList.setHighlighters(HighlighterFactory.createAlternateStriping());
         this.entryList.setCellRenderer(new CellRenderer());
         this.entryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        this.entryList.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-        {
-            
-            @Override
-            public void valueChanged(ListSelectionEvent e)
+        this.entryList.getSelectionModel().addListSelectionListener(e ->
             {
                 if(e.getValueIsAdjusting())
                 {
                     return;
                 }
                 tableSelectionChange();
-            }
-        });
+            });
         
         this.wmeTable.setHighlighters(HighlighterFactory.createAlternateStriping());
         this.wmeTable.setShowGrid(false);
