@@ -1,8 +1,9 @@
 package org.jsoar.kernel.rhs.functions;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
-import org.jsoar.kernel.LogManager;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
@@ -13,6 +14,8 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class Timestamp extends AbstractRhsFunctionHandler
 {
+    private final SimpleDateFormat timestampFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    
     /**
      * Construct a new timestamp RHS function
      * generator.
@@ -32,7 +35,7 @@ public class Timestamp extends AbstractRhsFunctionHandler
             throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
-        return context.getSymbols().createString(LogManager.getTimestamp());
+        return context.getSymbols().createString(this.timestampFormatter.format(new Date(System.currentTimeMillis())));
     }
     
 }

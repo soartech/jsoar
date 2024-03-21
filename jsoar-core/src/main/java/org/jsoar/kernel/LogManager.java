@@ -28,9 +28,7 @@ public class LogManager
     private final Map<String, Logger> loggers = new HashMap<>();
     private final Set<String> disabledLoggers = new HashSet<>();
     
-    // private RhsFunctionHandler handler = null;
-    
-    static private final SimpleDateFormat TIMESTAMP_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private final SimpleDateFormat timestampFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     
     public class LoggerException extends Exception
     {
@@ -48,7 +46,7 @@ public class LogManager
         disk("DISK"),
         stack("STACK");
         
-        static private Map<String, SourceLocationMethod> sourceLocationMethodStrings;
+        private static Map<String, SourceLocationMethod> sourceLocationMethodStrings;
         static
         {
             sourceLocationMethodStrings = new HashMap<String, SourceLocationMethod>();
@@ -63,7 +61,7 @@ public class LogManager
             this.stringValue = stringValue;
         }
         
-        static public SourceLocationMethod fromString(String sourceLocationMethod)
+        public static SourceLocationMethod fromString(String sourceLocationMethod)
         {
             SourceLocationMethod val = sourceLocationMethodStrings.get(sourceLocationMethod.toUpperCase());
             if(val == null)
@@ -88,7 +86,7 @@ public class LogManager
         warn("WARN", 4),
         error("ERROR", 5);
         
-        static private Map<String, LogLevel> logLevelStrings;
+        private static Map<String, LogLevel> logLevelStrings;
         static
         {
             logLevelStrings = new HashMap<String, LogLevel>();
@@ -108,7 +106,7 @@ public class LogManager
             this.numericValue = numericValue;
         }
         
-        static public LogLevel fromString(String logLevel)
+        public static LogLevel fromString(String logLevel)
         {
             LogLevel val = logLevelStrings.get(logLevel.toUpperCase());
             if(val == null)
@@ -136,7 +134,7 @@ public class LogManager
         simple("SIMPLE"),
         on("ON");
         
-        static private Map<String, EchoMode> echoModeStrings;
+        private static Map<String, EchoMode> echoModeStrings;
         static
         {
             echoModeStrings = new HashMap<String, EchoMode>();
@@ -152,7 +150,7 @@ public class LogManager
             this.stringValue = stringValue;
         }
         
-        static public EchoMode fromString(String echoMode)
+        public static EchoMode fromString(String echoMode)
         {
             EchoMode val = echoModeStrings.get(echoMode.toUpperCase());
             if(val == null)
@@ -320,9 +318,9 @@ public class LogManager
         return Joiner.on(collapse ? "" : " ").join(args);
     }
     
-    public static String getTimestamp()
+    public String getTimestamp()
     {
-        return TIMESTAMP_FORMATTER.format(new Date(System.currentTimeMillis()));
+        return this.timestampFormatter.format(new Date(System.currentTimeMillis()));
     }
     
     public boolean isActive()
