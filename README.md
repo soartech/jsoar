@@ -1,5 +1,5 @@
 [![license](https://img.shields.io/badge/license-BSD--3-green)](https://github.com/soartech/jsoar/blob/maven/LICENSE.txt)
-![version](https://img.shields.io/badge/jsoar-5.1.0-blue)
+![version](https://img.shields.io/badge/jsoar-5.1.1-blue)
 
 [![javadoc-jsoar-core](https://img.shields.io/badge/javadoc-jsoar--core-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-core) 
 [![javadoc-jsoar-tcl](https://img.shields.io/badge/javadoc-jsoar--tcl-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-tcl) 
@@ -163,4 +163,4 @@ If everything is good, you can do a `mvn release:clean` to remove all the interm
 Don't forget to update the version badge at the top of the readme.
 
 # Acknowledgments / History
-JSoar was originally envisioned and implemented by Dave Ray (and indeed, the vast majority of the code is still Dave's). JSoar started out on Google Code in SVN, was converted to Mercurial and then Git, and then moved to [Dave's github site](https://github.com/daveray/). Today JSoar is primarily maintained by Soar Technology, Inc.
+JSoar was originally envisioned and implemented by Dave Ray (and indeed, the vast majority of the code is still Dave's). JSoar started out on Google Code in SVN, was converted to Mercurial and then Git, and then moved to [Dave's github site](https://github.com/daveray/). Today JSoar is primarily maintained by Soar Technology LLC.
