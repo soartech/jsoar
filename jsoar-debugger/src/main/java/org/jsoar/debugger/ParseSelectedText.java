@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class ParseSelectedText
 {
     
-    private static Logger LOG = LoggerFactory.getLogger(ParseSelectedText.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParseSelectedText.class);
     
     public abstract static class SelectedObject
     {
