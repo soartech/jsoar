@@ -9,14 +9,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -163,6 +167,42 @@ public class ThreadedAgentTest
             }
         }
         
+    }
+    
+    @Test
+    void testExecuteAndWaitSuccess() throws InterruptedException, ExecutionException, TimeoutException {
+        
+        final ThreadedAgent agent = ThreadedAgent.create();
+        
+        final AtomicBoolean called = new AtomicBoolean(false);
+        agent.executeAndWait(() -> {
+            called.set(true);
+            return null;
+        }, 5, TimeUnit.SECONDS);
+        
+        assertTrue(called.get());
+    }
+    
+    @Test
+    void testExecuteAndWaitTimeout() throws InterruptedException, ExecutionException {
+        
+        final ThreadedAgent agent = ThreadedAgent.create();
+        
+        final AtomicBoolean timedOut = new AtomicBoolean(false);
+        try
+        {
+            agent.executeAndWait(() -> {
+                // intentionally wait long enough to cause a timeout
+                Thread.sleep(Duration.ofSeconds(10).toMillis());
+                return null;
+            }, 1, TimeUnit.SECONDS);
+        }
+        catch(TimeoutException e)
+        {
+            timedOut.set(true);
+        }
+        
+        assertTrue(timedOut.get());
     }
     
     /*
