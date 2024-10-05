@@ -249,7 +249,7 @@ public abstract class AbstractSoarDatabase
             in.close();
         }
         
-        String tempString = temp.toString(StandardCharsets.UTF_8);
+        String tempString = temp.toString(StandardCharsets.UTF_8.name());
         for(Map.Entry<String, String> entry : replacements.entrySet())
         {
             tempString = tempString.replace(entry.getKey(), entry.getValue());
