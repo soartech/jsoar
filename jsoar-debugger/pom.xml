@@ -12,38 +12,31 @@
         <dependency>
             <groupId>org.tros</groupId>
             <artifactId>docking-frames-common</artifactId>
-            <version>1.1.2-P19c</version>
         </dependency>
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-core</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.swinglabs.swingx</groupId>
             <artifactId>swingx-all</artifactId>
-            <version>1.6.5-1</version>
         </dependency>
         <dependency>
             <groupId>com.google.re2j</groupId>
             <artifactId>re2j</artifactId>
-            <version>${re2j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-tcl</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
+            <scope>compile</scope> <!-- override the default test scope from the base pom -->
         </dependency>
     </dependencies>
     

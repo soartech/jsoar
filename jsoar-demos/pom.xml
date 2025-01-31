@@ -12,12 +12,10 @@
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-core</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-debugger</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

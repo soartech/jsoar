@@ -8,11 +8,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jsoar-legilimens</artifactId>
     
-    <properties>
-        <freemarker.version>2.3.32</freemarker.version>
-        <restlet.verison>2.4.3</restlet.verison>
-    </properties>
-
     <repositories>
         <repository>
             <id>maven-restlet</id>
@@ -25,33 +20,18 @@
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-core</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
-            <version>${freemarker.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.restlet.jse</groupId>
-            <artifactId>org.restlet</artifactId>
-            <version>${restlet.verison}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.restlet.jse</groupId>
             <artifactId>org.restlet.ext.freemarker</artifactId>
-            <version>${restlet.verison}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
         </dependency>
     </dependencies>
 </project>

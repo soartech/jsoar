@@ -12,12 +12,10 @@
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-core</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.dronox</groupId>
             <artifactId>jtcl</artifactId>
-            <version>2.9.4</version>
         </dependency>
     </dependencies>
 

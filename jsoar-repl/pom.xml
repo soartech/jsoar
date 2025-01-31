@@ -17,20 +17,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.version}</version>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>info.picocli</groupId>
-                            <artifactId>picocli-codegen</artifactId>
-                            <version>${picocli.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                    <compilerArgs>
-                        <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
-                        <arg>-Aother.resource.patterns=db/.*|static/.*|templates/.*|.*.yml|.*.xml|.*/org/sqlite/.*|org/sqlite/.*</arg>
-                    </compilerArgs>
-                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -106,12 +92,10 @@
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-core</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-tcl</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         
         <!-- This is needed to specify the "provided" part, so the graal native image compiler stuff doesn't end up in the executable -->
