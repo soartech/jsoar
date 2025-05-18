@@ -72,7 +72,7 @@
     <repositories>
         <repository>
             <id>repo</id>
-            <url>file://${project.baseUri}/sml-setup/repo</url>
+            <url>${project.basedir}/sml-setup/repo</url>
             <releases>
                 <updatePolicy>always</updatePolicy>
             </releases>
