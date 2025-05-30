@@ -1,6 +1,6 @@
-rem this file sets up the pulse pysio engine stuff in the project
-rem it should only need to be run when a new version of pulse is released
-rem this is windows-specific; this would need to be ported to other platforms (e.g., to copy .so's instead .dll's)
+rem this file sets up the sml dependency in the project
+rem it should only need to be run when needing to update to a new version of sml
+rem this is windows-specific; this would need to be ported to other platforms to run elsewhere
 
 set SML_VERSION=9.6.0
 set SML_BIN=%HOMEDRIVE%%HOMEPATH%\SoarTutorial_9.6.0-Multiplatform_64bit\bin\java
