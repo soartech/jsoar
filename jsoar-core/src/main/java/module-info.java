@@ -1,7 +1,7 @@
 module org.jsoar.core
 {
     requires com.google.common;
-    requires commons.beanutils;
+    requires org.apache.commons.beanutils;
     requires commons.math3;
     requires transitive info.picocli;
     requires java.desktop;
