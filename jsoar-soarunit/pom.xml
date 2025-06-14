@@ -72,7 +72,7 @@
     <repositories>
         <repository>
             <id>repo</id>
-            <url>${project.basedir}/sml-setup/repo</url>
+            <url>file://${project.basedir}/sml-setup/repo</url>
             <releases>
                 <updatePolicy>always</updatePolicy>
             </releases>
