@@ -42,7 +42,7 @@
 
         <!-- dependency versions used in multiple places -->
         <graalvm.version>22.3.3</graalvm.version>
-        <jackson.version>2.19.0</jackson.version>
+        <jackson.version>2.21.5</jackson.version>
         <picocli.version>4.7.7</picocli.version>
         <slf4j.version>2.0.17</slf4j.version>
 
